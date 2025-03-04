@@ -1,0 +1,13 @@
+# 공통적으로 무시할 파일
+.DS_Store
+Thumbs.db
+*.log
+*.env
+
+# 프론트엔드(`whichmenu_frontend`) 관련 무시할 파일
+whichmenu_frontend/node_modules/
+whichmenu_frontend/dist/
+
+# 백엔드(`whichmenu_backend`) 관련 무시할 파일
+whichmenu_backend/target/
+whichmenu_backend/*.iml

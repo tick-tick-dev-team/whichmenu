@@ -44,3 +44,11 @@ cd whichmenu_frontend
 # 패키지가 설치되어 있지 않다면 npm install 명령어 실행
 # 이미 한적이 있다면 npm update 실행 가능
 npm run dev
+```
+
+### 백엔드 실행 방법
+```sh
+# 초기세팅  : whichmneu_backend 프로젝트 우클릭 > Gradle > Refresh Gradle Project
+# 서버 실행 : 프로젝트 우클릭 > Run As > Spring Boot App
+# 서버가 제대로 돌아가고 있는지 테스트 홈 화면 접속하기 "https://localhost:8080" > Console에 관리자 정보가 찍히면 DB까지 연결 성공
+```

@@ -34,7 +34,7 @@ whichmenu/
 | npm | `npm -v` | `10.9.0` |
 | Java | `java -version` | `23.0.1(Oracle JDK, HotSpot VM)` |
 | Gradle | `gradle -v` |  |
-| spring | `spring --version` | 3.4.3 |
+| spring boot | `spring --version` | `3.4.3` |
 | Vite | `npm list vue` | `3.5.13` |
 
 

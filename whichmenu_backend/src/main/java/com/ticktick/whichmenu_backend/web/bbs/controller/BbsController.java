@@ -18,5 +18,7 @@ public class BbsController {
 	public BbsController(@Qualifier("bbsServiceImpl") BbsService bbsService) {
 		this.bbsService = bbsService;
 	}
+	
+	/* 수정되는 테스트용 */
 
 }

@@ -5,6 +5,6 @@ package com.ticktick.whichmenu_backend.web.rest.service;
  * 
  * */
 
-public interface RestService {
+public interface RestInfoService {
 
 }

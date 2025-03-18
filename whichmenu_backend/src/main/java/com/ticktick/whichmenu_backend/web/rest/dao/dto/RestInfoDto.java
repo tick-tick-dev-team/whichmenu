@@ -5,12 +5,12 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * 식단 정보 DTO
+ * 식당 정보 DTO
  * 
  * */
 @Data
 @Getter
 @Setter
-public class RestMealDto {
+public class RestInfoDto {
 
 }

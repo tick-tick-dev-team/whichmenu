@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD MyBatis Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ticktick.whichmenu_backend.web.rest.dao.RestInfoDAO">
+    
+    <!-- 예시 -->
+    <select id="selectAll" resultType="com.ticktick.whichmenu_backend.web.rest.dao.dto.RestInfoDto">
+        SELECT * FROM REST_INFO
+    </select>
+    
+    
+    
+    
+    
+</mapper>

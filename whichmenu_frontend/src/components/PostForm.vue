@@ -14,7 +14,7 @@ const submitPost = () => {
 
 <template>
   <div class="post-form">
-    <textarea v-model="postContent" placeholder="글을 입력하세요"></textarea>
+    <v-text-field label="글을 입력하세요" variant="outlined" class="input-box"></v-text-field>
     <button @click="submitPost">글 등록하기</button>
   </div>
 </template>

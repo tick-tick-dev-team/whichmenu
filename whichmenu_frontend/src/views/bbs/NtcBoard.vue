@@ -12,8 +12,15 @@ const notices = ref([
 
 <template>
   <div class="bbs-container">
-    <NavMenu /> <!-- 햄버거 메뉴 추가 -->
-    <h1>공지</h1>
+    <!-- 햄버거 메뉴 -->
+    <div class="menu-row">
+      <NavMenu />
+    </div> 
+    <!-- 로고 텍스트 -->
+    <div class="logo-row">
+      <h1>공지</h1>
+    </div>
+    
     <PostForm @submitPost="(content) => notices.push({ id: new Date().getTime(), content, author: '관리자', createdAt: new Date().toISOString().split('T')[0] })" />
     
     <div v-for="notice in notices" :key="notice.id">
@@ -24,18 +31,44 @@ const notices = ref([
 
 <style scoped>
 .bbs-container {
-  background-color: white; /* 메뉴 배경색 */
+  background-color: #ffffff;
   min-height: 100vh;
-  padding: 20px;
-  position: relative;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
+/* 로고 줄 */
+.logo-row {
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.logo-row h1 {
+  font-size: 1.8rem;
+  font-weight: bold;
+  margin: 0;
+  text-align: left; /* 좌측 정렬 */
+}
+
+/* 메뉴 줄 */
+.menu-row {
+  position: relative; /* ✅ 이거 꼭 있어야 함! */
+  width: 100%;
+  display: flex;
+  justify-content: flex-end; /* 우측 정렬 */
+  margin-bottom: 16px;
+}
+
+/* 게시판 컨텐츠 */
 .board {
-  background-color: white; /* 게시판 내용은 흰색 */
-  padding: 20px;
-  border-radius: 10px;
+  background-color: white;
+  padding: 16px;
+  border-radius: 12px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  max-width: 800px;
-  margin: auto;
+  width: 100%;
 }
 </style>

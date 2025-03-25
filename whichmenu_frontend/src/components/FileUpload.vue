@@ -15,6 +15,7 @@ const handleFileUpload = (event) => {
 
 const cancelUpload = () => {
   file.value = null;
+  file.name = null;
   previewUrl.value = null;
 };
 </script>
@@ -31,6 +32,7 @@ const cancelUpload = () => {
 
         <!-- 업로드 버튼 -->
         <v-file-input
+          v-model="file"
           label="사진 업로드"
           accept="image/*"
           @change="handleFileUpload"

@@ -30,8 +30,8 @@ whichmenu/
 ### 버전
 | 도구 | 버전 확인 명령어 | 현재 사용 버전 |
 |------|----------------|---------------|
-| Node.js | `node -v` | `v10.9.0` |
-| npm | `npm -v` | `10.9.0` |
+| Node.js | `node -v` | `v22.12.0` |
+| npm | `npm -v` | `v10.9.0` |
 | Java | `java -version` | `23.0.1(Oracle JDK, HotSpot VM)` |
 | Gradle | `gradle -v` |  |
 | spring boot | `spring --version` | `3.4.3` |

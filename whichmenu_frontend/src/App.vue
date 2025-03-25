@@ -3,9 +3,9 @@ import { RouterView } from 'vue-router';
 </script>
 
 <template>
-  <div>
+  <v-app> <!-- Vuetify의 스타일이 적용될 수 있도록-->
     <RouterView />
-  </div>
+  </v-app>
 </template>
 <!-- <script setup>
 import HelloWorld from './components/HelloWorld.vue'

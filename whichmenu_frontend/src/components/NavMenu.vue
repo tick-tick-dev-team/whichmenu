@@ -1,3 +1,4 @@
+<!-- NavMenu.vue -->
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
@@ -12,11 +13,8 @@ const navigate = (path) => {
 </script>
 
 <template>
-  <div>
-    <!-- 햄버거 버튼 -->
+  <div class="nav-wrapper">
     <button class="hamburger" @click="isOpen = !isOpen">☰</button>
-
-    <!-- 네비게이션 메뉴 -->
     <div v-if="isOpen" class="nav-menu">
       <ul>
         <li @click="navigate('/')">식단</li>
@@ -29,40 +27,49 @@ const navigate = (path) => {
 </template>
 
 <style scoped>
+.nav-wrapper {
+  position: relative; /* 기준이 되는 부모 */
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+}
+
+/* 햄버거 버튼 */
 .hamburger {
-  position: absolute;
-  top: 10px;
-  right: 10px; /* 🚀 오른쪽 상단으로 이동 */
   font-size: 24px;
   background: none;
   border: none;
   cursor: pointer;
-  z-index: 1000; /* 🚀 다른 요소 위에 표시 */
+  z-index: 10;
 }
 
+/* 메뉴: 버튼 아래에 착 붙기 */
 .nav-menu {
   position: absolute;
-  top: 50px;
-  right: 10px;
+  top: 100%; /* 버튼 바로 아래 */
+  right: 0;
   background-color: #f5ecf5;
   padding: 10px;
-  border-radius: 5px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  z-index: 999; /* 🚀 햄버거 버튼보다 낮은 값 */
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 5;
+  width: max-content;
 }
 
 .nav-menu ul {
   list-style: none;
+  margin: 0;
   padding: 0;
 }
 
 .nav-menu li {
-  padding: 10px;
+  padding: 8px 12px;
   cursor: pointer;
+  white-space: nowrap;
 }
 
 .nav-menu li:hover {
-  background-color: #ddd;
+  background-color: #e0d7e0;
 }
-</style>
 
+</style>

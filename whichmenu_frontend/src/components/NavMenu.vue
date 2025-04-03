@@ -49,7 +49,7 @@ const navigate = (path) => {
   top: 100%; /* 버튼 바로 아래 */
   right: 0;
   background-color: #f5ecf5;
-  padding: 10px;
+  padding: 3px;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   z-index: 5;

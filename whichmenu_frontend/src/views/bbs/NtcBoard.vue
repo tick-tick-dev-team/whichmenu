@@ -13,13 +13,10 @@ const notices = ref([
 <template>
   <div class="bbs-container">
     <!-- 햄버거 메뉴 -->
-    <div class="menu-row">
-      <NavMenu />
-    </div> 
+    <NavMenu />
+    
     <!-- 로고 텍스트 -->
-    <div class="logo-row">
-      <h1>공지</h1>
-    </div>
+    <h2>공지</h2>
     
     <PostForm @submitPost="(content) => notices.push({ id: new Date().getTime(), content, author: '관리자', createdAt: new Date().toISOString().split('T')[0] })" />
     
@@ -31,44 +28,18 @@ const notices = ref([
 
 <style scoped>
 .bbs-container {
-  background-color: #ffffff;
+  background-color: #ffffff; /* 메뉴 배경색 */
   min-height: 100vh;
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  max-width: 600px;
-  margin: 0 auto;
+  padding: 20px;
+  position: relative;
 }
 
-/* 로고 줄 */
-.logo-row {
-  width: 100%;
-  margin-bottom: 8px;
-}
-
-.logo-row h1 {
-  font-size: 1.8rem;
-  font-weight: bold;
-  margin: 0;
-  text-align: left; /* 좌측 정렬 */
-}
-
-/* 메뉴 줄 */
-.menu-row {
-  position: relative; /* ✅ 이거 꼭 있어야 함! */
-  width: 100%;
-  display: flex;
-  justify-content: flex-end; /* 우측 정렬 */
-  margin-bottom: 16px;
-}
-
-/* 게시판 컨텐츠 */
 .board {
-  background-color: white;
-  padding: 16px;
-  border-radius: 12px;
+  background-color: white; /* 게시판 내용은 흰색 */
+  padding: 20px;
+  border-radius: 10px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  width: 100%;
+  max-width: 800px;
+  margin: auto;
 }
 </style>

@@ -1,7 +1,6 @@
 // 문의게시판
 <script setup>
 import PostForm from '@/components/PostForm.vue';
-import FileUpload from '@/components/FileUpload.vue';
 import PostList from '@/components/PostList.vue';
 import CmntList from '@/components/CmntList.vue';
 import NavMenu from '@/components/NavMenu.vue';
@@ -32,9 +31,8 @@ const addComment = (postId, comment) => {
   <div class="bbs-container">
     <NavMenu /> <!-- 햄버거 메뉴 추가 -->
     
-    <h1>문의게시판</h1>
+    <h2>문의게시판</h2>
     <PostForm @submitPost="(content) => inquiries.push({ id: new Date().getTime(), content, author: '익명', createdAt: new Date().toISOString().split('T')[0], comments: [] })" />
-	<FileUpload></FileUpload>
     <div v-for="inquiry in inquiries" :key="inquiry.id">
       <PostList :post="inquiry" />
       <CmntList :comments="inquiry.comments" boardType="inquiry" @addComment="(comment) => addComment(inquiry.id, comment)" />

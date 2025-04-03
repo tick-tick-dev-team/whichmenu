@@ -1,5 +1,6 @@
 // 글 작성 폼 (맛집, 공지, 문의 게시판 공통)
 <script setup>
+import FileUpload from '@/components/FileUpload.vue';
 import { ref } from 'vue';
 
 const postContent = ref('');
@@ -22,6 +23,7 @@ const submitPost = () => {
         variant="outlined"
         class="input-box"
       ></v-text-field>
+      <FileUpload></FileUpload>
       <v-btn variant="outlined" @click="submitPost">글 등록하기</v-btn>
     
   </div>

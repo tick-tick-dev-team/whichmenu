@@ -52,7 +52,6 @@ const cancelUpload = () => {
 <style scoped>
 .upload-container {
   max-width: 400px;
-  margin: auto;
 }
 
 .upload-card {

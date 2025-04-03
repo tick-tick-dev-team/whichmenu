@@ -26,28 +26,32 @@ public class BbsServiceImpl implements BbsService {
 	}
 
 	@Override
-	public List<BbsDto> selectAllBbs() {
-		return null;
+	public List<BbsDto> selectAllBbs(BbsDto inputDto) {
+		List<BbsDto> bbsListDto = bbsDao.selectAllBbs(inputDto);	
+		return bbsListDto;
 	}
 
 	@Override
 	public BbsDto selectOne(BbsDto bbsDto) {
-		return null;
+		
+		BbsDto rsltDto = new BbsDto();
+		rsltDto = bbsDao.selectOneBbs(bbsDto);
+		return rsltDto;
 	}
 
 	@Override
 	public void insertBbs(BbsDto bbsDto) {
-		
+		bbsDao.insertBbs(bbsDto);
 	}
 
 	@Override
 	public void updateBbs(BbsDto bbsDto) {
-		
+		bbsDao.updateBbs(bbsDto);
 	}
 
 	@Override
 	public void deleteBbs(BbsDto bbsDto) {
-		
+		bbsDao.deleteBbs(bbsDto);
 	}
 
 }

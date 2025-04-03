@@ -6,7 +6,7 @@ import com.ticktick.whichmenu_backend.web.bbs.dao.dto.BbsDto;
 
 public interface BbsService {
 	
-	public List<BbsDto> selectAllBbs();
+	public List<BbsDto> selectAllBbs(BbsDto bbsDto);
 	
 	public BbsDto selectOne(BbsDto bbsDto);
 	

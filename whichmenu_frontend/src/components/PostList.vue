@@ -7,14 +7,15 @@ defineProps({
 <template>
   <v-card class="post-item" outlined>
     <v-card-text>
-      <p class="post-content">{{ post.content }}</p>
+      <p class="post-content">{{ post.bbsTtl }}</p>
+      <p class="post-content">{{ post.bbsCn }}</p>
       <div class="post-meta">
-        <span>{{ post.author }} - {{ post.createdAt }}</span>
+        <span>{{ post.regNm }} - {{ post.regDt }}</span>
       </div>
 
       <div class="post-actions">
-        <v-btn size="x-small" variant="text" @click="emit('editComment', comment.id)">수정</v-btn>
-        <v-btn size="x-small" variant="text" color="error" @click="emit('deleteComment', comment.id)">삭제</v-btn>
+        <v-btn size="x-small" variant="text" @click="emit('editComment', comment.bbsId)">수정</v-btn>
+        <v-btn size="x-small" variant="text" color="error" @click="emit('deleteComment', comment.bbsId)">삭제</v-btn>
       </div>
       <v-divider class="my-2" />
     </v-card-text>

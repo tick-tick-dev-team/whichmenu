@@ -12,5 +12,13 @@ export default defineConfig({
     alias: {
       '@': path.resolve(__dirname, 'src') // '@'를 'src' 경로로 매핑
     }
+  },
+  server: { // CORS 설정
+    proxy: {
+      '/bbs': {
+        target: 'http://localhost:8080',
+        changeOrigin: true
+      }
+    }
   }
 })

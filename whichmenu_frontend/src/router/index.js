@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router';
+import { createRouter, createWebHashHistory } from 'vue-router';
 import MlMain from '@/views/ml/MlMain.vue';
 import RcmndBoard from '@/views/bbs/RcmndBoard.vue';
 import InqBoard from '@/views/bbs/InqBoard.vue';
@@ -13,7 +13,8 @@ const routes = [
 ];
 
 const router = createRouter({
-  history: createWebHistory(),
+  //history: createWebHistory(), // 운영의 정석 /path 형식
+  history: createWebHashHistory(), // 개발에서는 이렇게 /#/path 형식
   routes
 });
 

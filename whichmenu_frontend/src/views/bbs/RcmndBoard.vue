@@ -4,17 +4,38 @@ import PostForm from '@/components/PostForm.vue';
 import PostList from '@/components/PostList.vue';
 import CmntList from '@/components/CmntList.vue';
 import NavMenu from '@/components/NavMenu.vue';
-import { ref } from 'vue';
+import axios from 'axios';
+import { onMounted, ref } from 'vue';
 
 const posts = ref([
-  {
-    id: 1,
-    content: '맛집 추천합니다!',
-    author: '홍길동',
-    createdAt: '2025-03-05',
-    comments: [{ id: 1, content: '여기 진짜 맛있어요!', author: '김철수', createdAt: '2025-03-05' }]
+{
+    atchReferId: null,
+    bbsCn: "서버를 켰는지 확인해주세요 이거 나오면 안 켜졌을수도 있음...!",
+    bbsId: "10",
+    bbsTtl: "관리자 문의",
+    bbsType: "R",
+    bbscttPw: "1234",
+    mdfcnDt: "2025-04-07 17:26:18",
+    regDt: "2025-04-07 17:26:18",
+    regNm: "USER",
+    rlsYn: "Y",
+    useYn: "Y",
   }
 ]);
+
+// 조회 게시글 리스트 가져오는 함수
+async function bbsList() {
+  try {
+    const response = await axios.get('/bbs/list', {
+      params: {
+        bbsType: 'R'
+      }
+    })
+    posts.value = response.data
+  } catch (error) {
+    console.error('추천 게시글 목록 가져오기 실패:', error)
+  }
+}
 
 const addComment = (postId, comment) => {
   const post = posts.value.find(p => p.id === postId);
@@ -25,6 +46,9 @@ const addComment = (postId, comment) => {
     createdAt: new Date().toISOString().split('T')[0]
   });
 };
+onMounted(() => {
+  bbsList();
+})
 </script>
 
 <template>

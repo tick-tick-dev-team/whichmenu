@@ -3,11 +3,42 @@
 import PostForm from '@/components/PostForm.vue';
 import PostList from '@/components/PostList.vue';
 import NavMenu from '@/components/NavMenu.vue';
-import { ref } from 'vue';
+import axios from 'axios';
+import { onMounted, ref } from 'vue';
 
 const notices = ref([
-  { id: 1, content: '새로운 공지사항입니다.', author: '관리자', createdAt: '2025-03-05' }
+  { 
+    atchReferId: null,
+    bbsCn: "서버를 켰는지 확인해주세요 이거 나오면 안 켜졌을수도 있음...!",
+    bbsId: "9",
+    bbsTtl: "공지사항",
+    bbsType: "N",
+    bbscttPw: null,
+    mdfcnDt: "2025-04-07 14:46:30",
+    regDt: "2025-04-07 14:46:30",
+    regNm: "ADMIN",
+    rlsYn: "Y",
+    useYn: "Y",
+   }
 ]);
+
+// 조회 게시글 리스트 가져오는 함수
+async function bbsList() {
+  try {
+    const response = await axios.get('/bbs/list', {
+      params: {
+        bbsType: 'N'
+      }
+    })
+    notices.value = response.data
+    console.log(notices.value);
+  } catch (error) {
+    console.error('공지 게시글 목록 가져오기 실패:', error)
+  }
+}
+onMounted(() => {
+  bbsList();
+})
 </script>
 
 <template>

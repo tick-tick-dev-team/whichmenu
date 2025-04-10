@@ -4,19 +4,19 @@
     
     
     <sql id="bbsSearch">
-        <if test="bbsId != null and bbsId == '' ">
+        <if test="bbsId != null and bbsId != '' ">
             AND BBS_ID    = #{bbsId}
         </if>
-        <if test="bbsType != null and bbsType == '' ">
+        <if test="bbsType != null and bbsType != '' ">
             AND BBS_TYPE  = #{bbsType}
         </if>
-        <if test="bbsTtl != null and bbsTtl == '' ">
+        <if test="bbsTtl != null and bbsTtl != '' ">
             AND BBS_TTL   = #{bbsTtl}
         </if>
-        <if test="bbsCn != null and bbsCn == '' ">
+        <if test="bbsCn != null and bbsCn != '' ">
             AND BBS_CN    = #{bbsCn}
         </if>
-        <if test="rlsYn != null and rlsYn == '' ">
+        <if test="rlsYn != null and rlsYn != '' ">
             AND RLS_YN    = #{rlsYn}
         </if>
     </sql>

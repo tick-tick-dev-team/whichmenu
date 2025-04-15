@@ -15,9 +15,9 @@ export default defineConfig({
   },
   server: { // CORS 설정
     proxy: {
-      '/bbs': {
+      '/api': {
         target: 'http://localhost:8080',
-        changeOrigin: true
+        changeOrigin: true,
       }
     }
   }

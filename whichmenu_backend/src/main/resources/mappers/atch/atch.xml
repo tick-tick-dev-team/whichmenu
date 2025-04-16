@@ -7,7 +7,52 @@
         SELECT * FROM ATCH_FILE
     </select>
     
+    <!-- 파일데이터 저장 -->
+    <insert id="insertFileMeta" parameterType="com.ticktick.whichmenu_backend.web.atch.dao.dto.AtchFileDto">
+        INSERT INTO atch_file (
+            ATCH_REFER_ID,
+            FILE_ODR,
+            FILE_NM,
+            FILE_PATH,
+            FILE_SZ,
+            FILE_EXTN,
+            REF_TYPE,
+            USE_YN,
+            REG_DT,
+            MDFCN_DT
+        ) VALUES (
+            #{atchReferId},
+            #{fileOdr},
+            #{fileNm},
+            #{filePath},
+            #{fileSz},
+            #{fileExtn},
+            #{refType},
+            'Y',
+            NOW(),
+            NOW()
+        )
+    </insert>
     
+    <!-- 파일데이터 조회 -->
+    <select id="selectFilesByReferId" parameterType="int" resultType="com.ticktick.whichmenu_backend.web.atch.dao.dto.AtchFileDto">
+	    SELECT 
+	        ATCH_FILE_ID,
+	        ATCH_REFER_ID,
+	        FILE_ODR,
+	        FILE_NM,
+	        FILE_PATH,
+	        FILE_SZ,
+	        FILE_EXTN,
+	        REF_TYPE,
+	        USE_YN,
+	        REG_DT,
+	        MDFCN_DT
+	    FROM atch_file
+	    WHERE ATCH_REFER_ID = #{atchReferId}
+	      AND USE_YN = 'Y'
+	    ORDER BY FILE_ODR ASC
+	</select>
     
     
     

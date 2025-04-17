@@ -4,6 +4,7 @@ import { useDisplay } from 'vuetify';
 
 const { smAndDown } = useDisplay(); // 작은 화면(모바일 + 태블릿)
 import NavMenu from '@/components/NavMenu.vue';
+import NavMenu2 from '@/components/NavMenu2.vue';
 
 const selectedCenter = ref('메디벤처센터');
 const centerList = ['메디벤처센터', '니가찾는그밥집'];
@@ -22,21 +23,8 @@ const menuImage = computed(() => {
 
 <template>
     <!-- 헤더 -->
-    <v-app-bar
-        app
-        dense
-        flat
-        color="grey-darken-4"
-        class="px-4"
-    >
-        <div class="d-flex align-center">
-            <v-icon class="mr-2" color="white">mdi-silverware-fork-knife</v-icon>
-            <span class="text-h6 font-weight-bold text-white">WHICH MENU</span>
-        </div>
-        <v-spacer />
-        <NavMenu />
-    </v-app-bar>
-
+    <NavMenu2></NavMenu2>
+    
     <!-- 메인 -->
     <v-main fluid class="main-wrapper">
         <div class="full-bleed-background">
@@ -66,9 +54,9 @@ const menuImage = computed(() => {
                     </v-text>
                 </v-container>
                 <!-- 버튼 목록 -->
-                <v-btn block class="my-1 func-btns" color="black" dark >업로드 하기</v-btn>
-                <v-btn block class="my-1 func-btns" color="black" dark >식당정보 조회</v-btn>
-                <v-btn block class="my-1 func-btns" color="black" dark >삭제(관리자)</v-btn>
+                <v-btn block class="my-1 func-btns" color="black" dark :density="smAndDown ? 'compact' : 'default'" >업로드 하기</v-btn>
+                <v-btn block class="my-1 func-btns" color="black" dark :density="smAndDown ? 'compact' : 'default'" >식당정보 조회</v-btn>
+                <v-btn block class="my-1 func-btns" color="black" dark :density="smAndDown ? 'compact' : 'default'" >삭제(관리자)</v-btn>
             </div>
         </div>
     </v-main>
@@ -80,7 +68,6 @@ const menuImage = computed(() => {
     padding: 0;
     margin: 0;
 }
-
 /* 전체 배경 */
 .full-bleed-background {
     /* background-color:lightgray; */
@@ -132,5 +119,8 @@ const menuImage = computed(() => {
 .func-btns {
     font-size: 16px;
     height: 50px;
+    max-height: 50px;
+    line-height: 50px;
+    white-space: nowrap;
 }
 </style>

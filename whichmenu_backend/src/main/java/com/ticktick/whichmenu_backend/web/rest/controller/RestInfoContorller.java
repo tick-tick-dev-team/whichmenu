@@ -1,6 +1,5 @@
 package com.ticktick.whichmenu_backend.web.rest.controller;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -28,7 +27,7 @@ public class RestInfoContorller {
 
 	@GetMapping("/list")
 	public List<RestInfoDto> restList(RestInfoDto inputDto) {
-		List<RestInfoDto> restListDto = new ArrayList<RestInfoDto>(); //= restInfoService.selectAllBbs(inputDto);
+		List<RestInfoDto> restListDto = restInfoService.selectRestList(inputDto);
 		
 		System.err.println(restListDto.toString());
 		return restListDto;

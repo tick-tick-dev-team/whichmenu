@@ -23,9 +23,9 @@ const restInfo = ref([
 
 // 조회 게시글 리스트 가져오는 함수
 // axios로 동기처럼 처리
-function bbsList() {
-  axios.get('/api/bbs/list', {
-    params: { bbsType: 'P' }
+function restList() {
+  axios.get('/api/rest/list', {
+    //params: { useYn: 'Y' }
   })
   .then(response => {
     restInfo.value = response.data;  // 응답 데이터를 inquiries에 할당
@@ -36,17 +36,8 @@ function bbsList() {
   });
 }
 
-const addComment = (postId, comment) => {
-  const post = inquiries.value.find(p => p.id === postId);
-  post.comments.push({
-    id: new Date().getTime(),
-    content: comment,
-    author: '익명',
-    createdAt: new Date().toISOString().split('T')[0]
-  });
-};
 onMounted(() => {
-  bbsList();
+  restList();
 })
 </script>
 

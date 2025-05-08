@@ -8,6 +8,7 @@ import axios from 'axios';
 import { onMounted, ref } from 'vue';
 
 // 리스트
+const searchKeyword = ref('');
 const restInfo = ref([
   {
     restId: null,
@@ -36,6 +37,18 @@ function restList() {
   });
 }
 
+// 수정 버튼 클릭 처리
+function handleEdit(restId) {
+    console.log('수정 클릭된 식당 ID:', restId);
+    // 수정 로직 추가
+}
+
+// 삭제 버튼 클릭 처리
+function handleDelete(restId) {
+    console.log('삭제 클릭된 식당 ID:', restId);
+    // 삭제 로직 추가
+}
+
 onMounted(() => {
   restList();
 })
@@ -43,62 +56,144 @@ onMounted(() => {
 
 <template>
   <!-- 헤더 -->
-  <NavMenu2></NavMenu2>
-  <div class="bbs-container">
-    
-    
-    <h2>식당관리</h2>
-    <!-- <PostForm @submitPost="(content) => inquiries.push({ id: new Date().getTime(), content, author: '익명', createdAt: new Date().toISOString().split('T')[0], comments: [] })" /> 
-       
-    <div v-for="inquiry in inquiries" :key="inquiry.id">
-      <PostList :post="inquiry" />
-      <CmntList :comments="inquiry.comments" boardType="inquiry" @addComment="(comment) => addComment(inquiry.id, comment)" />
-    </div>
-    -->
+  <NavMenu2 />
 
-    <!-- + 버튼 추가 -->
-    <v-btn class="floating-btn" color="deep-purple-accent-2" fab @click="addPost">
-        <v-icon>mdi-plus</v-icon>
-    </v-btn>
+  <div class="bbs-container">
+      <h2 class="page-title">식당관리 - 관리자</h2>
+
+      <!-- 검색창 -->
+      <v-text-field
+          v-model="searchKeyword"
+          label="검색어를 입력하세요"
+          prepend-inner-icon="mdi-magnify"
+          clearable
+          variant="outlined"
+          color="primary"
+          class="mb-4 search-field"
+      />
+
+      <v-row dense>
+          <v-col v-for="rest in restInfo" :key="rest.restId" cols="12">
+              <v-card class="post-card" outlined>
+                  <v-card-text>
+                      <div class="rest-header">
+                          <h3 class="rest-name">{{ rest.restNm }}</h3>
+                          <v-chip
+                              v-if="rest.infoInitType === 'WEEK' || rest.infoInitType === 'DAY'"
+                              color="deep-purple-accent-2"
+                              text-color="white"
+                              size="small"
+                              class="info-chip"
+                              label
+                              rounded
+                          >
+                          {{ rest.infoInitType === 'WEEK' ? '주간' : '일일' }}
+                          </v-chip>
+                      </div>
+                      <div class="post-meta">{{ rest.mdfcnDt }}</div>
+                      <p class="post-detail">📍 {{ rest.restAddr }}</p>
+                      <p class="post-detail">📝 {{ rest.restDtl }}</p>
+
+
+                      <div class="post-actions">
+                          <v-btn size="x-small" variant="text" @click="emit('editComment', post.bbsId)">수정</v-btn>
+                          <v-btn size="x-small" variant="text" color="error" @click="emit('deleteComment', post.bbsId)">삭제</v-btn>
+                      </div>
+                  </v-card-text>
+              </v-card>
+          </v-col>
+      </v-row>
+
+      <!-- + 버튼 -->
+      <v-btn class="floating-btn" color="deep-purple-accent-2" fab @click="addPost">
+          <v-icon>mdi-plus</v-icon>
+      </v-btn>
   </div>
 </template>
 
 <style scoped>
 .bbs-container {
-  background-color: #ffffff; /* 메뉴 배경색 */
   min-height: 100vh;
   padding: 20px;
   margin-top: 30px;
   position: relative;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-.board {
-  background-color: white; /* 게시판 내용은 흰색 */
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  max-width: 800px;
-  margin: auto;
-}
-.post-list {
-  margin-top : 20px;
+.page-title {
+  font-size: 1.6rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+  text-align: center;
+  color: #333;
 }
 
-/* 우측 하단에 + 버튼을 고정 */
+.search-field {
+  width: 100%;
+}
+
+.post-card {
+  margin-bottom: 20px;
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  background-color: #fff;
+}
+
+.rest-name {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #3f51b5;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.post-detail {
+  font-size: 0.95rem;
+  margin-bottom: 6px;
+  color: #444;
+  text-align: left;
+  padding-left: 4px;
+}
+
+.post-meta {
+  font-size: 0.8rem;
+  color: #999;
+  text-align: right;
+  margin-top: 10px;
+  margin-bottom: 8px;
+}
+
+.post-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
 .floating-btn {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    z-index: 1000;
-    width: 50px; /* 원 크기 */
-    height: 50px; /* 원 크기 */
-    border-radius: 50%; /* 동그라미 모양 */
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 26px;
+}
+
+.rest-header {
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
-    padding: 0;
-    min-width: 50px; /* 버튼의 최소 너비 */
-    min-height: 50px; /* 버튼의 최소 높이 */
-    font-size: 24px; /* 아이콘 크기 */
+    margin-bottom: 8px;
+}
+
+.info-chip {
+    font-weight: 600;
 }
 </style>

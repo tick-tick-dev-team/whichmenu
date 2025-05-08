@@ -65,7 +65,7 @@ public class BbsController {
 	}
 	
 	@PostMapping("/insert")
-	public Map<String, Object> bbsInsert(@RequestParam("file") MultipartFile file,
+	public Map<String, Object> bbsInsert(@RequestParam("files") List<MultipartFile> files,
 		    @ModelAttribute AtchFileDto fileDto, @ModelAttribute BbsDto inputDto) {
 		
 		Map<String, Object> result = new HashMap<>();
@@ -91,7 +91,7 @@ public class BbsController {
 	        
 	        
 	        // 파일 저장
-	        if(!file.isEmpty()) {
+	        if(files != null && !files.isEmpty()) {
 	        	BbsDto resultData = new BbsDto();
 	        	try {
 		        	// 저장 된 것 가지고 옴
@@ -102,33 +102,38 @@ public class BbsController {
     	            result.put("message", "등록한 데이터 조회 중 오류 발생: " + e.getMessage());
 	    		}
 	        	
-	        	System.err.println("hello this is file!!!!");
-	        	try {
+	        	int order = 1; // 파일 순서
+	        	for (MultipartFile file : files) {
 	        		
-	        		//  파일명까지 포함된 “전체 파일 경로” 생성
-		    		String originalFileName = file.getOriginalFilename();
-		    		String fileExtn = originalFileName.substring(originalFileName.lastIndexOf(".") + 1);
-		    		// 중복이 없도록 생성
-		    		String savePath = uploadDir + File.separator + System.currentTimeMillis() + "_" + originalFileName;
-		    		
-		    		File dest = new File(savePath);
-		    		dest.getParentFile().mkdirs(); // 디렉토리 없으면 생성
-		    		file.transferTo(dest); // 실제 파일 이동
-		    		
-		    		// DB에 메타데이터 저장
-		    		fileDto.setAtchReferId(Integer.parseInt(resultData.getBbsId()));
-		    		fileDto.setRefType(resultData.getBbsType());
-		            fileDto.setFileOdr(1); // 기본 1로 설정
-		            fileDto.setFileNm(originalFileName);
-		            fileDto.setFilePath(savePath);
-		            fileDto.setFileSz((int) file.getSize());
-		            fileDto.setFileExtn(fileExtn);
-		            
-		            // DB에 저장하는 로직
-		            atchFileService.insertFileMeta(fileDto);
-	        	} catch (Exception e) {
-	        		result.put("result", "fail");
-	                result.put("message", "파일 등록 중 오류 발생: " + e.getMessage());
+	        		if (file.isEmpty()) continue;
+	        	
+		        	try {
+		        		
+		        		//  파일명까지 포함된 “전체 파일 경로” 생성
+			    		String originalFileName = file.getOriginalFilename();
+			    		String fileExtn = originalFileName.substring(originalFileName.lastIndexOf(".") + 1);
+			    		// 중복이 없도록 생성
+			    		String savePath = uploadDir + File.separator + System.currentTimeMillis() + "_" + originalFileName;
+			    		
+			    		File dest = new File(savePath);
+			    		dest.getParentFile().mkdirs(); // 디렉토리 없으면 생성
+			    		file.transferTo(dest); // 실제 파일 이동
+			    		
+			    		// DB에 메타데이터 저장
+			    		fileDto.setAtchReferId(Integer.parseInt(resultData.getBbsId()));
+			    		fileDto.setRefType(resultData.getBbsType());
+			            fileDto.setFileOdr(order++); // 기본 1로 설정
+			            fileDto.setFileNm(originalFileName);
+			            fileDto.setFilePath(savePath);
+			            fileDto.setFileSz((int) file.getSize());
+			            fileDto.setFileExtn(fileExtn);
+			            
+			            // DB에 저장하는 로직
+			            atchFileService.insertFileMeta(fileDto);
+		        	} catch (Exception e) {
+		        		result.put("result", "fail");
+		                result.put("message", "파일 등록 중 오류 발생: " + e.getMessage());
+		        	}
 	        	}
 	        	
 	        }

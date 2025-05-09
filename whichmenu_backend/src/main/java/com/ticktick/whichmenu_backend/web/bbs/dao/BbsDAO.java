@@ -13,6 +13,8 @@ public interface BbsDAO {
 	
 	BbsDto selectOneBbs(BbsDto bbsDto);
 	
+	BbsDto selectBbsWithFiles(BbsDto bbsDto);
+	
 	void insertBbs(BbsDto bbsDto);
 	
 	void updateBbs(BbsDto bbsDto);

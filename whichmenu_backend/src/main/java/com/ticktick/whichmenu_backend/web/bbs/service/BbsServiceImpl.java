@@ -38,6 +38,11 @@ public class BbsServiceImpl implements BbsService {
 		rsltDto = bbsDao.selectOneBbs(bbsDto);
 		return rsltDto;
 	}
+	
+	@Override
+	public BbsDto selectBbsWithFiles(BbsDto bbsDto){
+		return bbsDao.selectBbsWithFiles(bbsDto);
+	}
 
 	@Override
 	public void insertBbs(BbsDto bbsDto) {

@@ -52,7 +52,7 @@ public class BbsController {
 		return bbsListDto;
 	}
 	
-	@GetMapping("/detail")
+	@GetMapping("/onlyBbsDetail")
 	public BbsDto bbsDetail(BbsDto inputDto) {
 		
 		if (inputDto.getBbsId() == null || inputDto.getBbsId().isBlank()) {
@@ -61,6 +61,17 @@ public class BbsController {
 		
 		BbsDto rlstDto  = new BbsDto();
 		rlstDto = bbsService.selectOne(inputDto);
+		return rlstDto;
+	}
+	
+	@GetMapping("/detail")
+	public BbsDto selectBbsWithFiles(BbsDto inputDto) {
+		
+		if (inputDto.getBbsId() == null || inputDto.getBbsId().isBlank()) {
+	        throw new IllegalArgumentException("게시글 ID(bbsId)는 필수입니다.");
+	    }
+		
+		BbsDto rlstDto = bbsService.selectBbsWithFiles(inputDto);
 		return rlstDto;
 	}
 	

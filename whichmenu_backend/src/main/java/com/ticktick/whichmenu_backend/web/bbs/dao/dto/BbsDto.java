@@ -36,7 +36,9 @@ public class BbsDto {
 	
 	private String regDt;
 	
-	private String mdfcnDt; 
+	private String mdfcnDt;
+	
+	private Integer atchReferId;
 	
 	/* 첨부파일을 위한 변수*/
 	private List<AtchFileDto> fileList;

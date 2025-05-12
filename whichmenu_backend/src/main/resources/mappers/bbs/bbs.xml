@@ -52,7 +52,7 @@
     </sql>
     
     <!-- 분류 게시글 전체 -->
-    <select id="selectAllBbs" resultType="com.ticktick.whichmenu_backend.web.bbs.dao.dto.BbsDto">
+    <select id="selectAllBbsOrigin" resultType="com.ticktick.whichmenu_backend.web.bbs.dao.dto.BbsDto">
         SELECT 
                BBS_ID                                     /* 게시글 ID */
              , BBS_TYPE                                   /* 게시글 유형 */
@@ -71,6 +71,42 @@
          <include refid="bbsSearch"></include>
     </select>
     
+    <!-- 분류 게시글 전체 + 이미지 -->
+    <select id="selectAllBbs"  resultMap="bbsWithFilesMap">
+        SELECT 
+               A.BBS_ID                                      /* 게시글 ID */
+             , A.BBS_TYPE                                    /* 게시글 유형 */
+             , A.BBS_TTL                                     /* 게시글 제목 */
+             , A.BBS_CN                                      /* 게시글 내용 */
+             , A.USE_YN                                      /* 사용여부 */
+             , A.RLS_YN                                      /* 공개여부 */
+             , A.REG_NM                                      /* 등록자 */
+             , A.BBSCTT_PW                                   /* 게시글 비밀번호 */
+             , A.REG_DT                                      /* 등록일 */
+             , A.MDFCN_DT                                    /* 수정일 */
+             
+             , B.ATCH_FILE_ID                                /* 첨부파일 ID */
+			 , B.ATCH_REFER_ID                               /* 참조 ID (게시글 ID와 매핑됨) */
+			 , B.FILE_ODR                                    /* 첨부파일 순서 */
+			 , B.FILE_NM                                     /* 첨부파일 이름 */
+			 , B.FILE_PATH                                   /* 첨부파일 저장 경로 */
+			 , B.FILE_SZ                                     /* 첨부파일 크기 */
+			 , B.FILE_EXTN                                   /* 첨부파일 확장자 */
+			 , B.REF_TYPE                                    /* 참조 유형 (게시판: P) */
+			 , B.USE_YN                                      /* 첨부파일 사용 여부 */
+			 , B.REG_DT                                      /* 첨부파일 등록일 */
+			 , B.MDFCN_DT                                    /* 첨부파일 수정일 */
+             
+          FROM BBS A
+          	LEFT JOIN ATCH_FILE B
+          	ON A.BBS_ID   = B.ATCH_REFER_ID                  /* 게시글 ID = 첨부파일 참조 ID */
+			   AND A.BBS_TYPE = B.REF_TYPE                   /* 게시글 유형 = 첨부파일 참조 유형 */
+			   AND B.USE_YN = 'Y'
+         WHERE 1=1
+           AND A.USE_YN = 'Y'
+           AND BBS_TYPE  = #{bbsType}
+    </select>
+    
     <!-- 게시글 상세 -->
     <select id="selectOneBbs" resultType="com.ticktick.whichmenu_backend.web.bbs.dao.dto.BbsDto">
         SELECT 
@@ -78,7 +114,7 @@
              , BBS_TYPE                                    /* 게시글 유형 */
              , BBS_TTL                                     /* 게시글 제목 */
              , BBS_CN                                      /* 게시글 내용 */
-             , ATCH_REFER_ID                               /* 파일 참조 ID */
+             /*, ATCH_REFER_ID                                파일 참조 ID */
              , USE_YN                                      /* 사용여부 */
              , RLS_YN                                      /* 공개여부 */
              , REG_NM                                      /* 등록자 */
@@ -136,7 +172,7 @@
                 BBS_TYPE                                    /* 게시글 유형 */
               , BBS_TTL                                     /* 게시글 제목 */
               , BBS_CN                                      /* 게시글 내용 */
-              , ATCH_REFER_ID                               /* 파일 참조 ID */
+              <!--, ATCH_REFER_ID                                파일 참조 ID -->
               , USE_YN                                      /* 사용여부 */
               , RLS_YN                                      /* 공개여부 */
               , REG_NM                                      /* 등록자 */
@@ -148,7 +184,7 @@
                 #{bbsType}                                  /* 게시글 유형 */
               , #{bbsTtl}                                   /* 게시글 제목 */
               , #{bbsCn}                                    /* 게시글 내용 */
-              , #{atchReferId}                              /* 파일 참조 ID */
+              <!--, #{atchReferId}                               파일 참조 ID -->
               , #{useYn}                                    /* 사용여부 */
               , #{rlsYn}                                    /* 공개여부 */
               , #{regNm}                                    /* 등록자 */
@@ -165,7 +201,7 @@
                BBS_TYPE      = #{bbsType}                          /* 게시글 유형 */
              , BBS_TTL       = #{bbsTtl}                           /* 게시글 제목 */
              , BBS_CN        = #{bbsCn}                            /* 게시글 내용 */
-             , ATCH_REFER_ID = #{atchReferId}                      /* 파일 참조 ID */
+             /*, ATCH_REFER_ID = #{atchReferId}                       파일 참조 ID */
              , USE_YN        = #{useYn}                            /* 사용여부 */
              , RLS_YN        = #{rlsYn}                            /* 공개여부 */
              , REG_NM        = #{regNm}                            /* 등록자 */

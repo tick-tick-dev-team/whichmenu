@@ -47,6 +47,14 @@ const addComment = (postId, comment) => {
     createdAt: new Date().toISOString().split('T')[0]
   });
 };
+
+// 등록 다이얼로그 보이는 여부 변수
+const addPostVisible = ref(false);
+
+const addPost = (bbsType) =>{
+  addPostVisible.value = !addPostVisible.value;
+}
+
 onMounted(() => {
   bbsList();
 })
@@ -67,9 +75,12 @@ onMounted(() => {
     </div>
 
     <!-- + 버튼 추가 -->
-    <v-btn class="floating-btn" color="deep-purple-accent-2" fab @click="addPost">
+    <v-btn class="floating-btn" color="deep-purple-accent-2" fab @click="addPost('R')">
         <v-icon>mdi-plus</v-icon>
     </v-btn>
+
+    <!-- ✅ v-model로 PostForm 제어 -->
+        <PostForm v-model="addPostVisible" @submitPost="bbsList" />
   </div>
 </template>
 

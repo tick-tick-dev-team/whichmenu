@@ -66,9 +66,7 @@ onMounted(() => {
   <div class="bbs-container">
 
     <h2>맛집을 알려주세요</h2>
-    <!--<PostForm @submitPost="(content) => posts.push({ id: new Date().getTime(), content, author: '익명', createdAt: new Date().toISOString().split('T')[0], comments: [] })" />
-      -->
-    
+        
     <div v-for="post in posts" :key="post.id" class="post-list">
       <PostList :post="post" />
       <CmntList :comments="post.comments" boardType="restaurant" @addComment="(comment) => addComment(post.id, comment)" />
@@ -79,8 +77,8 @@ onMounted(() => {
         <v-icon>mdi-plus</v-icon>
     </v-btn>
 
-    <!-- ✅ v-model로 PostForm 제어 -->
-        <PostForm v-model="addPostVisible" @submitPost="bbsList" />
+    <!-- v-model로 PostForm 제어, submitPost는 다이얼로그에서 등록된 이후 실행하는 것 -->
+    <PostForm v-model="addPostVisible" @submitPost="bbsList" :bbsType="'R'" />
   </div>
 </template>
 

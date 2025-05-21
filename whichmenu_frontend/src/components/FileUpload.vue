@@ -2,77 +2,89 @@
 <script setup>
 import { ref } from 'vue';
 
-const file = ref(null);
-const previewUrl = ref(null);
+const emit = defineEmits(['files-selected']); // 부모에게 전달
+
+const files = ref([]);
+const previews = ref([]);
 
 const handleFileUpload = (event) => {
-  const uploadedFile = event.target.files[0];
-  if (uploadedFile) {
-    file.value = uploadedFile;
-    previewUrl.value = URL.createObjectURL(uploadedFile);
-  }
+    files.value = Array.from(event.target.files);
+
+    // 미리보기 URL 목록 생성
+    previews.value = files.value.map(file => URL.createObjectURL(file));
+
+    emit('files-selected', files.value); // 부모에게 전달
 };
 
 const cancelUpload = () => {
-  file.value = null;
-  file.name = null;
-  previewUrl.value = null;
+    files.value = [];
+    previews.value = [];
+    emit('files-selected', []);
 };
 </script>
 
 <template>
-  <v-container class="upload-container">
+<v-container class="upload-container">
     <v-card class="upload-card" elevation="3">
-      <v-card-title>파일 업로드</v-card-title>
-      <v-card-text>
-        <!-- 파일 미리보기 -->
-        <div v-if="previewUrl" class="preview-container">
-          <v-img :src="previewUrl" class="preview-image" contain></v-img>
-        </div>
+        <v-card-title>파일 업로드</v-card-title>
+        <v-card-text>
+            <!-- 여러 개 미리보기 -->
+            <div v-if="previews.length" class="preview-container multi">
+                <v-img
+                    v-for="(url, index) in previews"
+                    :key="index"
+                    :src="url"
+                    class="preview-image"
+                    contain
+                />
+            </div>
 
-        <!-- 업로드 버튼 -->
-        <v-file-input
-          v-model="file"
-          label="사진 업로드"
-          accept="image/*"
-          @change="handleFileUpload"
-          hide-details
-          class="upload-input"
-        ></v-file-input>
+            <v-file-input
+                label="사진 업로드"
+                accept="image/*"
+                multiple
+                @change="handleFileUpload"
+                v-model="files"
+                hide-details
+                class="upload-input"
+            ></v-file-input>
 
-        <!-- 업로드 취소 버튼 (이미지 있을 때만 보이기) -->
-        <v-btn v-if="file" color="red" @click="cancelUpload" class="mt-3">
-          업로드 취소
-        </v-btn>
-      </v-card-text>
+            <v-btn v-if="previews.length" color="red" @click="cancelUpload" class="mt-3">
+                업로드 취소
+            </v-btn>
+        </v-card-text>
     </v-card>
-  </v-container>
+</v-container>
 </template>
 
 <style scoped>
 .upload-container {
-  max-width: 400px;
+    max-width: 400px;
 }
 
 .upload-card {
-  padding: 20px;
-  text-align: center;
+    padding: 20px;
+    text-align: center;
 }
 
 .preview-container {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 15px;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 15px;
 }
 
+.preview-container.multi {
+    flex-wrap: wrap;
+    gap: 10px;
+}
 .preview-image {
-  width: 100px;
-  height: 100px;
-  border-radius: 10px;
-  object-fit: cover;
+    width: 100px;
+    height: 100px;
+    border-radius: 10px;
+    object-fit: cover;
 }
 
 .upload-input {
-  margin-top: 10px;
+    margin-top: 10px;
 }
 </style>

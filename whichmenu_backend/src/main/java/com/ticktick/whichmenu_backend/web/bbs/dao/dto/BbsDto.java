@@ -1,5 +1,9 @@
 package com.ticktick.whichmenu_backend.web.bbs.dao.dto;
 
+import java.util.List;
+
+import com.ticktick.whichmenu_backend.web.atch.dao.dto.AtchFileDto;
+
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,8 +26,6 @@ public class BbsDto {
 	
 	private String bbsCn;
 	
-	private String atchReferId;
-	
 	private String useYn;
 	
 	private String rlsYn;
@@ -34,6 +36,12 @@ public class BbsDto {
 	
 	private String regDt;
 	
-	private String mdfcnDt; 
+	private String mdfcnDt;
+	
+	private Integer atchReferId;
+	
+	/* 첨부파일을 위한 변수*/
+	private List<AtchFileDto> fileList;
+	
 
 }

@@ -10,6 +10,9 @@ public interface BbsService {
 	
 	public BbsDto selectOne(BbsDto bbsDto);
 	
+	// 게시글 + 첨부파일 목록
+	public BbsDto selectBbsWithFiles(BbsDto bbsDto);
+	
 	public void insertBbs(BbsDto bbsDto);
 	
 	public void updateBbs(BbsDto bbsDto);

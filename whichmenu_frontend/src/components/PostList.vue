@@ -4,15 +4,39 @@ const { post } = defineProps({
 });
 
 const emit = defineEmits(['editComment', 'deleteComment']);
-console.log('Current index:', post.bbsId);
-//const imageUrl = (post.bbsId === "8" || post.bbsId === "9") ? (post.bbsId === "8" ? '/img/kimbab-ramyun.png' : '/img/ohokacheu.png') : ''; 
 </script>
 
 <template>
     <v-card class="post-item" outlined>
         <v-card-text>
-        <div class="post-image-wrapper" v-if="imageUrl">
-            <img :src="imageUrl" alt="식단 이미지" class="post-image" />
+        <div class="post-image-wrapper" v-if="post.fileList?.length != 0">
+            <!--사진이 한장일때-->
+            <img
+                v-if="post.fileList?.length == 1"
+                :src="`http://localhost:8080/atch/${post.fileList[0].filePath.split(/[/\\]/).at(-1)}`"
+                alt="첨부 이미지"
+            />
+
+            <!--사진이 여러장일때 캐러셀-->
+            <v-carousel
+                v-else
+                hide-delimiters
+                show-arrows="hover"
+                height="200"
+                class="post-carousel"
+            >
+                <v-carousel-item
+                    v-for="file in post.fileList"
+                    :key="file.atchFileId"
+                >
+                    <img
+                        :src="`http://localhost:8080/atch/${file.filePath.split(/[/\\]/).at(-1)}`"
+                        alt="첨부 이미지"
+                        class="post-image"
+                    />
+                </v-carousel-item>
+            </v-carousel>
+
         </div>
 
         <p class="post-content">{{ post.bbsCn }}</p>
@@ -40,9 +64,15 @@ console.log('Current index:', post.bbsId);
 }
 
 .post-image {
-    max-width: 100%;
-    height: auto;
-    border-radius: 8px;
+  width: 100%;
+  height: 200px;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+.post-carousel {
+  max-width: 400px;
+  margin: 0 auto 12px auto;
 }
 
 .post-content {

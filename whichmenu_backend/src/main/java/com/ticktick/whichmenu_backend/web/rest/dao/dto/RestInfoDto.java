@@ -9,8 +9,6 @@ import lombok.Setter;
  * 
  * */
 @Data
-@Getter
-@Setter
 public class RestInfoDto {
 	
 	private String restId;

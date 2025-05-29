@@ -10,8 +10,6 @@ import lombok.ToString;
  * 
  * */
 @Data
-@Getter
-@Setter
 public class MngrInfoDto {
 	
 	private int mngrNo;			// 관리자번호

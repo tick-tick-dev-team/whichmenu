@@ -11,3 +11,4 @@ whichmenu_frontend/dist/
 # 백엔드(`whichmenu_backend`) 관련 무시할 파일
 whichmenu_backend/target/
 whichmenu_backend/*.iml
+/.metadata/

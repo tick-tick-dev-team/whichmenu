@@ -10,8 +10,6 @@ import lombok.Setter;
  * */
 
 @Data
-@Getter
-@Setter
 public class AtchFileDto {
 	
 	// 첨부파일 ID (PK)

@@ -14,8 +14,6 @@ import lombok.Setter;
  * */
 
 @Data
-@Getter
-@Setter
 public class BbsDto {
 	
 	private String bbsId;

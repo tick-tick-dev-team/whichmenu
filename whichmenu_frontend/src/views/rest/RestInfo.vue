@@ -1,9 +1,7 @@
 // 문의게시판 : 일반 게시판으로 분리되어 BBS_TYPE = P
 <script setup>
-import PostForm from '@/components/PostForm.vue';
-import PostList from '@/components/PostList.vue';
-import CmntList from '@/components/CmntList.vue';
 import NavMenu2 from '@/components/NavMenu2.vue';
+import RestForm from '@/components/RestForm.vue';
 import axios from 'axios';
 import { onMounted, ref } from 'vue';
 
@@ -37,17 +35,12 @@ function restList() {
   });
 }
 
-// 수정 버튼 클릭 처리
-function handleEdit(restId) {
-    console.log('수정 클릭된 식당 ID:', restId);
-    // 수정 로직 추가
-}
+const addRestVisible = ref(false);
 
-// 삭제 버튼 클릭 처리
-function handleDelete(restId) {
-    console.log('삭제 클릭된 식당 ID:', restId);
-    // 삭제 로직 추가
-}
+const handleSubmitRestaurant = (formData) => {
+    console.log('등록된 식당 정보:', formData);
+    // 여기서 axios.post 등으로 서버에 등록 가능
+};
 
 onMounted(() => {
   restList();
@@ -105,9 +98,13 @@ onMounted(() => {
       </v-row>
 
       <!-- + 버튼 -->
-      <v-btn class="floating-btn" color="deep-purple-accent-2" fab @click="addPost">
-          <v-icon>mdi-plus</v-icon>
+      <v-btn class="floating-btn" color="deep-purple-accent-2" fab @click="addRestVisible = true">
+          <v-icon size="30">mdi-plus</v-icon>
       </v-btn>
+
+      <!-- 등록 다이얼로그 연결 -->
+      <RestForm
+    :model-value="addRestVisible" @update:modelValue="val => addRestVisible = val" @submitRestaurant="handleSubmitRestaurant"/>
   </div>
 </template>
 
@@ -177,13 +174,16 @@ onMounted(() => {
   bottom: 20px;
   right: 20px;
   z-index: 1000;
-  width: 56px;
-  height: 56px;
+  width: 50px;
+  height: 50px;
+  min-width: 50px;
+  min-height: 50px;
   border-radius: 50%;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 26px;
+  padding: 0;
+  font-size: 24px; /* 또는 아래 방법 사용 */
 }
 
 .rest-header {

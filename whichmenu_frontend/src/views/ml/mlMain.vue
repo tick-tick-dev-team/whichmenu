@@ -55,7 +55,7 @@ const menuImage = computed(() => {
                 </v-container>
                 <!-- 버튼 목록 -->
                 <v-btn block class="my-1 func-btns" color="black" dark :density="smAndDown ? 'compact' : 'default'" >업로드 하기</v-btn>
-                <v-btn block class="my-1 func-btns" color="black" dark :density="smAndDown ? 'compact' : 'default'" >식당정보 조회</v-btn>
+                <v-btn block class="my-1 func-btns" color="black" dark :density="smAndDown ? 'compact' : 'default'" :to="'/rest/restInfo'">식당정보 조회</v-btn>
                 <v-btn block class="my-1 func-btns" color="black" dark :density="smAndDown ? 'compact' : 'default'" >삭제(관리자)</v-btn>
             </div>
         </div>

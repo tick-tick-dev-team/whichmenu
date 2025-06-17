@@ -58,18 +58,18 @@
         INSERT 
                INTO REST_INFO
         (
-                REST_NM                                     /* 식당ID */
-              , REST_DTL                                    /* 식당명 */
-              , REST_ADDR                                   /* 식당정보 */
+                REST_NM                                     /* 식당명 */
+              , REST_DTL                                    /* 식당상세정보 */
+              , REST_ADDR                                   /* 식당주소 */
               , USE_YN                                      /* 사용여부 */
               , INFO_INIT_TYPE                              /* 정보개시유형 */
               , REG_DT                                      /* 등록일 */
               , MDFCN_DT                                    /* 수정일 */
         ) 
         VALUES (
-                #{restNm}                                   /* 식당ID */
-              , #{restDtl}                                  /* 식당명 */
-              , #{restAddr}                                 /* 식당정보 */
+                #{restNm}                                   /* 식당명 */
+              , #{restDtl}                                  /* 식당상세정보 */
+              , #{restAddr}                                 /* 식당주소 */
               , #{useYn}                                    /* 사용여부 */
               , #{infoInitType}                             /* 정보개시유형 */
               , CURRENT_TIMESTAMP()                         /* 등록일 */
@@ -79,11 +79,11 @@
     
     <!-- 식당정보 수정 -->
     <update id="updateRestInfo" parameterType="com.ticktick.whichmenu_backend.web.rest.dao.dto.RestInfoDto">
-        UPDATE INTO REST_INFO
+        UPDATE REST_INFO
            SET
-               REST_NM        = #{restNm}                   /* 식당ID */
-             , REST_DTL       = #{restDtl}                  /* 식당명 */
-             , REST_ADDR      = #{restAddr}                 /* 식당정보 */
+               REST_NM        = #{restNm}                   /* 식당명 */
+             , REST_DTL       = #{restDtl}                  /* 식당상세정보 */
+             , REST_ADDR      = #{restAddr}                 /* 식당주소 */
              , USE_YN         = #{useYn}                    /* 사용여부 */
              , INFO_INIT_TYPE = #{infoInitType}             /* 정보개시유형 */
              , MDFCN_DT       = CURRENT_TIMESTAMP()         /* 등록일 */
@@ -92,11 +92,11 @@
     
     <!-- 식당정보 삭제 -->
     <update id="deleteRestInfo" parameterType="com.ticktick.whichmenu_backend.web.rest.dao.dto.RestInfoDto">
-        UPDATE INTO REST_INFO
+        UPDATE REST_INFO
            SET
-               USE_YN         = #{useYn}                    /* 사용여부 */
-             , MDFCN_DT       = CURRENT_TIMESTAMP()         /* 등록일 */
-         WHERE REST_ID        = #{restId}                   /* 수정일 */
+               USE_YN         = 'N'                         /* 사용여부 */
+             , MDFCN_DT       = CURRENT_TIMESTAMP()         /* 수정일 */
+         WHERE REST_ID        = #{restId}                   /* 식당ID */
     </update>
     
     

@@ -23,28 +23,82 @@ const restInfo = ref([
 // 조회 게시글 리스트 가져오는 함수
 // axios로 동기처럼 처리
 function restList() {
-  axios.get('/api/rest/list', {
-    //params: { useYn: 'Y' }
-  })
-  .then(response => {
-    restInfo.value = response.data;  // 응답 데이터를 inquiries에 할당
-    console.log(restInfo.value);
-  })
-  .catch(error => {
-    console.error('문의 게시글 목록 가져오기 실패:', error);
-  });
+    axios.get('/api/rest/list', {
+        params: { useYn: 'Y' }
+    })
+    .then(response => {
+      restInfo.value = [];
+      restInfo.value = response.data;  // 응답 데이터를 inquiries에 할당
+      console.log(restInfo.value);
+    })
+    .catch(error => {
+      console.error('문의 게시글 목록 가져오기 실패:', error);
+    });
 }
 
 const addRestVisible = ref(false);
 
-const handleSubmitRestaurant = (formData) => {
-    console.log('등록된 식당 정보:', formData);
-    // 여기서 axios.post 등으로 서버에 등록 가능
-};
+// 자식 컴포넌트에서 등록 완료 시 호출되는 함수
+function handleRegistered() {
+  restList();       // 리스트 갱신
+  addRestVisible.value = false;  // 다이얼로그 닫기 (이미 자식에서 닫았다면 생략 가능)
+  editTarget.value = null;
+}
+
 
 onMounted(() => {
   restList();
 })
+
+// 삭제 버튼 클릭 시 처리
+async function deleteRest(restInfo) {
+    try {
+        // 유효성 체크 (예: 식당명, 식당주소 필수)
+        if (!restInfo.restId) {
+            alert('식당 ID가 존재하지 않습니다.')
+            return
+        }
+
+        if (!confirm('정말 삭제하시겠습니까?')) {
+            return; // 취소한 경우 삭제하지 않음
+        }
+
+        try {
+            const res = await axios.post('/api/rest/delete', restInfo , {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (res.data.result === 'success') {
+                alert('식당이 삭제 되었습니다.');
+                handleRegistered();
+            } else {
+                alert('삭제 실패: ' + res.data.message);
+            }
+
+            
+        } catch (e) {
+            console.error(e);
+            alert('에러 발생');
+        }
+    }    
+    catch (error) {
+        console.error(error)
+        alert('서버 오류가 발생했습니다.')
+    }
+}
+
+const editTarget = ref(null); // 수정할 데이터를 저장
+
+function editRest(restId) {
+    const target = restInfo.value.find(r => r.restId === restId);
+    if (target) {
+        editTarget.value = { ...target }; // 복사본 전달 (mutable 대응)
+        addRestVisible.value = true;
+    }
+}
+
 </script>
 
 <template>
@@ -89,8 +143,8 @@ onMounted(() => {
 
 
                       <div class="post-actions">
-                          <v-btn size="x-small" variant="text" @click="emit('editComment', post.bbsId)">수정</v-btn>
-                          <v-btn size="x-small" variant="text" color="error" @click="emit('deleteComment', post.bbsId)">삭제</v-btn>
+                          <v-btn size="x-small" variant="text" @click="editRest(rest.restId)">수정</v-btn>
+                          <v-btn size="x-small" variant="text" color="error" @click="deleteRest(rest)">삭제</v-btn>
                       </div>
                   </v-card-text>
               </v-card>
@@ -103,8 +157,7 @@ onMounted(() => {
       </v-btn>
 
       <!-- 등록 다이얼로그 연결 -->
-      <RestForm
-    :model-value="addRestVisible" @update:modelValue="val => addRestVisible = val" @submitRestaurant="handleSubmitRestaurant"/>
+      <RestForm :model-value="addRestVisible" @update:modelValue="val => addRestVisible = val" @registered="handleRegistered" :edit-data="editTarget"/>
   </div>
 </template>
 

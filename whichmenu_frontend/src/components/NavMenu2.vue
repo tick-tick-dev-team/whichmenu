@@ -55,6 +55,9 @@ class="px-4"
                 <v-list-item @click="navigate('/rest/restInfo')">
                     <v-list-item-title>식당관리</v-list-item-title>
                 </v-list-item>
+                <v-list-item @click="navigate('/rest/logList')">
+                    <v-list-item-title>로그확인</v-list-item-title>
+                </v-list-item>
             </v-list>
         </v-menu>
     </div>

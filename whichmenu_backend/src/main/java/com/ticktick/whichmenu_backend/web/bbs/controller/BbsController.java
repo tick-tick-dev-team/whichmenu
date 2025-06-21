@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -131,7 +133,7 @@ public class BbsController {
 			    		file.transferTo(dest); // 실제 파일 이동
 			    		
 			    		// DB에 메타데이터 저장
-			    		fileDto.setAtchReferId(Integer.parseInt(resultData.getBbsId()));
+			    		fileDto.setAtchReferId(resultData.getBbsId());
 			    		fileDto.setRefType(resultData.getBbsType());
 			            fileDto.setFileOdr(order++); // 기본 1로 설정
 			            fileDto.setFileNm(originalFileName);
@@ -159,34 +161,75 @@ public class BbsController {
 	}
 	
 	@PostMapping("/update")
-	public Map<String, Object> bbsUpdate(@RequestBody BbsDto inputDto) {
-		
-		Map<String, Object> result = new HashMap<>();
-		
-		// 1. inputDto null 체크 및 필수값 체크
-		if (inputDto == null
-				|| inputDto.getBbsId() == null || inputDto.getBbsId().isBlank()
-	    	    || inputDto.getBbsTtl() == null || inputDto.getBbsTtl().isEmpty()
-	    	    || inputDto.getBbsCn() == null || inputDto.getBbsCn().isEmpty()
-	    	    || inputDto.getRegNm() == null || inputDto.getRegNm().isEmpty()
-	    	    || inputDto.getBbsType() == null || inputDto.getBbsType().isEmpty()
-	    	    || inputDto.getUseYn() == null || inputDto.getUseYn().isEmpty()
-	    	    || inputDto.getRlsYn() == null || inputDto.getRlsYn().isEmpty()) {
-	    	result.put("result", "fail");
-            result.put("message", "입력값이 부족합니다.");
+	public Map<String, Object> bbsUpdate(
+	        @ModelAttribute BbsDto inputDto,
+	        @RequestParam(value = "files", required = false) List<MultipartFile> files) {
+
+	    Map<String, Object> result = new HashMap<>();
+
+	    // 1. inputDto null 체크 및 필수값 체크
+	    if (inputDto == null
+	        || inputDto.getBbsId() == null || inputDto.getBbsId().isBlank()
+	        || inputDto.getBbsTtl() == null || inputDto.getBbsTtl().isEmpty()
+	        || inputDto.getBbsCn() == null || inputDto.getBbsCn().isEmpty()
+	        || inputDto.getRegNm() == null || inputDto.getRegNm().isEmpty()
+	        || inputDto.getBbsType() == null || inputDto.getBbsType().isEmpty()
+	        || inputDto.getUseYn() == null || inputDto.getUseYn().isEmpty()
+	        || inputDto.getRlsYn() == null || inputDto.getRlsYn().isEmpty()) {
+	        
+	        result.put("result", "fail");
+	        result.put("message", "입력값이 부족합니다.");
 	        return result;
 	    }
-		
-		// 2. 서비스 로직 실행
+
 	    try {
-            bbsService.updateBbs(inputDto);
-            result.put("result", "success");
-        } catch (Exception e) {
-            result.put("result", "fail");
-            result.put("message", "수정 중 오류 발생: " + e.getMessage());
-        }
-	    
-		return result;
+	        // 2. 게시글 수정
+	        bbsService.updateBbs(inputDto);
+
+	        // 3. 첨부파일 수정 여부 확인
+	        if ("Y".equals(inputDto.getAtchChangedYn())) {
+
+	            // 3-1. 기존 파일 USE_YN = 'N' 처리
+	        	AtchFileDto atch = new AtchFileDto();
+	        	atch.setAtchFileId(inputDto.getBbsId());
+	            atchFileService.updateFileMeta(atch);
+
+	            // 3-2. 새로운 파일이 있다면 insert
+	            if (files != null && !files.isEmpty()) {
+	                int order = 1;
+	                for (MultipartFile file : files) {
+	                    if (file.isEmpty()) continue;
+
+	                    String originalFileName = file.getOriginalFilename();
+	                    String fileExtn = originalFileName.substring(originalFileName.lastIndexOf(".") + 1);
+	                    String savePath = uploadDir + File.separator + System.currentTimeMillis() + "_" + originalFileName;
+
+	                    File dest = new File(savePath);
+	                    dest.getParentFile().mkdirs();
+	                    file.transferTo(dest);
+
+	                    AtchFileDto fileDto = new AtchFileDto();
+	                    fileDto.setAtchReferId(inputDto.getBbsId());
+	                    fileDto.setRefType(inputDto.getBbsType());
+	                    fileDto.setFileOdr(order++);
+	                    fileDto.setFileNm(originalFileName);
+	                    fileDto.setFilePath(savePath);
+	                    fileDto.setFileSz((int) file.getSize());
+	                    fileDto.setFileExtn(fileExtn);
+
+	                    atchFileService.insertFileMeta(fileDto);
+	                }
+	            }
+	        }
+
+	        result.put("result", "success");
+
+	    } catch (Exception e) {
+	        result.put("result", "fail");
+	        result.put("message", "수정 중 오류 발생: " + e.getMessage());
+	    }
+
+	    return result;
 	}
 	
 	@PostMapping("/delete")

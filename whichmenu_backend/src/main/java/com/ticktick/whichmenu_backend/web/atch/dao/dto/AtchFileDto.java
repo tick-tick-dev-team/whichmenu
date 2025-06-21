@@ -12,11 +12,11 @@ import lombok.Setter;
 @Data
 public class AtchFileDto {
 	
-	// 첨부파일 ID (PK)
-	private int atchFileId;
+	// 첨부파일 ID (PK), ID는 dto에서 String으로 처리하기로 함
+	private String atchFileId;
 
 	// 참조 ID (게시글 등과 연결되는 그룹 키)
-	private int atchReferId;
+	private String atchReferId;
 
 	// 파일 순서 (여러 개 첨부 시 정렬용)
 	private int fileOdr;
@@ -35,6 +35,9 @@ public class AtchFileDto {
 
 	// 참조 유형 (P: 일반게시판, M: 메뉴 등 구분용)
 	private String refType;
+	
+	// (로직에 필요한)첨부파일 변경 여부(Y, N)
+	private String atchChangedYn;
 	
 
 }

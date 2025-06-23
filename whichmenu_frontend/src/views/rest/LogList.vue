@@ -22,7 +22,6 @@ const logList = ref([
 
 async function fetchLogs() {
     try {
-        console.log()
         const res = await axios.post('/api/mngrLog/list', {
             srchBgngDt: startDate.value.replaceAll('-', ''),
             srchEndDt: endDate.value.replaceAll('-', '')

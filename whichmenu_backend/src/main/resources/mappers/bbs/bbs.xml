@@ -201,7 +201,7 @@
                BBS_TYPE      = #{bbsType}                          /* 게시글 유형 */
              , BBS_TTL       = #{bbsTtl}                           /* 게시글 제목 */
              , BBS_CN        = #{bbsCn}                            /* 게시글 내용 */
-             /*, ATCH_REFER_ID = #{atchReferId}                       파일 참조 ID */
+             
              , USE_YN        = #{useYn}                            /* 사용여부 */
              , RLS_YN        = #{rlsYn}                            /* 공개여부 */
              , REG_NM        = #{regNm}                            /* 등록자 */

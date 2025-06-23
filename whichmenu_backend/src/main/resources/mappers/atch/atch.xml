@@ -53,7 +53,15 @@
 	      AND USE_YN = 'Y'
 	    ORDER BY FILE_ODR ASC
 	</select>
-    
+	
+	<!--파일데이터 수정 : 파일 사용 여부 N으로 변경-->
+	<update id="updateFileMeta" parameterType="com.ticktick.whichmenu_backend.web.atch.dao.dto.AtchFileDto">
+		UPDATE atch_file
+           SET
+               USE_YN = 'N',                        /* 논리 삭제 */
+               MDFCN_DT = CURRENT_TIMESTAMP         /* 수정일 갱신 */
+        WHERE ATCH_FILE_ID = #{atchFileId}          /* 첨부파일 ID (PK) */
+	</update>	
     
     
 </mapper>

@@ -15,4 +15,8 @@ public interface AtchFileService {
 	
 	// R
 	List<AtchFileDto> getFilesByReferId(int atchReferId);
+	
+	// U, atchUseYn = 'N'
+	void updateFileMeta(AtchFileDto dto);
+	
 }

@@ -38,7 +38,7 @@ public class AtchFileController {
 	
 	@PostMapping("/upload")
 	public String uploadFile(@RequestParam("file") MultipartFile file, 
-			@RequestParam("atchReferId") int atchReferId,
+			@RequestParam("atchReferId") String atchReferId,
 			@RequestParam("refType") String refType) throws IOException {
 		
 		if(file.isEmpty()) {

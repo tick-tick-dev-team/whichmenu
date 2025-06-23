@@ -41,5 +41,8 @@ public class BbsDto {
 	/* 첨부파일을 위한 변수*/
 	private List<AtchFileDto> fileList;
 	
+	// 첨부파일 변경 여부(Y, N)
+	private String atchChangedYn;
+	
 
 }

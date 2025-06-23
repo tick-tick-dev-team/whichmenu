@@ -15,4 +15,8 @@ public interface AtchFileDAO {
 	
 	// R
 	List<AtchFileDto> selectFilesByReferId(@Param("atchReferId") int atchReferId);
+	
+	// U, atchUseYn
+	void updateFileMeta(AtchFileDto fileDto);
+	
 }

@@ -37,7 +37,7 @@ public class RestInfoContorller {
 	public List<RestInfoDto> restList(RestInfoDto inputDto) {
 		List<RestInfoDto> restListDto = restInfoService.selectRestList(inputDto);
 		
-		System.err.println(restListDto.toString());
+		log.error("[식당리스트] => {} ", restListDto);
 		return restListDto;
 	}
 	

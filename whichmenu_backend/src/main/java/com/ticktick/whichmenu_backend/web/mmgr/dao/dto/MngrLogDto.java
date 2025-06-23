@@ -13,9 +13,9 @@ public class MngrLogDto {
 	
 	String mngrNm;	// 관리자명
 	
-	String lngDt;	// 로그인 일시
+	String lgnDt;	// 로그인 일시
 	
-	String lngYn;	// 로그인성공여부
+	String lgnYn;	// 로그인성공여부
 	
 	String srchBgngDt;	// 검색시작일
 	

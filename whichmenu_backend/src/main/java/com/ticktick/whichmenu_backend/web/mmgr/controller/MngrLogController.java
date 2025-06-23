@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -31,8 +32,9 @@ public class MngrLogController {
 	}
 	
 	@PostMapping("/list")
-	public List<MngrLogDto> selectMngrLogList(MngrLogDto inputDto) {
-		List<MngrLogDto> mngrLogListDto = mngrLogService.selectMngrLogList(inputDto);
+	public List<MngrLogDto> selectMngrLogList(@RequestBody MngrLogDto inputDto) {
+		log.error("[관리자접속 검색조건] => {} ", inputDto);
+		List<MngrLogDto> mngrLogListDto = mngrLogService.selectMngrLogList(inputDto);		
 		
 		log.error("[관리자접속리스트] => {} ", mngrLogListDto);
 		return mngrLogListDto;

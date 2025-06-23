@@ -13,28 +13,21 @@ const endDate = ref(new Date().toISOString().slice(0, 10));
 // 예시 데이터 1건 포함
 const logList = ref([
     {
-        adminId: "admin001",
-        adminName: "홍길동",
-        logTime: "2025-06-19 14:10:05",
-        successYn: "Y"
-    },
-    {
-        adminId: "admin002",
-        adminName: "김철수",
-        logTime: "2025-06-18 09:30:10",
-        successYn: "N"
+        mngrNo: "admin001",
+        mngrNm: "홍길동",
+        lgnDt: "2025-06-19 14:10:05",
+        lgnYn: "Y"
     }
 ]);
 
 async function fetchLogs() {
     try {
-        const res = await axios.get('/api/logs', {
-            params: {
-                startDate: startDate.value,
-                endDate: endDate.value,
-            },
+        console.log()
+        const res = await axios.post('/api/mngrLog/list', {
+            srchBgngDt: startDate.value.replaceAll('-', ''),
+            srchEndDt: endDate.value.replaceAll('-', '')
         });
-        logList.value = res.data.sort((a, b) => new Date(b.logTime) - new Date(a.logTime));
+        logList.value = res.data.sort((a, b) => new Date(b.lgnDt) - new Date(a.lgnDt));
     } catch (err) {
         console.error('로그 불러오기 실패:', err);
     }
@@ -78,25 +71,25 @@ onMounted(() => {
                     <v-card-text>
                         <p class="log-item">
                             <span class="log-label">관리자번호<span class="justify-hack"></span></span>
-                            <span>{{ log.adminId }}</span>
+                            <span>{{ log.mngrNo }}</span>
                         </p>
                         <p class="log-item">
                             <span class="log-label">관리자이름<span class="justify-hack"></span></span>
-                            <span>{{ log.adminName }}</span>
+                            <span>{{ log.mngrNm }}</span>
                         </p>
                         <p class="log-item">
                             <span class="log-label">접 속 일 시<span class="justify-hack"></span></span>
-                            <span>{{ log.logTime }}</span>
+                            <span>{{ log.lgnDt }}</span>
                         </p>
                         <p class="log-item">
                             <span class="log-label">접 속 여 부<span class="justify-hack"></span></span>
                             <v-chip
-                                :color="log.successYn === 'Y' ? 'green' : 'red'"
+                                :color="log.lgnYn === 'Y' ? 'green' : 'red'"
                                 text-color="white"
                                 size="small"
                                 label
                             >
-                                {{ log.successYn === 'Y' ? '성공' : '실패' }}
+                                {{ log.lgnYn === 'Y' ? '성공' : '실패' }}
                             </v-chip>
                         </p>
                     </v-card-text>

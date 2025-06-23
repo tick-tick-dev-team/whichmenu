@@ -34,7 +34,7 @@ public class RestInfoContorller {
 	}
 
 	@GetMapping("/list")
-	public List<RestInfoDto> restList(RestInfoDto inputDto) {
+	public List<RestInfoDto> restList(@RequestBody RestInfoDto inputDto) {
 		List<RestInfoDto> restListDto = restInfoService.selectRestList(inputDto);
 		
 		log.error("[식당리스트] => {} ", restListDto);

@@ -3,7 +3,7 @@
 import NavMenu2 from '@/components/NavMenu2.vue';
 import RestForm from '@/components/RestForm.vue';
 import axios from 'axios';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 
 // 리스트
 const searchKeyword = ref('');
@@ -24,12 +24,14 @@ const restInfo = ref([
 // axios로 동기처럼 처리
 function restList() {
     axios.get('/api/rest/list', {
-        params: { useYn: 'Y' }
+        params: { 
+          useYn    : 'Y', 
+          srchKwrd : searchKeyword.value
+         }
     })
     .then(response => {
       restInfo.value = [];
       restInfo.value = response.data;  // 응답 데이터를 inquiries에 할당
-      console.log(restInfo.value);
     })
     .catch(error => {
       console.error('문의 게시글 목록 가져오기 실패:', error);
@@ -98,6 +100,11 @@ function editRest(restId) {
         addRestVisible.value = true;
     }
 }
+
+watch(searchKeyword, () => {
+  restList();
+});
+
 
 </script>
 

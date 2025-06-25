@@ -25,5 +25,7 @@ public class RestInfoDto {
 	
 	private String mdfcnDt;
 	
+	private String srchKwrd; 	// 검색 키워드
+	
 
 }

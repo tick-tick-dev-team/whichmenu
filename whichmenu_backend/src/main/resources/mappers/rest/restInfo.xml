@@ -4,21 +4,26 @@
     
     
     <sql id="restInfoSearch">
-    <if test="restId != null and restId != '' ">
-        AND REST_ID        = #{restId}
-    </if>
-    <if test="restNm != null and restNm != '' ">
-        AND REST_NM        = #{restNm}
-    </if>
-    <if test="restAddr != null and restAddr != '' ">
-        AND REST_ADDR      = #{restAddr}
-    </if>
-    <if test="infoInitType != null and infoInitType != '' ">
-        AND INFO_INIT_TYPE = #{infoInitType}
-    </if>
-    <if test="useYn != null and useYn != '' ">
-        AND USE_YN         = #{useYn}
-    </if>
+        <if test="restId != null and restId != '' ">
+            AND REST_ID        = #{restId}
+        </if>
+        <if test="restNm != null and restNm != '' ">
+            AND REST_NM        = #{restNm}
+        </if>
+        <if test="restAddr != null and restAddr != '' ">
+            AND REST_ADDR      = #{restAddr}
+        </if>
+        <if test="infoInitType != null and infoInitType != '' ">
+            AND INFO_INIT_TYPE = #{infoInitType}
+        </if>
+        <if test="useYn != null and useYn != '' ">
+            AND USE_YN         = #{useYn}
+        </if>
+        <if test="srchKwrd != null and srchKwrd != ''">
+            AND REST_NM   LIKE CONCAT('%', #{srchKwrd},'%')
+             OR REST_DTL  LIKE CONCAT('%', #{srchKwrd},'%')
+             OR REST_ADDR LIKE CONCAT('%', #{srchKwrd},'%')
+        </if>
     </sql>
     
     <!-- 식당정보 전체 -->

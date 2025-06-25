@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ticktick.whichmenu_backend.web.rest.dao.dto.RestInfoDto;
@@ -34,7 +35,11 @@ public class RestInfoContorller {
 	}
 
 	@GetMapping("/list")
-	public List<RestInfoDto> restList(@RequestBody RestInfoDto inputDto) {
+	public List<RestInfoDto> restList(@RequestParam("useYn") String useYn, @RequestParam(value = "srchKwrd", required = false) String srchKwrd) {
+		
+		RestInfoDto inputDto = new RestInfoDto();
+		inputDto.setUseYn(useYn);
+		inputDto.setSrchKwrd(srchKwrd);
 		List<RestInfoDto> restListDto = restInfoService.selectRestList(inputDto);
 		
 		log.error("[식당리스트] => {} ", restListDto);

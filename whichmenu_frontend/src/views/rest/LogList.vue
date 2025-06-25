@@ -103,6 +103,7 @@ onMounted(() => {
     min-height: 100vh;
     padding: 20px;
     margin-top: 30px;
+    position: relative;
     max-width: 600px;
     margin-left: auto;
     margin-right: auto;
@@ -120,6 +121,7 @@ onMounted(() => {
     display: flex;
     gap: 10px;
     margin-bottom: 20px;
+    max-width: 600px;
     justify-content: center;
 }
 
@@ -129,6 +131,7 @@ onMounted(() => {
     border-radius: 12px;
     background-color: #fff;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    max-width: 600px;
 }
 
 .log-item {

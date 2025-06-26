@@ -3,7 +3,6 @@ import { ref, computed } from 'vue';
 import { useDisplay } from 'vuetify';
 
 const { smAndDown } = useDisplay(); // 작은 화면(모바일 + 태블릿)
-import NavMenu from '@/components/NavMenu.vue';
 import NavMenu2 from '@/components/NavMenu2.vue';
 
 const selectedCenter = ref('메디벤처센터');

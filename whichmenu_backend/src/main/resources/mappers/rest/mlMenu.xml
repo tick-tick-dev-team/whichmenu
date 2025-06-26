@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD MyBatis Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ticktick.whichmenu_backend.web.rest.dao.MlMenuDAO">
+    
+    <!-- 식당 -->
+    <select id="selectRestMlMenuList" resultType="com.ticktick.whichmenu_backend.web.mmgr.dao.dto.MlMenuDto">
+        SELECT 
+               M.ML_MENU_ID                /* 식사메뉴ID */
+             , M.REST_ID                   /* 식당 ID */
+             , M.ATCH_REFER_ID             /* 첨푸파일 참조ID */
+             , M.BGNG_DT                   /* 게시시작일 */
+             , M.END_DT                    /* 게시종료일 */
+             , M.OUTSD_REFER_URL           /* 외부참조URL */
+             , M.USE_YN                    /* 식단사용여부 */
+             , M.REG_DT                    /* 등록일 */
+             , M.MDFCN_DT                  /* 수정일 */
+             , R.REST_NM                   /* 식당명 */
+             , R.REST_DTL                  /* 식당상세내용 */
+             , R.INFO_INIT_TYPE            /* 식당 정보개시유형 */
+             , R.USE_YN AS REST_USE_YN     /* 식당사용여부 */
+          FROM ML_MENU M JOIN REST_INFO R  
+            ON M.REST_ID = R.REST_ID       /* 식당ID */
+    </select>
+    
+    <!--
+		식당이랑 식단이랑 조인해서 사용가능한 얘들만 가지고 와서
+		식당정보는 식당정보대로
+		식단정보는 식단정보대로 가져와서 
+		오늘날짜 비교해서 이번주에 해당되는 애들만 보여주는걸로 
+		저번주 날짜에 해당 되는 날짜 애들은 저번주 애들 보여주기 
+		
+	-->
+    
+    
+    
+</mapper>

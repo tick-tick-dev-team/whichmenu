@@ -24,6 +24,10 @@ const regNm = ref('');
 const isAnonymous = ref(false); // 체크 상태로 익명 처리
 const files = ref([]); // 부모 쪽에서 파일을 여러 개 받을 수 있도록 배열로
 
+// 게시글 수정에 필요한 변수
+const existingFiles = ref([]); // 기존 첨부파일
+const deletedFileIds = ref([]); // 삭제된 파일 배열
+
 // 체크 상태가 바뀔 때 익명 처리
 watch(isAnonymous, (val) => {
     if (val) {
@@ -58,6 +62,7 @@ const submitPost = async () => {
     formData.append('bbsType', props.bbsType);                 // 게시판 유형 (예: 'R')
     formData.append('regNm', regNm.value);                     // 등록자
     formData.append('rlsYn', 'Y');         // 공개 여부
+    formData.append('useYn', 'Y');
 
     // 첨부파일들
     files.value.forEach(file => {
@@ -73,6 +78,11 @@ const submitPost = async () => {
         if(props.mode === 'update'){
             url = '/api/bbs/update';
             formData.append('bbsId', props.target.bbsId); // 수정 시 ID 포함
+
+            // 삭제된 파일 ID 목록 (String 배열 → JSON 문자열로 변환)
+            if (deletedFileIds.value.length > 0) {
+            formData.append('deletedFileIds', JSON.stringify(deletedFileIds.value));
+            }
         }
 
         const res = await axios.post(url, formData, {
@@ -94,12 +104,22 @@ const submitPost = async () => {
     }
 };
 
+// 기존 파일 삭제 시
+const removeFile = (fileId) => {
+  // 화면에서 제거
+  existingFiles.value = existingFiles.value.filter(f => f.atchFileId !== fileId);
+
+  // 백엔드에 전달할 삭제 ID 목록에 추가
+  deletedFileIds.value.push(fileId);
+};
+
 watch(() => props.target, (newTarget) => {
   if (props.mode === 'update' && newTarget) {
     bbsTtl.value = newTarget.bbsTtl;
     bbsCn.value = newTarget.bbsCn;
     regNm.value = newTarget.regNm;
     isAnonymous.value = newTarget.regNm === '익명';
+    existingFiles.value = newTarget.fileList || [];
   } else if (props.mode === 'create') {
     // create일 경우 값 초기화
     bbsTtl.value = '';
@@ -146,8 +166,30 @@ watch(() => props.target, (newTarget) => {
                     variant="outlined"
                     class="mb-3"
                 />
-                <!-- 파일 업로드 컴포넌트 -->
+                <!-- s: 파일 업로드 컴포넌트 -->
                 <FileUpload @files-selected="handleFilesSelected" />
+
+                <!-- 기존 첨부파일 목록 -->
+                <div v-if="existingFiles.length > 0" class="existing-files mb-4">
+                <h4>기존 첨부파일</h4>
+                <ul>
+                    <li v-for="file in existingFiles" :key="file.atchFileId" class="file-item">
+                    <a
+                        :href="`http://localhost:8080/atch/${file.filePath.split(/[/\\]/).at(-1)}`"
+                        target="_blank"
+                        rel="noopener"
+                    >
+                        {{ file.fileNm }}
+                    </a>
+                    <v-btn icon size="x-small" variant="text" color="error" @click="removeFile(file.atchFileId)">
+                        <v-icon size="x-small">mdi-delete</v-icon>
+                        삭제
+                    </v-btn>
+                    </li>
+                </ul>
+                </div>
+                <!-- e: 기존 첨부파일 목록 -->
+                
             </v-card-text>
             <v-card-actions>
                 <v-spacer />

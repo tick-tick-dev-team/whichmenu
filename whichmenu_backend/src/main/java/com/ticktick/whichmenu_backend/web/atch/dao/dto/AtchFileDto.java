@@ -36,8 +36,5 @@ public class AtchFileDto {
 	// 참조 유형 (P: 일반게시판, M: 메뉴 등 구분용)
 	private String refType;
 	
-	// (로직에 필요한)첨부파일 변경 여부(Y, N)
-	private String atchChangedYn;
-	
 
 }

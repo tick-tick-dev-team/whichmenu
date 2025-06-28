@@ -48,11 +48,27 @@ const addComment = (postId, comment) => {
   });
 };
 
-// 등록 다이얼로그 보이는 여부 변수
-const addPostVisible = ref(false);
+// 등록/수정 다이얼로그(components/PostForm.vue) 보이는 여부 변수
+const postFormVisible = ref(false);
 
-const addPost = (bbsType) =>{
-  addPostVisible.value = !addPostVisible.value;
+const postFormMode = ref('create'); // create 또는 update
+const postFormTarget = ref(null); // 편집 대상 (수정 시에만 사용)
+
+const editPost = (bbsType, mode, bbsId) =>{
+
+  postFormMode.value = mode; // create 또는 update
+
+  if(mode === 'update' && bbsId != null ){
+    const target = posts.value.find(b => b.bbsId === bbsId);
+    if(target){
+      postFormTarget.value = { ...target}; 
+    }
+  }else if (mode === 'create'){
+    postFormTarget.value = null;
+  }
+
+  postFormVisible.value = !postFormVisible.value;
+
 }
 
 onMounted(() => {
@@ -68,17 +84,26 @@ onMounted(() => {
     <h2>맛집을 알려주세요</h2>
         
     <div v-for="post in posts" :key="post.id" class="post-list">
-      <PostList :post="post" />
+      <PostList
+        :post="post"
+        @editPost="(payload) => editPost('R', payload.mode, payload.bbsId)"
+      />
       <CmntList :comments="post.comments" boardType="restaurant" @addComment="(comment) => addComment(post.id, comment)" />
     </div>
 
     <!-- + 버튼 추가 -->
-    <v-btn class="floating-btn" color="deep-purple-accent-2" fab @click="addPost('R')">
+    <v-btn class="floating-btn" color="deep-purple-accent-2" fab @click="editPost('R', 'create')">
         <v-icon>mdi-plus</v-icon>
     </v-btn>
 
     <!-- v-model로 PostForm 제어, submitPost는 다이얼로그에서 등록된 이후 실행하는 것 -->
-    <PostForm v-model="addPostVisible" @submitPost="bbsList" :bbsType="'R'" />
+    <PostForm
+      v-model="postFormVisible"
+      :bbsType="'R'"
+      :mode="postFormMode"
+      :target="postFormTarget"
+      @submitPost="bbsList"
+    />
   </div>
 </template>
 

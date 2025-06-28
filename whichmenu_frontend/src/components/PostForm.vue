@@ -2,11 +2,13 @@
 <script setup>
 import FileUpload from '@/components/FileUpload.vue';
 import axios from 'axios';
-import { ref, watch } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 
 const props = defineProps({
-    modelValue: Boolean,
-    bbsType: String
+    modelValue: Boolean, // postList
+    bbsType: String,
+    mode: String, // 'create' 또는 'update'
+    target: Object // 수정 대상 데이터 (update일 경우만 존재)
 });
 const emit = defineEmits(['update:modelValue', 'submitPost']);
 
@@ -64,31 +66,54 @@ const submitPost = async () => {
 
     console.log('dmdmm', formData.value);
 
-    try {
-        const res = await axios.post('/api/bbs/insert', formData, {
+    try { 
+        
+        let url = '/api/bbs/insert'; // 등록 기본
+
+        if(props.mode === 'update'){
+            url = '/api/bbs/update';
+            formData.append('bbsId', props.target.bbsId); // 수정 시 ID 포함
+        }
+
+        const res = await axios.post(url, formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
             },
         });
 
         if (res.data.result === 'success') {
-            alert('등록 성공!');
+            alert(`${props.mode === 'create' ? '등록' : '수정'} 성공!`);
             emit('submitPost'); // 부모에서 처리할 후속 동작
             closeDialog();       // 다이얼로그 닫기
         } else {
-            alert('등록 실패: ' + res.data.message);
+            alert(`${props.mode === 'create' ? '등록' : '수정'} 실패: ` + res.data.message);
         }
     } catch (e) {
         console.error(e);
         alert('에러 발생');
     }
 };
+
+watch(() => props.target, (newTarget) => {
+  if (props.mode === 'update' && newTarget) {
+    bbsTtl.value = newTarget.bbsTtl;
+    bbsCn.value = newTarget.bbsCn;
+    regNm.value = newTarget.regNm;
+    isAnonymous.value = newTarget.regNm === '익명';
+  } else if (props.mode === 'create') {
+    // create일 경우 값 초기화
+    bbsTtl.value = '';
+    bbsCn.value = '';
+    regNm.value = '';
+    isAnonymous.value = false;
+  }
+}, { immediate: true }); // mount 시에도 실행되게 함
 </script>
 
 <template>
     <v-dialog v-model="props.modelValue" max-width="600px" persistent>
         <v-card>
-            <v-card-title>게시글 작성</v-card-title>
+            <v-card-title> {{ props.mode === 'create' ? '게시글 등록' : '게시글 수정' }}</v-card-title>
             <v-card-text>
                 <v-text-field
                     v-model="bbsTtl"
@@ -126,7 +151,9 @@ const submitPost = async () => {
             </v-card-text>
             <v-card-actions>
                 <v-spacer />
-                <v-btn color="primary" @click="submitPost">등록</v-btn>
+                <v-btn color="primary" @click="submitPost">
+                    {{ props.mode === 'create' ? '등록' : '수정' }}
+                </v-btn>
                 <v-btn color="error" @click="closeDialog">닫기</v-btn>
             </v-card-actions>
         </v-card>

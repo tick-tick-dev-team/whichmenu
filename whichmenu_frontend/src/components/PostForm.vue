@@ -2,11 +2,13 @@
 <script setup>
 import FileUpload from '@/components/FileUpload.vue';
 import axios from 'axios';
-import { ref, watch } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 
 const props = defineProps({
-    modelValue: Boolean,
-    bbsType: String
+    modelValue: Boolean, // postList
+    bbsType: String,
+    mode: String, // 'create' 또는 'update'
+    target: Object // 수정 대상 데이터 (update일 경우만 존재)
 });
 const emit = defineEmits(['update:modelValue', 'submitPost']);
 
@@ -21,6 +23,10 @@ const bbsCn = ref('');
 const regNm = ref('');
 const isAnonymous = ref(false); // 체크 상태로 익명 처리
 const files = ref([]); // 부모 쪽에서 파일을 여러 개 받을 수 있도록 배열로
+
+// 게시글 수정에 필요한 변수
+const existingFiles = ref([]); // 기존 첨부파일
+const deletedFileIds = ref([]); // 삭제된 파일 배열
 
 // 체크 상태가 바뀔 때 익명 처리
 watch(isAnonymous, (val) => {
@@ -56,6 +62,7 @@ const submitPost = async () => {
     formData.append('bbsType', props.bbsType);                 // 게시판 유형 (예: 'R')
     formData.append('regNm', regNm.value);                     // 등록자
     formData.append('rlsYn', 'Y');         // 공개 여부
+    formData.append('useYn', 'Y');
 
     // 첨부파일들
     files.value.forEach(file => {
@@ -64,31 +71,69 @@ const submitPost = async () => {
 
     console.log('dmdmm', formData.value);
 
-    try {
-        const res = await axios.post('/api/bbs/insert', formData, {
+    try { 
+        
+        let url = '/api/bbs/insert'; // 등록 기본
+
+        if(props.mode === 'update'){
+            url = '/api/bbs/update';
+            formData.append('bbsId', props.target.bbsId); // 수정 시 ID 포함
+
+            // 삭제된 파일 ID 목록 (String 배열 → JSON 문자열로 변환)
+            if (deletedFileIds.value.length > 0) {
+            formData.append('deletedFileIds', JSON.stringify(deletedFileIds.value));
+            }
+        }
+
+        const res = await axios.post(url, formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
             },
         });
 
         if (res.data.result === 'success') {
-            alert('등록 성공!');
+            alert(`${props.mode === 'create' ? '등록' : '수정'} 성공!`);
             emit('submitPost'); // 부모에서 처리할 후속 동작
             closeDialog();       // 다이얼로그 닫기
         } else {
-            alert('등록 실패: ' + res.data.message);
+            alert(`${props.mode === 'create' ? '등록' : '수정'} 실패: ` + res.data.message);
         }
     } catch (e) {
         console.error(e);
         alert('에러 발생');
     }
 };
+
+// 기존 파일 삭제 시
+const removeFile = (fileId) => {
+  // 화면에서 제거
+  existingFiles.value = existingFiles.value.filter(f => f.atchFileId !== fileId);
+
+  // 백엔드에 전달할 삭제 ID 목록에 추가
+  deletedFileIds.value.push(fileId);
+};
+
+watch(() => props.target, (newTarget) => {
+  if (props.mode === 'update' && newTarget) {
+    bbsTtl.value = newTarget.bbsTtl;
+    bbsCn.value = newTarget.bbsCn;
+    regNm.value = newTarget.regNm;
+    isAnonymous.value = newTarget.regNm === '익명';
+    existingFiles.value = newTarget.fileList || [];
+  } else if (props.mode === 'create') {
+    // create일 경우 값 초기화
+    bbsTtl.value = '';
+    bbsCn.value = '';
+    regNm.value = '';
+    isAnonymous.value = false;
+  }
+}, { immediate: true }); // mount 시에도 실행되게 함
 </script>
 
 <template>
     <v-dialog v-model="props.modelValue" max-width="600px" persistent>
         <v-card>
-            <v-card-title>게시글 작성</v-card-title>
+            <v-card-title> {{ props.mode === 'create' ? '게시글 등록' : '게시글 수정' }}</v-card-title>
             <v-card-text>
                 <v-text-field
                     v-model="bbsTtl"
@@ -121,12 +166,36 @@ const submitPost = async () => {
                     variant="outlined"
                     class="mb-3"
                 />
-                <!-- 파일 업로드 컴포넌트 -->
+                <!-- s: 파일 업로드 컴포넌트 -->
                 <FileUpload @files-selected="handleFilesSelected" />
+
+                <!-- 기존 첨부파일 목록 -->
+                <div v-if="existingFiles.length > 0" class="existing-files mb-4">
+                <h4>기존 첨부파일</h4>
+                <ul>
+                    <li v-for="file in existingFiles" :key="file.atchFileId" class="file-item">
+                    <a
+                        :href="`http://localhost:8080/atch/${file.filePath.split(/[/\\]/).at(-1)}`"
+                        target="_blank"
+                        rel="noopener"
+                    >
+                        {{ file.fileNm }}
+                    </a>
+                    <v-btn icon size="x-small" variant="text" color="error" @click="removeFile(file.atchFileId)">
+                        <v-icon size="x-small">mdi-delete</v-icon>
+                        삭제
+                    </v-btn>
+                    </li>
+                </ul>
+                </div>
+                <!-- e: 기존 첨부파일 목록 -->
+                
             </v-card-text>
             <v-card-actions>
                 <v-spacer />
-                <v-btn color="primary" @click="submitPost">등록</v-btn>
+                <v-btn color="primary" @click="submitPost">
+                    {{ props.mode === 'create' ? '등록' : '수정' }}
+                </v-btn>
                 <v-btn color="error" @click="closeDialog">닫기</v-btn>
             </v-card-actions>
         </v-card>

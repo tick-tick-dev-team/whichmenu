@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ticktick.whichmenu_backend.web.atch.dao.dto.AtchFileDto;
 import com.ticktick.whichmenu_backend.web.atch.service.AtchFileService;
 import com.ticktick.whichmenu_backend.web.bbs.dao.dto.BbsDto;
@@ -163,7 +165,9 @@ public class BbsController {
 	@PostMapping("/update")
 	public Map<String, Object> bbsUpdate(
 	        @ModelAttribute BbsDto inputDto,
-	        @RequestParam(value = "files", required = false) List<MultipartFile> files) {
+	        @RequestParam(value = "files", required = false) List<MultipartFile> files,
+	        @RequestParam(value = "deletedFileIds", required = false) String deletedFileIdsJson
+	        ) {
 
 	    Map<String, Object> result = new HashMap<>();
 
@@ -185,9 +189,22 @@ public class BbsController {
 	    try {
 	        // 2. 게시글 수정
 	        bbsService.updateBbs(inputDto);
+	        
+	        
+	     // 3. 삭제 요청된 파일 처리
+	        if (deletedFileIdsJson != null && !deletedFileIdsJson.isBlank()) {
+	            List<String> deletedFileIds = new ObjectMapper().readValue(
+	                deletedFileIdsJson, new TypeReference<List<String>>() {}
+	            );
+	            for (String fileId : deletedFileIds) {
+	                AtchFileDto fileDto = new AtchFileDto();
+	                fileDto.setAtchFileId(fileId);
+	                atchFileService.updateFileMeta(fileDto); // USE_YN = 'N' 처리
+	            }
+	        }
 
-	        // 3. 첨부파일 수정 여부 확인
-	        if ("Y".equals(inputDto.getAtchChangedYn())) {
+	        // 4. 새 파일 업로드 처리
+	        if (files != null && !files.isEmpty()) {
 
 	            // 3-1. 기존 파일 USE_YN = 'N' 처리
 	        	AtchFileDto atch = new AtchFileDto();

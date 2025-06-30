@@ -55,7 +55,7 @@ onMounted(() => {
       <PostList :post="notice" />
     </div>
     <!-- + 버튼 추가 -->
-    <v-btn class="floating-btn" color="deep-purple-accent-2" fab @click="addPost">
+    <v-btn class="floating-btn" color="deep-purple-accent-2" fab @click="editPost">
         <v-icon>mdi-plus</v-icon>
     </v-btn>
   </div>

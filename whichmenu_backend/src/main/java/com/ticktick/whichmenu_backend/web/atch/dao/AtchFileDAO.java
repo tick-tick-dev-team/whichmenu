@@ -19,4 +19,8 @@ public interface AtchFileDAO {
 	// U, atchUseYn
 	void updateFileMeta(AtchFileDto fileDto);
 	
+	// 참조 파일 조회 (R : atchReferId, refType)
+	List<AtchFileDto> selectFilesByReferIdAndType(AtchFileDto fileDto);
+	
+	
 }

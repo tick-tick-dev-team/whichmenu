@@ -1,7 +1,5 @@
 package com.ticktick.whichmenu_backend.web.rest.service;
 
-import java.util.List;
-
 import com.ticktick.whichmenu_backend.web.rest.dao.dto.MlMenuDto;
 
 /**
@@ -10,8 +8,6 @@ import com.ticktick.whichmenu_backend.web.rest.dao.dto.MlMenuDto;
  * */
 
 public interface MlMenuService {
-	
-	public List<MlMenuDto> selectRestMlMenuList(MlMenuDto mlMenuDto);
 	
 	public MlMenuDto selectOneRestMenu(MlMenuDto mlMenuDto);
 	

@@ -19,4 +19,7 @@ public interface AtchFileService {
 	// U, atchUseYn = 'N'
 	void updateFileMeta(AtchFileDto dto);
 	
+	// 참조 첨부파일 조회 - 단건 
+	List<AtchFileDto> findFilesByReferId(AtchFileDto dto);
+	
 }

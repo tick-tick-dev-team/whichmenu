@@ -1,29 +1,82 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import { useDisplay } from 'vuetify';
+import axios from 'axios';
 
-const { smAndDown } = useDisplay(); // 작은 화면(모바일 + 태블릿)
+const { smAndDown } = useDisplay();
+
 import NavMenu2 from '@/components/NavMenu2.vue';
 
-const selectedCenter = ref('메디벤처센터');
-const centerList = ['메디벤처센터', '니가찾는그밥집'];
+// 선택된 식당
+const selectedCenter = ref('');
+// 식당 리스트
+const centerList = ref([]);
 
-const imageUrl = '/path/to/menu-image.jpg'; // 식단 이미지 경로
-const period = '2025.02.03 ~ 2025.02.07';
-const updated = '2025.01.17 16:03:33';
+// 메뉴 정보
+const menuImage = ref('');
+const period = ref('');
+const updated = ref('');
 
-// 선택된 센터에 따라 이미지 경로 변경
-const menuImage = computed(() => {
-  return selectedCenter.value === '니가찾는그밥집'
-    ? '/img/test_img5.jpg'
-    : '/img/test_img.jpg';
+// 식당 리스트 조회
+const fetchCenterList = async () => {
+    try {
+        const response = await axios.get('/api/rest/list', {
+            params: {
+                useYn: 'Y'
+            }
+        });
+        centerList.value = response.data;
+        if (centerList.value.length > 0) {
+            selectedCenter.value = centerList.value[0].restId;
+        }
+    } catch (error) {
+        console.error('식당 리스트 조회 실패:', error);
+    }
+};
+
+// 메뉴 정보 조회
+const fetchMenuInfo = async (restId) => {
+    try {
+        const response = await axios.post('/api/mlmeu/rest', {
+            restId: restId
+        });
+
+        const menuDto = response.data.MlMenuDto;
+        const atchList = response.data.atchList || [];
+
+        if (menuDto) {
+            menuImage.value = atchList.length > 0 ? `http://localhost:8080/atch/${atchList[0].filePath.split(/[/\\]/).at(-1)}` : '';
+            period.value = menuDto.bgngDt + " ~ " + menuDto.endDt;
+            updated.value = menuDto.mdfcnDt;
+        } else {
+            menuImage.value = '';
+            period.value = '';
+            updated.value = '';
+        }
+    } catch (error) {
+        console.error('메뉴 정보 조회 실패:', error);
+    }
+};
+
+// 초기 데이터 조회
+onMounted(async () => {
+    await fetchCenterList();
+    if (selectedCenter.value) {
+        await fetchMenuInfo(selectedCenter.value);
+    }
+});
+
+// 선택 변경 시 재조회
+watch(selectedCenter, async (newVal) => {
+    if (newVal) {
+        await fetchMenuInfo(newVal);
+    }
 });
 </script>
-
 <template>
     <!-- 헤더 -->
-    <NavMenu2></NavMenu2>
-    
+    <NavMenu2 />
+
     <!-- 메인 -->
     <v-main fluid class="main-wrapper">
         <div class="full-bleed-background">
@@ -33,6 +86,8 @@ const menuImage = computed(() => {
                     <v-select
                         v-model="selectedCenter"
                         :items="centerList"
+                        item-title="restNm"
+                        item-value="restId"
                         dense
                         outlined
                         hide-details
@@ -53,20 +108,20 @@ const menuImage = computed(() => {
                     </v-text>
                 </v-container>
                 <!-- 버튼 목록 -->
-                <v-btn block class="my-1 func-btns" color="black" dark :density="smAndDown ? 'compact' : 'default'" >업로드 하기</v-btn>
+                <v-btn block class="my-1 func-btns" color="black" dark :density="smAndDown ? 'compact' : 'default'">업로드 하기</v-btn>
                 <v-btn block class="my-1 func-btns" color="black" dark :density="smAndDown ? 'compact' : 'default'" :to="'/rest/restInfo'">식당정보 조회</v-btn>
-                <v-btn block class="my-1 func-btns" color="black" dark :density="smAndDown ? 'compact' : 'default'" >삭제(관리자)</v-btn>
+                <v-btn block class="my-1 func-btns" color="black" dark :density="smAndDown ? 'compact' : 'default'">삭제(관리자)</v-btn>
             </div>
         </div>
     </v-main>
 </template>
-
 
 <style scoped>
 .main-wrapper {
     padding: 0;
     margin: 0;
 }
+
 /* 전체 배경 */
 .full-bleed-background {
     /* background-color:lightgray; */

@@ -63,5 +63,26 @@
         WHERE ATCH_FILE_ID = #{atchFileId}          /* 첨부파일 ID (PK) */
 	</update>	
     
+    <!--참조 파일 조회 -->
+    <select id="selectFilesByReferIdAndType" parameterType="com.ticktick.whichmenu_backend.web.atch.dao.dto.AtchFileDto" resultType="com.ticktick.whichmenu_backend.web.atch.dao.dto.AtchFileDto">
+        SELECT 
+               ATCH_FILE_ID                         /* 첨부파일ID */
+             , ATCH_REFER_ID                        /* 첨부참조ID */
+             , FILE_ODR                             /* 파일 순서 */
+             , FILE_NM                              /* 파일명 */
+             , FILE_PATH                            /* 파일경로 */
+             , FILE_SZ                              /* 파일크기 */
+             , FILE_EXTN                            /* 파일확장자 */
+             , REF_TYPE                             /* 참조유형 */
+             , USE_YN                               /* 사용여부 */
+             , REG_DT                               /* 등록일 */
+             , MDFCN_DT                             /* 수정일 */
+          FROM ATCH_FILE
+         WHERE 1=1 
+           AND ATCH_REFER_ID = #{atchReferId}       /* 첨부참조ID */
+           AND REF_TYPE      = #{refType}           /* 참조유형 */
+           AND USE_YN        = 'Y'                  /* 사용여부 */
+    </select>
+    
     
 </mapper>

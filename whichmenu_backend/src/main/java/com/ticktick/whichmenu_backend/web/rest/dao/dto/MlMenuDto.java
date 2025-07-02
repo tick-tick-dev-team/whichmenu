@@ -1,5 +1,9 @@
 package com.ticktick.whichmenu_backend.web.rest.dao.dto;
 
+import java.util.List;
+
+import com.ticktick.whichmenu_backend.web.atch.dao.dto.AtchFileDto;
+
 import lombok.Data;
 
 /**
@@ -11,9 +15,7 @@ public class MlMenuDto {
 	
 	private String mlMenuId;		// 식사메뉴ID
 	
-	private String restId;			// 식당ID
-	
-	private String AtchReferId;		// 첨부파일ID
+	private String restId;			// 식당IDㄴ
 	
 	private String bgngDt;			// 게시시작일
 	
@@ -34,6 +36,8 @@ public class MlMenuDto {
 	private String infoInitType;	// 식당 정보개시유형
 	
 	private String restUseYn;		// 식당 사용 여부
+	
+	private AtchFileDto fileList;	// 첨부파일을 위한 변수
 	
 	
 

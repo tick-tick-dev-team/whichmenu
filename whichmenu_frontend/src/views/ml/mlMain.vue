@@ -15,7 +15,7 @@ const srchDt = ref(new Date().toISOString().slice(0, 10));
 const centerList = ref([]);
 
 // 메뉴 정보
-const menuImage = ref('/img/no_mlmenu3.png');
+const menuImage = ref('/img/no_mlmenu.png');
 const menuLink = ref(''); // 링크용 변수
 const period = ref('');
 const updated = ref('');
@@ -62,7 +62,7 @@ const fetchMenuInfo = async (restId) => {
         menuImage.value = atchList.length > 0 ? `http://localhost:8080/atch/${atchList[0].filePath.split(/[/\\]/).at(-1)}` : '/img/no_mlmenu3.png';
       }
     } else {
-      menuImage.value = '/img/no_mlmenu3.png';
+      menuImage.value = '/img/no_mlmenu.png';
       menuLink.value = '';
       period.value = '';
       updated.value = '';

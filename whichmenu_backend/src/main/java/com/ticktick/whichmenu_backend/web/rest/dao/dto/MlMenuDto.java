@@ -39,6 +39,8 @@ public class MlMenuDto {
 	
 	private AtchFileDto fileList;	// 첨부파일을 위한 변수
 	
+	private String srchDt;			// 조회조건날짜
+	
 	
 
 }

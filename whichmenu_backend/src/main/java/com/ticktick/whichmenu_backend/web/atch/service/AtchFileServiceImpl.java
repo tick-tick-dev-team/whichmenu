@@ -39,6 +39,11 @@ public class AtchFileServiceImpl implements AtchFileService {
 	public void updateFileMeta(AtchFileDto dto) {
 		atchFileDao.updateFileMeta(dto);
 	}
+
+	@Override
+	public List<AtchFileDto> findFilesByReferId(AtchFileDto dto) {
+		return atchFileDao.selectFilesByReferIdAndType(dto);
+	}
 	
 
 }

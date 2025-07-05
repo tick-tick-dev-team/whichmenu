@@ -155,12 +155,11 @@
              
           FROM BBS A
           	LEFT JOIN ATCH_FILE B
-          	ON A.BBS_ID   = B.ATCH_REFER_ID                  /* 게시글 ID = 첨부파일 참조 ID */
-			   AND A.BBS_TYPE = B.REF_TYPE                   /* 게시글 유형 = 첨부파일 참조 유형 */
-			   AND B.USE_YN = 'Y'
-         WHERE 1=1
-           AND A.USE_YN = 'Y'
-           AND A.BBS_ID    = #{bbsId}
+              ON A.BBS_ID = B.ATCH_REFER_ID
+             AND A.BBS_TYPE = B.REF_TYPE
+		  WHERE A.USE_YN = 'Y'
+		    AND A.BBS_ID = #{bbsId}
+		    AND (B.USE_YN = 'Y' OR B.ATCH_FILE_ID IS NULL)
          
     </select>
     

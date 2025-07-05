@@ -205,38 +205,30 @@ public class BbsController {
 
 	        // 4. 새 파일 업로드 처리
 	        if (files != null && !files.isEmpty()) {
+                int order = 1;
+                for (MultipartFile file : files) {
+                    if (file.isEmpty()) continue;
 
-	            // 3-1. 기존 파일 USE_YN = 'N' 처리
-	        	AtchFileDto atch = new AtchFileDto();
-	        	atch.setAtchFileId(inputDto.getBbsId());
-	            atchFileService.updateFileMeta(atch);
+                    String originalFileName = file.getOriginalFilename();
+                    String fileExtn = originalFileName.substring(originalFileName.lastIndexOf(".") + 1);
+                    String savePath = uploadDir + File.separator + System.currentTimeMillis() + "_" + originalFileName;
 
-	            // 3-2. 새로운 파일이 있다면 insert
-	            if (files != null && !files.isEmpty()) {
-	                int order = 1;
-	                for (MultipartFile file : files) {
-	                    if (file.isEmpty()) continue;
+                    File dest = new File(savePath);
+                    dest.getParentFile().mkdirs();
+                    file.transferTo(dest);
 
-	                    String originalFileName = file.getOriginalFilename();
-	                    String fileExtn = originalFileName.substring(originalFileName.lastIndexOf(".") + 1);
-	                    String savePath = uploadDir + File.separator + System.currentTimeMillis() + "_" + originalFileName;
+                    AtchFileDto fileDto = new AtchFileDto();
+                    fileDto.setAtchReferId(inputDto.getBbsId());
+                    fileDto.setRefType(inputDto.getBbsType());
+                    fileDto.setFileOdr(order++);
+                    fileDto.setFileNm(originalFileName);
+                    fileDto.setFilePath(savePath);
+                    fileDto.setFileSz((int) file.getSize());
+                    fileDto.setFileExtn(fileExtn);
 
-	                    File dest = new File(savePath);
-	                    dest.getParentFile().mkdirs();
-	                    file.transferTo(dest);
+                    atchFileService.insertFileMeta(fileDto);
+                }
 
-	                    AtchFileDto fileDto = new AtchFileDto();
-	                    fileDto.setAtchReferId(inputDto.getBbsId());
-	                    fileDto.setRefType(inputDto.getBbsType());
-	                    fileDto.setFileOdr(order++);
-	                    fileDto.setFileNm(originalFileName);
-	                    fileDto.setFilePath(savePath);
-	                    fileDto.setFileSz((int) file.getSize());
-	                    fileDto.setFileExtn(fileExtn);
-
-	                    atchFileService.insertFileMeta(fileDto);
-	                }
-	            }
 	        }
 
 	        result.put("result", "success");

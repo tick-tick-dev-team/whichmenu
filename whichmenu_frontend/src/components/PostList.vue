@@ -18,6 +18,8 @@ function editPost(bbsId) {
 <template>
     <v-card class="post-item" outlined>
         <v-card-text>
+        <h2>{{ post.bbsTtl }}</h2>
+        <br><hr><br>
         <div class="post-image-wrapper" v-if="post.fileList?.length != 0">
             <!--사진이 한장일때-->
             <img
@@ -57,6 +59,7 @@ function editPost(bbsId) {
             <v-btn size="x-small" variant="text" @click="editPost(post.bbsId)">수정</v-btn>
             <v-btn size="x-small" variant="text" color="error" @click="emit('deleteComment', post.bbsId)">삭제</v-btn>
         </div>
+        <br><hr><br>
         </v-card-text>
     </v-card>
 </template>

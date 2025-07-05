@@ -167,28 +167,11 @@ watch(() => props.target, (newTarget) => {
                     class="mb-3"
                 />
                 <!-- s: 파일 업로드 컴포넌트 -->
-                <FileUpload @files-selected="handleFilesSelected" />
-
-                <!-- 기존 첨부파일 목록 -->
-                <div v-if="existingFiles.length > 0" class="existing-files mb-4">
-                <h4>기존 첨부파일</h4>
-                <ul>
-                    <li v-for="file in existingFiles" :key="file.atchFileId" class="file-item">
-                    <a
-                        :href="`http://localhost:8080/atch/${file.filePath.split(/[/\\]/).at(-1)}`"
-                        target="_blank"
-                        rel="noopener"
-                    >
-                        {{ file.fileNm }}
-                    </a>
-                    <v-btn icon size="x-small" variant="text" color="error" @click="removeFile(file.atchFileId)">
-                        <v-icon size="x-small">mdi-delete</v-icon>
-                        삭제
-                    </v-btn>
-                    </li>
-                </ul>
-                </div>
-                <!-- e: 기존 첨부파일 목록 -->
+                <FileUpload
+                    @files-selected="handleFilesSelected"
+                    @remove-existing-file="removeFile"
+                    :existingFiles="existingFiles"
+                />
                 
             </v-card-text>
             <v-card-actions>

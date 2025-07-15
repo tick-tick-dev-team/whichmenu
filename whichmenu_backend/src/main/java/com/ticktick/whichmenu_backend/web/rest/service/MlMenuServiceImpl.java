@@ -1,5 +1,7 @@
 package com.ticktick.whichmenu_backend.web.rest.service;
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -44,6 +46,14 @@ public class MlMenuServiceImpl implements MlMenuService {
 	public void deleteMlMenu(MlMenuDto mlMenuDto) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public List<MlMenuDto> selectListRestMlMenu(MlMenuDto mlMenuDto) {
+		List<MlMenuDto> rsltList = mlMenuDao.selectListRestMlMenu(mlMenuDto);
+		
+		
+		return rsltList;
 	}
 	
 	

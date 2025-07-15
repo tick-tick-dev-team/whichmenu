@@ -41,6 +41,8 @@ public class MlMenuDto {
 	
 	private String srchDt;			// 조회조건날짜
 	
+	private String posType;		// 시점 조건
+	
 	
 
 }

@@ -2,8 +2,8 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD MyBatis Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ticktick.whichmenu_backend.web.rest.dao.MlMenuDAO">
     
-    <!-- 식단 조회 -->
-    <select id="selectOneRestMlMenu" resultType="com.ticktick.whichmenu_backend.web.rest.dao.dto.MlMenuDto">
+    <!-- 식단 단건 조회(INFO_INIT_TYPE : DAY ) -->
+    <select id="selectOneRestMlMenu" parameterType="com.ticktick.whichmenu_backend.web.rest.dao.dto.MlMenuDto" resultType="com.ticktick.whichmenu_backend.web.rest.dao.dto.MlMenuDto">
         SELECT 
                M.ML_MENU_ID                                 /* 식사메뉴ID */
              , M.REST_ID                                    /* 식당 ID */
@@ -25,7 +25,86 @@
            AND #{srchDt} BETWEEN M.BGNG_DT AND M.END_DT     /* 검색날짜조건 */
     </select>
     
-    
+    <!-- 식단 리스트 조회(INFO_INIT_TYPE : WEEK ) -->
+    <select id="selectListRestMlMenu" parameterType="com.ticktick.whichmenu_backend.web.rest.dao.dto.MlMenuDto" resultType="com.ticktick.whichmenu_backend.web.rest.dao.dto.MlMenuDto">
+        (
+        <!-- 검색일자 이전 중 가장 최신 -->
+            SELECT
+                   M.ML_MENU_ID                                  /* 식사메뉴ID */
+                 , M.REST_ID                                     /* 식당 ID */
+                 , M.BGNG_DT                                     /* 게시시작일 */
+                 , M.END_DT                                      /* 게시종료일 */
+                 , M.OUTSD_REFER_URL                             /* 외부참조URL */
+                 , M.USE_YN                                      /* 식단사용여부 */
+                 , M.REG_DT                                      /* 등록일 */
+                 , M.MDFCN_DT                                    /* 수정일 */
+                 , R.REST_NM                                     /* 식당명 */
+                 , R.REST_DTL                                    /* 식당상세내용 */
+                 , R.INFO_INIT_TYPE                              /* 식당 정보개시유형 */
+                 , R.USE_YN AS REST_USE_YN                       /* 식당사용여부 */
+                 , 'PREV' AS POS_TYPE                            /* 검색구분 */
+              FROM ML_MENU M
+              JOIN REST_INFO R ON M.REST_ID = R.REST_ID
+             WHERE M.REST_ID     = #{restId}
+               AND M.USE_YN      = 'Y'
+               AND R.USE_YN      = 'Y'
+               AND M.END_DT &lt; #{srchDt}
+             ORDER BY M.END_DT DESC
+             LIMIT 1
+        )
+        UNION ALL
+        (
+        <!-- 검색일자에 포함되는 식단 -->
+            SELECT
+                   M.ML_MENU_ID                                  /* 식사메뉴ID */
+                 , M.REST_ID                                     /* 식당 ID */
+                 , M.BGNG_DT                                     /* 게시시작일 */
+                 , M.END_DT                                      /* 게시종료일 */
+                 , M.OUTSD_REFER_URL                             /* 외부참조URL */
+                 , M.USE_YN                                      /* 식단사용여부 */
+                 , M.REG_DT                                      /* 등록일 */
+                 , M.MDFCN_DT                                    /* 수정일 */
+                 , R.REST_NM                                     /* 식당명 */
+                 , R.REST_DTL                                    /* 식당상세내용 */
+                 , R.INFO_INIT_TYPE                              /* 식당 정보개시유형 */
+                 , R.USE_YN AS REST_USE_YN                       /* 식당사용여부 */
+                 , 'CURRENT' AS POS_TYPE                         /* 검색구분 */
+              FROM ML_MENU M
+              JOIN REST_INFO R ON M.REST_ID = R.REST_ID
+             WHERE M.REST_ID = #{restId}
+               AND M.USE_YN  = 'Y'
+               AND R.USE_YN  = 'Y'
+               AND #{srchDt} BETWEEN M.BGNG_DT AND M.END_DT
+             LIMIT 1
+        )
+        UNION ALL
+        (
+        <!-- 검색일자 이후 중 가장 빠른 -->
+            SELECT
+                   M.ML_MENU_ID                                  /* 식사메뉴ID */
+                 , M.REST_ID                                     /* 식당 ID */
+                 , M.BGNG_DT                                     /* 게시시작일 */
+                 , M.END_DT                                      /* 게시종료일 */
+                 , M.OUTSD_REFER_URL                             /* 외부참조URL */
+                 , M.USE_YN                                      /* 식단사용여부 */
+                 , M.REG_DT                                      /* 등록일 */
+                 , M.MDFCN_DT                                    /* 수정일 */
+                 , R.REST_NM                                     /* 식당명 */
+                 , R.REST_DTL                                    /* 식당상세내용 */
+                 , R.INFO_INIT_TYPE                              /* 식당 정보개시유형 */
+                 , R.USE_YN AS REST_USE_YN                       /* 식당사용여부 */
+                 , 'NEXT' AS POS_TYPE                            /* 검색구분 */
+              FROM ML_MENU M
+              JOIN REST_INFO R ON M.REST_ID = R.REST_ID
+             WHERE M.REST_ID      = #{restId}
+               AND M.USE_YN       = 'Y'
+               AND R.USE_YN       = 'Y'
+               AND M.BGNG_DT &gt; #{srchDt}
+             ORDER BY M.BGNG_DT ASC
+             LIMIT 1
+        )
+        ORDER BY FIELD(POS_TYPE, 'PREV', 'CURRENT', 'NEXT')
+    </select>
     
     
 </mapper>

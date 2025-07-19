@@ -13,6 +13,15 @@ const files = ref([]);
 const previews = ref([]);
 
 const handleFileUpload = (event) => {
+    const selectedFiles = Array.from(event.target.files);
+    const existingCount = props.existingFiles?.length || 0;
+    const totalCount = existingCount + selectedFiles.length;
+
+    if (totalCount > 3) {
+      alert(`파일은 최대 3개까지 등록할 수 있습니다.\n(현재 첨부된 파일 ${existingCount}개, 새로 선택한 파일 ${selectedFiles.length}개)`);
+      return;
+    }
+
     files.value = Array.from(event.target.files);
 
     // 미리보기 url 생성
@@ -41,6 +50,20 @@ const removeSinglePreview = (index) => {
   files.value.splice(index, 1);
   previews.value.splice(index, 1);
 };
+
+// 파일 용량 제한
+const fileSizeLimit = (value) => {
+  if (!value) return true;
+
+  const maxSizeInMB = 10; // MB 단위
+  const maxSize = maxSizeInMB * 1024 * 1024;
+
+  const filesArray = Array.isArray(value) ? value : [value];
+  const tooLarge = filesArray.some(file => file.size > maxSize);
+
+  return tooLarge ? `파일당 최대 ${maxSizeInMB}MB까지만 업로드 가능합니다.` : true;
+};
+
 </script>
 
 <template>
@@ -115,8 +138,11 @@ const removeSinglePreview = (index) => {
             accept="image/*"
             multiple
             @change="handleFileUpload"
-            v-model="files"
+            :rules="[fileSizeLimit]"
             hide-details
+            hide-input 
+            show-size
+            chips 
             class="upload-input"
             />
 

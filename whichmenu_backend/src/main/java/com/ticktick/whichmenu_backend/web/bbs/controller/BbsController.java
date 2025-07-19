@@ -258,6 +258,12 @@ public class BbsController {
 		// 2. 서비스 로직 실행
 		try {
             bbsService.deleteBbs(inputDto);
+            
+            // 파일 사용여부 N 처리
+            /*AtchFileDto fileDto = new AtchFileDto();
+            fileDto.setAtchFileId(inputDto.getBbsId());
+            atchFileService.updateFileMeta(fileDto);*/
+            
             result.put("result", "success");
         } catch (Exception e) {
             result.put("result", "fail");

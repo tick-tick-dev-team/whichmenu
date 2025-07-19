@@ -39,7 +39,7 @@ async function bbsList() {
 }
 
 const addComment = (postId, comment) => {
-  const post = posts.value.find(p => p.id === postId);
+  const post = posts.value.find(p => p.bbsId === postId);
   post.comments.push({
     id: new Date().getTime(),
     content: comment,
@@ -54,20 +54,48 @@ const postFormVisible = ref(false);
 const postFormMode = ref('create'); // create 또는 update
 const postFormTarget = ref(null); // 편집 대상 (수정 시에만 사용)
 
-const editPost = (bbsType, mode, bbsId) =>{
+const editPost = async (mode, bbsId) => {
 
-  postFormMode.value = mode; // create 또는 update
+  if (!bbsId) {
+    alert('잘못된 접근입니다. 게시글 ID가 없습니다.');
+    return;
+  }
 
-  if(mode === 'update' && bbsId != null ){
+  postFormMode.value = mode; // create 또는 update, delete
+
+  if (mode === 'update' && bbsId != null ){
     const target = posts.value.find(b => b.bbsId === bbsId);
     if(target){
       postFormTarget.value = { ...target}; 
     }
-  }else if (mode === 'create'){
+    postFormVisible.value = !postFormVisible.value;
+  } else if (mode === 'create'){
     postFormTarget.value = null;
-  }
 
-  postFormVisible.value = !postFormVisible.value;
+    postFormVisible.value = !postFormVisible.value;
+  } else if (mode === 'delete'){
+    
+    const confirmed = confirm('정말로 삭제하시겠습니까?');
+    if (!confirmed) return;
+
+    try {
+      const res = await axios.post('/api/bbs/delete', {
+        bbsId: bbsId
+      });
+
+      if (res.data.result === 'success') {
+        alert('삭제 성공!');
+        // 목록 새로고침 등 후속 작업
+        await bbsList(); // 목록 조회
+      } else {
+        alert('삭제 실패: ' + res.data.message);
+      }
+    } catch (err) {
+      console.error(err);
+      alert('삭제 요청 중 오류가 발생했습니다.');
+    }
+
+  }
 
 }
 
@@ -83,16 +111,16 @@ onMounted(() => {
 
     <h2>맛집을 알려주세요</h2>
         
-    <div v-for="post in posts" :key="post.id" class="post-list">
+    <div v-for="post in posts" :key="post.bbsId" class="post-list">
       <PostList
         :post="post"
-        @editPost="(payload) => editPost('R', payload.mode, payload.bbsId)"
+        @editPost="(payload) => editPost(payload.mode, payload.bbsId)"        
       />
       <CmntList :comments="post.comments" boardType="restaurant" @addComment="(comment) => addComment(post.id, comment)" />
     </div>
 
     <!-- + 버튼 추가 -->
-    <v-btn class="floating-btn" color="deep-purple-accent-2" fab @click="editPost('R', 'create')">
+    <v-btn class="floating-btn" color="deep-purple-accent-2" fab @click="editPost('create')">
         <v-icon>mdi-plus</v-icon>
     </v-btn>
 

@@ -6,11 +6,18 @@ const { post } = defineProps({
 const emit = defineEmits(['editComment', 'deleteComment', 'editPost']);
 
 // 수정 버튼 클릭 시 emit으로 mode, bbsId 전달 (자식은 직접 처리 안 함)
-function editPost(bbsId) {
-  emit('editPost', {
-    mode: 'update',
-    bbsId: bbsId
-  });
+function editPost(bbsId, status) {
+    if(status == "editPost"){
+        emit('editPost', {
+            mode: 'update',
+            bbsId: bbsId
+        });
+    } else if (status == "deletePost"){
+        emit('editPost', {
+            mode: 'delete',
+            bbsId: bbsId
+        });
+    }
 }
 
 </script>
@@ -56,8 +63,8 @@ function editPost(bbsId) {
         </div>
 
         <div class="post-actions">
-            <v-btn size="x-small" variant="text" @click="editPost(post.bbsId)">수정</v-btn>
-            <v-btn size="x-small" variant="text" color="error" @click="emit('deleteComment', post.bbsId)">삭제</v-btn>
+            <v-btn size="x-small" variant="text" @click="editPost(post.bbsId, 'editPost')">수정</v-btn>
+            <v-btn size="x-small" variant="text" color="error" @click="editPost(post.bbsId, 'deletePost')">삭제</v-btn>
         </div>
         <br><hr><br>
         </v-card-text>

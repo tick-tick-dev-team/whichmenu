@@ -95,6 +95,11 @@ const cancel = () => {
 
 // 등록
 const submit = async () => {
+
+  if (dateValid.value !== true) {
+    alert('개시 기간이 유효하지 않습니다. 날짜를 확인해주세요.');
+    return;
+  }
   try {
     const formData = new FormData();
     formData.append('restId'      , form.value.restId);

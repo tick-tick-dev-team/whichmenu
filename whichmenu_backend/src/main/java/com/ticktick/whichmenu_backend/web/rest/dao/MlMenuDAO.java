@@ -13,10 +13,15 @@ public interface MlMenuDAO {
 	
 	List<MlMenuDto> selectListRestMlMenu (MlMenuDto mlMenuDto);
 	
-	void insertMlMenu(MlMenuDto mlMenuDto);
+	int insertMlMenu(MlMenuDto mlMenuDto);
 	
 	void updateMlMenu(MlMenuDto mlMenuDto);
 	
 	void deleteMlMenu(MlMenuDto mlMenuDto);
+	
+	int countOverlappingMenus(MlMenuDto mlMenuDto);
+	
+	String getMlmenuId(MlMenuDto mlMenuDto);
+	
 
 }

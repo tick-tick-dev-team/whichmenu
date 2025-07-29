@@ -15,10 +15,14 @@ public interface MlMenuService {
 	
 	public List<MlMenuDto> selectListRestMlMenu (MlMenuDto mlMenuDto);
 	
-	public void insertMlMenu(MlMenuDto mlMenuDto);
+	public int insertMlMenu(MlMenuDto mlMenuDto);
 	
 	public void updateMlMenu(MlMenuDto mlMenuDto);
 	
 	public void deleteMlMenu(MlMenuDto mlMenuDto);
+	
+	public boolean mlmenuOverlapCheck(MlMenuDto mlMenuDto);
+	
+	public String getMlmenuId(MlMenuDto mlMenuDto);
 
 }

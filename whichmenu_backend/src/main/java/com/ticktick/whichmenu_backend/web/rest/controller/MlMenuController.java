@@ -1,5 +1,7 @@
 package com.ticktick.whichmenu_backend.web.rest.controller;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -9,10 +11,15 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.ticktick.whichmenu_backend.web.atch.dao.dto.AtchFileDto;
 import com.ticktick.whichmenu_backend.web.atch.service.AtchFileService;
@@ -24,13 +31,16 @@ import com.ticktick.whichmenu_backend.web.rest.service.MlMenuService;
  * 
  * */
 
-@RequestMapping("/api/mlmeu")
+@RequestMapping("/api/mlmenu")
 @RestController
 public class MlMenuController {
 
 	private MlMenuService mlMenuService;
 	
 	private AtchFileService atchFileService;
+	
+	@Value("${file.upload-dir}")
+	private String uploadDir;
 	
 	private static final Logger log = LoggerFactory.getLogger(MlMenuController.class);
 	
@@ -133,4 +143,104 @@ public class MlMenuController {
 		return result;
 	}
 	
+	
+	@GetMapping("/overlap-check")
+	public Map<String, Object> mlmenuOverlapCheck(
+		@RequestParam("bgngDt") String bgngDt,
+		@RequestParam("endDt")  String endDt,
+		@RequestParam(value = "restId", required = false) String restId) {
+		
+		Map<String, Object> result = new HashMap<>();
+		boolean isOverLap = false;
+		
+		if (bgngDt != null && !bgngDt.isEmpty() &&
+			endDt  != null && !endDt.isEmpty()  &&
+			restId != null && !restId.isEmpty()) {
+			
+			MlMenuDto inputDto = new MlMenuDto();
+			inputDto.setRestId(restId);
+			inputDto.setBgngDt(bgngDt);
+			inputDto.setEndDt(endDt);
+			isOverLap = mlMenuService.mlmenuOverlapCheck(inputDto);
+			log.error("[★★★★★★★★ 1) 식단 개시기간 날짜 중복 체크 ★★★★★★★★] => {} ", isOverLap);
+		}
+		
+		result.put("isOverLap", isOverLap);
+		return result;
+	}
+	
+	@PostMapping("/register")
+	public Map<String, Object> registerMenu(@ModelAttribute MlMenuDto inputDto,
+			@RequestParam(value = "file", required = false) MultipartFile file,
+			@RequestParam(value = "url", required = false) String url){
+		
+		Map<String, Object> result = new HashMap<>();
+		String message = "";
+		String rslt = "fail";
+		
+		log.error("[식단 등록 정보 Dto] => {} ", inputDto);
+		/*
+		 * 1. 입력값 체크
+		 * */
+		if (	inputDto == null
+			||	inputDto.getRestId() 		== null 	|| inputDto.getRestId().isEmpty()
+			||	inputDto.getBgngDt() 		== null 	|| inputDto.getBgngDt().isEmpty()
+			||	inputDto.getEndDt()			== null		|| inputDto.getEndDt().isEmpty()
+			||	inputDto.getInfoInitType() 	== null 	|| inputDto.getInfoInitType().isEmpty()
+			||	inputDto.getUseYn() 		== null 	|| inputDto.getUseYn().isEmpty()
+		) {
+			message = "입력값이 부족합니다.";
+		} else {
+			
+			if ("URL".equals(inputDto.getInfoInitType())) {
+				inputDto.setOutsdReferUrl(url);
+			}
+			mlMenuService.insertMlMenu(inputDto);
+			rslt = "success";
+			message = "등록 성공";
+			
+			if ("FILE".equals(inputDto.getInfoInitType()) && file != null && !file.isEmpty()) {
+				// 파일 저장 처리
+				// 예: fileService.saveFile(file);
+				String mlMenuId = mlMenuService.getMlmenuId(inputDto);
+				
+				//  파일명까지 포함된 “전체 파일 경로” 생성
+				String originalFileName = file.getOriginalFilename();
+				String fileExtn = originalFileName.substring(originalFileName.lastIndexOf(".") + 1);
+				
+				// 중복이 없도록 생성
+				String savePath = uploadDir + File.separator + System.currentTimeMillis() + "_" + originalFileName;
+				
+				File dest = new File(savePath);
+				dest.getParentFile().mkdirs();
+				
+				try {
+					file.transferTo(dest);
+				} catch (IOException e) {
+					log.error("파일 저장 중 오류", e);
+					message = "파일 저장 실패";
+					rslt = "fail";
+					
+					result.put("result", rslt);
+					result.put("message", message);
+					return result;
+				}
+				
+				AtchFileDto fileDto = new AtchFileDto();
+				
+				fileDto.setAtchReferId(mlMenuId);
+				fileDto.setFileOdr(1);
+				fileDto.setFileNm(originalFileName);
+				fileDto.setFilePath(savePath);
+				fileDto.setFileSz((int) file.getSize());
+				fileDto.setFileExtn(fileExtn);
+				fileDto.setRefType("M");
+				
+				atchFileService.insertFileMeta(fileDto);
+			}
+		}
+		result.put("result" , rslt);
+		result.put("message", message);
+		return result;
+	}
 }

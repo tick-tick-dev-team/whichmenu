@@ -31,9 +31,9 @@ public class MlMenuServiceImpl implements MlMenuService {
 	}
 
 	@Override
-	public void insertMlMenu(MlMenuDto mlMenuDto) {
-		// TODO Auto-generated method stub
-		
+	public int insertMlMenu(MlMenuDto mlMenuDto) {
+		int mlMenuId = mlMenuDao.insertMlMenu(mlMenuDto);
+		return mlMenuId;
 	}
 
 	@Override
@@ -51,9 +51,22 @@ public class MlMenuServiceImpl implements MlMenuService {
 	@Override
 	public List<MlMenuDto> selectListRestMlMenu(MlMenuDto mlMenuDto) {
 		List<MlMenuDto> rsltList = mlMenuDao.selectListRestMlMenu(mlMenuDto);
-		
-		
 		return rsltList;
+	}
+
+	@Override
+	public boolean mlmenuOverlapCheck(MlMenuDto mlMenuDto) {
+		int isOverLap = mlMenuDao.countOverlappingMenus(mlMenuDto);
+		if(isOverLap > 0) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+
+	@Override
+	public String getMlmenuId(MlMenuDto mlMenuDto) {
+		return mlMenuDao.getMlmenuId(mlMenuDto);
 	}
 	
 	

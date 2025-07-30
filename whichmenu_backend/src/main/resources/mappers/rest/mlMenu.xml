@@ -106,5 +106,43 @@
         ORDER BY FIELD(POS_TYPE, 'PREV', 'CURRENT', 'NEXT')
     </select>
     
+    <select id="countOverlappingMenus" parameterType="com.ticktick.whichmenu_backend.web.rest.dao.dto.MlMenuDto" resultType="int">
+        SELECT COUNT(*)
+          FROM ML_MENU
+         WHERE REST_ID     = #{restId}
+           AND BGNG_DT &lt;= #{endDt}
+           AND END_DT  &gt;= #{bgngDt}
+    </select>
     
+    
+    <insert id="insertMlMenu" parameterType="com.ticktick.whichmenu_backend.web.rest.dao.dto.MlMenuDto" useGeneratedKeys="true" keyProperty="mlMenuId">
+        INSERT 
+               INTO ML_MENU                                /* 식단 테이블 */
+        (
+               REST_ID                                     /* 식당 ID */
+             , BGNG_DT                                     /* 게시시작일 */
+             , END_DT                                      /* 게시종료일 */
+             , OUTSD_REFER_URL                             /* 외부참조 URL */
+             , USE_YN                                      /* 사용여부 */
+             , REG_DT                                      /* 등록일 */
+             , MDFCN_DT                                    /* 수정일 */
+        )
+        VALUES (
+               #{restId}                                   /* 식당 ID */
+             , #{bgngDt}                                   /* 게시시작일 */
+             , #{endDt}                                    /* 게시종료일 */
+             , #{outsdReferUrl}                            /* 외부참조 URL */
+             , #{useYn}                                    /* 사용여부 */
+             , CURRENT_TIMESTAMP()                         /* 등록일 */
+             , CURRENT_TIMESTAMP()                         /* 수정일 */
+        )
+    </insert>
+    
+    <select id="getMlmenuId" parameterType="com.ticktick.whichmenu_backend.web.rest.dao.dto.MlMenuDto" resultType="String">
+        SELECT ML_MENU_ID                                  /* 식사메뉴ID */
+          FROM ML_MENU
+         WHERE REST_ID = #{restId}
+           AND BGNG_DT = #{bgngDt}
+           AND END_DT  = #{endDt}
+    </select>
 </mapper>

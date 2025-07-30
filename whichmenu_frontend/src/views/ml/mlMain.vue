@@ -2,10 +2,11 @@
 import { ref, watch, onMounted } from 'vue';
 import { useDisplay } from 'vuetify';
 import axios from 'axios';
+import NavMenu2 from '@/components/NavMenu2.vue';
+import MenuForm from '@/components/MenuForm.vue';
 
 const { smAndDown } = useDisplay();
 
-import NavMenu2 from '@/components/NavMenu2.vue';
 
 // 식당 선택 및 오늘 날짜
 const selectedCenter = ref('');
@@ -24,7 +25,8 @@ const menuList = ref([]);
 
 const currentInfoType = ref('');
 
-
+// 등록 화면 호출 변수
+const showForm = ref(false);
 
 const fetchCenterList = async () => {
   try {
@@ -50,7 +52,7 @@ const fetchCenterList = async () => {
 // 메뉴 정보 조회
 const fetchMenuInfo = async (restId, infoType) => {
   try {
-    const response = await axios.post('/api/mlmeu/rest', {
+    const response = await axios.post('/api/mlmenu/rest', {
       restId,
       infoInitType: infoType,
       srchDt: srchDt.value
@@ -59,7 +61,6 @@ const fetchMenuInfo = async (restId, infoType) => {
     const menuData = response.data.MlMenuDto;
     const atchList = response.data.atchList || [];
 
-    console.log("API호출 후 정보개시유형==>>>"+ infoType);
     if (infoType === "DAY") {
       // 단건 처리
       if (menuData) {
@@ -78,6 +79,7 @@ const fetchMenuInfo = async (restId, infoType) => {
     } else {
       // 주간(WEEK) - 다건 처리
       if (Array.isArray(menuData) && menuData.length > 0) {
+
         // 예: CURRENT 식단 첫 번째로 표시
         const currentIdx = menuData.findIndex(m => m.posType === 'CURRENT');
         currentIndex.value = currentIdx !== -1 ? currentIdx : 0;
@@ -142,6 +144,11 @@ watch(selectedCenter, async (newVal) => {
     await fetchMenuInfo(newVal, currentInfoType.value);
   }
 });
+
+const handleRegistered = async () => {
+  showForm.value = false;
+  await fetchMenuInfo(selectedCenter.value, currentInfoType.value); // 재조회
+};
 </script>
 
 <template>
@@ -218,12 +225,13 @@ watch(selectedCenter, async (newVal) => {
         </v-container>
 
         <!-- 버튼 목록 -->
-        <v-btn block class="my-1 func-btns" color="black" dark :density="smAndDown ? 'compact' : 'default'">업로드 하기</v-btn>
+        <v-btn block class="my-1 func-btns" color="black" dark :density="smAndDown ? 'compact' : 'default'" @click="showForm = true">업로드 하기</v-btn>
         <v-btn block class="my-1 func-btns" color="black" dark :density="smAndDown ? 'compact' : 'default'" :to="'/rest/restInfo'">식당정보 조회</v-btn>
         <v-btn block class="my-1 func-btns" color="black" dark :density="smAndDown ? 'compact' : 'default'">삭제(관리자)</v-btn>
       </div>
     </div>
   </v-main>
+  <MenuForm v-model="showForm" @registered="handleRegistered" />
 </template>
 
 

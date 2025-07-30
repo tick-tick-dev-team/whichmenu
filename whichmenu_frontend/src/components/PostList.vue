@@ -29,10 +29,14 @@ function editPost(bbsId, status) {
         <br><hr><br>
         <div class="post-image-wrapper" v-if="post.fileList?.length != 0">
             <!--사진이 한장일때-->
-            <img
+            <v-img
                 v-if="post.fileList?.length == 1"
                 :src="`http://localhost:8080/atch/${post.fileList[0].filePath.split(/[/\\]/).at(-1)}`"
-                alt="첨부 이미지"
+                max-width="100%"
+                max-height="300"
+                class="mx-auto"
+                contain
+                rounded
             />
 
             <!--사진이 여러장일때 캐러셀-->
@@ -84,13 +88,18 @@ function editPost(bbsId, status) {
 
 .post-image {
   width: 100%;
+  max-width: 1200px;
+  min-width: 360px;
   height: 200px;
   object-fit: contain;
   border-radius: 8px;
 }
 
+
 .post-carousel {
-  max-width: 400px;
+  width: 100%;
+  max-width: 1200px;
+  min-width: 360px;
   margin: 0 auto 12px auto;
 }
 

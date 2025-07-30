@@ -150,12 +150,16 @@ onMounted(() => {
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  max-width: 800px;
+  max-width: 100%;
   margin: auto;
 }
 
 .post-list {
-  margin-top : 20px;
+  width: 100%;
+  max-width: 1200px;
+  min-width: 360px;
+  margin: 0 auto;
+  padding: 0 20px; /* 화면이 너무 붙지 않게 좌우 여백 */
 }
 
 /* 우측 하단에 + 버튼을 고정 */

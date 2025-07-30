@@ -56,7 +56,7 @@ const postFormTarget = ref(null); // 편집 대상 (수정 시에만 사용)
 
 const editPost = async (mode, bbsId) => {
 
-  if (!bbsId) {
+  if (mode != 'create' && !bbsId) {
     alert('잘못된 접근입니다. 게시글 ID가 없습니다.');
     return;
   }

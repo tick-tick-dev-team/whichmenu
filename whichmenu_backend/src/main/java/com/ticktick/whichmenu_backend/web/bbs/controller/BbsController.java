@@ -80,7 +80,7 @@ public class BbsController {
 	}
 	
 	@PostMapping("/insert")
-	public Map<String, Object> bbsInsert(@RequestParam("files") List<MultipartFile> files,
+	public Map<String, Object> bbsInsert(@RequestParam(value = "files", required = false) List<MultipartFile> files,
 		    @ModelAttribute AtchFileDto fileDto, @ModelAttribute BbsDto inputDto) {
 		
 		Map<String, Object> result = new HashMap<>();

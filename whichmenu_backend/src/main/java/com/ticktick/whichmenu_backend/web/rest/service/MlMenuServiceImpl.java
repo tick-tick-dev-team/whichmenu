@@ -68,6 +68,11 @@ public class MlMenuServiceImpl implements MlMenuService {
 	public String getMlmenuId(MlMenuDto mlMenuDto) {
 		return mlMenuDao.getMlmenuId(mlMenuDto);
 	}
+
+	@Override
+	public MlMenuDto selectOne(MlMenuDto mlMenuDto) {
+		return mlMenuDao.selectOne(mlMenuDto);
+	}
 	
 	
 

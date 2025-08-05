@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -237,10 +238,31 @@ public class MlMenuController {
 				fileDto.setRefType("M");
 				
 				atchFileService.insertFileMeta(fileDto);
+				
+				
 			}
 		}
 		result.put("result" , rslt);
 		result.put("message", message);
 		return result;
 	}
+	
+	 @GetMapping("/{id}")
+	 public Map<String, Object> getMenuById(@PathVariable("id") String id) {
+		 
+		Map<String, Object> result = new HashMap<>();
+		String message = "";
+		
+		if (id == null || "".equals(id)) {
+			message = "입력값이 부족합니다.";
+			result.put("message", message);
+		} else {
+			MlMenuDto inputDto = new MlMenuDto();
+			inputDto.setMlMenuId(id);
+			inputDto = mlMenuService.selectOne(inputDto);
+			result.put("data", inputDto);
+		}
+
+		return result;
+	 }
 }

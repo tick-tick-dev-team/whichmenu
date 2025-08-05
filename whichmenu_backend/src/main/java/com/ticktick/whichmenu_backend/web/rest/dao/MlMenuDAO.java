@@ -23,5 +23,7 @@ public interface MlMenuDAO {
 	
 	String getMlmenuId(MlMenuDto mlMenuDto);
 	
+	/* 단건 조회 */
+	MlMenuDto selectOne(MlMenuDto mlMenuDto);
 
 }

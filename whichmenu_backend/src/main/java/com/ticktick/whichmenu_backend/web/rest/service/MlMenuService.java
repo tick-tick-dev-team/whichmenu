@@ -24,5 +24,7 @@ public interface MlMenuService {
 	public boolean mlmenuOverlapCheck(MlMenuDto mlMenuDto);
 	
 	public String getMlmenuId(MlMenuDto mlMenuDto);
+	
+	public MlMenuDto selectOne(MlMenuDto mlMenuDto);
 
 }

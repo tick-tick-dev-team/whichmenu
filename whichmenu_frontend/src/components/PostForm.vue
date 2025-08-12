@@ -12,6 +12,13 @@ const props = defineProps({
 });
 const emit = defineEmits(['update:modelValue', 'submitPost']);
 
+// 공지 게시판으로 들어와서 관리자일 경우
+onMounted(() => {
+  if (props.bbsType === 'N' && props.mode === 'create') {
+    regNm.value = '관리자';
+  }
+});
+
 // 닫기 버튼 클릭 시
 const closeDialog = () => {
     emit('update:modelValue', false);
@@ -151,6 +158,7 @@ watch(() => props.target, (newTarget) => {
                 />
                 <!-- 익명 체크박스 -->
                 <v-checkbox
+                    v-if="props.bbsType != 'N'"
                     v-model="isAnonymous"
                     label="익명으로 작성하기"
                     color="primary"
@@ -160,6 +168,7 @@ watch(() => props.target, (newTarget) => {
                 <!-- 익명이 아닐 경우에만 입력창 보이기 -->
                 <v-text-field
                     v-if="!isAnonymous"
+                    :disabled="props.bbsType === 'N'"
                     v-model="regNm"
                     label="별명"
                     placeholder="별명을 입력해주세요"

@@ -116,7 +116,7 @@ onMounted(() => {
         :post="post"
         @editPost="(payload) => editPost(payload.mode, payload.bbsId)"        
       />
-      <CmntList :comments="post.comments" boardType="restaurant" @addComment="(comment) => addComment(post.id, comment)" />
+      <!-- <CmntList :comments="post.comments" boardType="restaurant" @addComment="(comment) => addComment(post.id, comment)" /> -->
     </div>
 
     <!-- + 버튼 추가 -->

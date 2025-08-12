@@ -5,7 +5,7 @@ import '@mdi/font/css/materialdesignicons.css'
 
 const props = defineProps({
   modelValue: Boolean,
-  mlMenuId: {         // 수정 시 전달받는 메뉴 고유 ID
+  mlMenuId: { // 수정 시 전달받는 메뉴 고유 ID
     type: [String, Number],
     default: null
   }
@@ -19,7 +19,7 @@ const infoTypeOptions = [
   { title: '첨부파일', value: 'FILE' },
 ];
 
-// 🔹 기본 폼 상태 정의
+// 기본 폼 상태 정의
 const initialForm = {
   restId: '',
   bgngDt: '',
@@ -30,15 +30,14 @@ const initialForm = {
   useYn: 'Y',
 };
 
-// 🔹 반응형 폼
+// 반응형 폼
 const form = ref({ ...initialForm });
+
+// 기존 파일명 저장 (수정 모드 시 비교용)
+const originalFileName = ref('');
 
 // 날짜 유효성 상태
 const dateValid = ref(null);
-
-// -------------------
-// 🔹 함수
-// -------------------
 
 // 날짜 중복 체크
 async function checkDateOverlap() {
@@ -61,13 +60,22 @@ async function checkDateOverlap() {
   }
 }
 
+// infoInitType 갱신 (DAY → URL, WEEK → FILE)
+const updateInfoInitTypeByRestId = (restId) => {
+  const selected = centerList.value.find(r => r.restId === restId);
+  if (selected) {
+    form.value.infoInitType = selected.infoInitType === 'DAY' ? 'URL' : 'FILE';
+  }
+};
+
 // 식당 리스트 불러오기
 const fetchCenters = async () => {
   try {
     const res = await axios.get('/api/rest/list', { params: { useYn: 'Y' } });
     centerList.value = res.data;
 
-    if (centerList.value.length > 0 && !form.value.restId) {
+    // 수정 모드가 아닐 때만 기본값 세팅
+    if (!props.mlMenuId && centerList.value.length > 0) {
       form.value.restId = centerList.value[0].restId;
       updateInfoInitTypeByRestId(form.value.restId);
     }
@@ -76,18 +84,19 @@ const fetchCenters = async () => {
   }
 };
 
-// infoInitType 갱신
-const updateInfoInitTypeByRestId = (restId) => {
-  const selected = centerList.value.find(r => r.restId === restId);
-  if (selected) {
-    form.value.infoInitType = selected.infoInitType === 'DAY' ? 'URL' : 'FILE';
-  }
-};
-
-// 🔹 폼 초기화
+// 폼 초기화
 const resetForm = () => {
-  form.value = { ...initialForm };
+  form.value = { 
+    ...initialForm,
+    restId: centerList.value[0]?.restId || '',
+    file: null
+  };
+  originalFileName.value = '';
   dateValid.value = null;
+
+  if (form.value.restId) {
+    updateInfoInitTypeByRestId(form.value.restId);
+  }
 };
 
 // 수정 모드 - 기존 데이터 불러오기
@@ -96,15 +105,31 @@ const fetchMenuDataById = async (id) => {
   try {
     const res = await axios.get(`/api/mlmenu/${id}`);
     const data = res.data.data;
-    // 데이터 매핑 (서버 응답에 맞게 수정)
-    if(data){
+    if (data) {
       form.value.restId = data.restId || '';
       form.value.bgngDt = data.bgngDt || '';
       form.value.endDt = data.endDt || '';
-      form.value.infoInitType = data.infoInitType || '';
-      form.value.url = data.url || '';
       form.value.useYn = data.useYn || 'Y';
-      form.value.file = null; // 파일은 새로 선택해야 하므로 초기화
+
+      // DB infoInitType(DAY/WEEK)에 맞춰 URL/FILE로 변환
+      form.value.infoInitType = data.infoInitType === 'DAY' ? 'URL' : 'FILE';
+
+      if (data.infoInitType === 'DAY') {
+        // URL 모드
+        form.value.url = data.outsdReferUrl || '';
+        form.value.file = null;
+        originalFileName.value = '';
+      } else if (data.infoInitType === 'WEEK') {
+        // FILE 모드
+        form.value.url = '';
+        if (data.fileList && data.fileList.fileNm) {
+          originalFileName.value = data.fileList.fileNm;
+          form.value.file = null;  // 아직 새 파일 선택 안 한 상태
+        } else {
+          originalFileName.value = '';
+          form.value.file = null;
+        }
+      }
     }
   } catch (e) {
     console.error('수정 데이터 조회 실패:', e);
@@ -112,9 +137,22 @@ const fetchMenuDataById = async (id) => {
   }
 };
 
+// 파일 변경 여부 체크 함수
+const isFileChanged = () => {
+  // 새로 선택된 파일이 있으면 변경된 것
+  if (form.value.file && form.value.file instanceof File) return true;
+
+  // 파일 타입이 'FILE'인데도 새 파일 선택이 없으면 변경 안 된 것
+  if (form.value.infoInitType === 'FILE' && !form.value.file) return false;
+
+  // 그 외는 변경 없다고 판단
+  return false;
+};
+
 // 취소 → 닫기 + 초기화
 const cancel = () => {
-  emit('update:modelValue', false); // 모달 닫기
+  resetForm();
+  emit('update:modelValue', false);
 };
 
 // 등록/수정
@@ -123,26 +161,31 @@ const submit = async () => {
     alert('개시 기간이 유효하지 않습니다. 날짜를 확인해주세요.');
     return;
   }
-  try {
-    const formData = new FormData();
-    formData.append('restId', form.value.restId);
-    formData.append('bgngDt', form.value.bgngDt);
-    formData.append('endDt', form.value.endDt);
-    formData.append('infoInitType', form.value.infoInitType);
-    formData.append('useYn', form.value.useYn);
 
-    if (form.value.infoInitType === 'URL') {
-      formData.append('url', form.value.url);
-    } else if (form.value.infoInitType === 'FILE' && form.value.file) {
+  const formData = new FormData();
+  formData.append('restId', form.value.restId);
+  formData.append('bgngDt', form.value.bgngDt);
+  formData.append('endDt', form.value.endDt);
+  formData.append('infoInitType', form.value.infoInitType);
+  formData.append('useYn', form.value.useYn);
+
+  if (form.value.infoInitType === 'URL') {
+    formData.append('url', form.value.url);
+  } else if (form.value.infoInitType === 'FILE') {
+    // 파일이 변경되었는지 체크
+    const fileChanged = form.value.file && form.value.file instanceof File;
+    formData.append('fileChangedYn', fileChanged ? 'Y' : 'N');
+
+    if (fileChanged) {
       formData.append('file', form.value.file);
     }
+  }
 
+  try {
     if (props.mlMenuId) {
-      // 수정 (PUT 또는 PATCH)
-      await axios.put(`/api/mlmenu/${props.mlMenuId}`, formData);
+      await axios.put(`/api/mlmenu/z${props.mlMenuId}`, formData);
       alert('수정 완료');
     } else {
-      // 신규 등록 (POST)
       await axios.post('/api/mlmenu/register', formData);
       alert('등록 완료');
     }
@@ -155,33 +198,22 @@ const submit = async () => {
   }
 };
 
-// -------------------
 // Watchers
-// -------------------
-
-// 1) 식당 선택 시 infoInitType 자동 변경
 watch(() => form.value.restId, (newVal) => {
   updateInfoInitTypeByRestId(newVal);
 });
-
-// 2) 시작일 변경 시 종료일 자동 보정
 watch(() => form.value.bgngDt, (newStart) => {
   const end = form.value.endDt;
   if (!end || newStart > end) {
     form.value.endDt = newStart;
   }
 });
-
-// 3) 모달 닫힘 감시 → 폼 초기화
 watch(() => props.modelValue, (isOpen) => {
   if (!isOpen) {
     resetForm();
   }
 });
-
-// 4) mlMenuId 변경 감지 시 수정 데이터 로드
 watch(() => props.mlMenuId, (newId) => {
-  alert("식단ID!!!");
   if (newId) {
     fetchMenuDataById(newId);
   } else {
@@ -189,7 +221,7 @@ watch(() => props.mlMenuId, (newId) => {
   }
 }, { immediate: true });
 
-// 컴포넌트 마운트 시 식당 리스트 불러오기
+// 마운트 시 데이터 불러오기
 onMounted(fetchCenters);
 </script>
 
@@ -214,6 +246,7 @@ onMounted(fetchCenters);
           label="식당 선택"
           density="comfortable"
           variant="outlined"
+          :menu-props="{ openOnFocus: false }"
         />
 
         <!-- 개시 기간 -->
@@ -228,7 +261,6 @@ onMounted(fetchCenters);
               @change="checkDateOverlap"
             />
           </v-col>
-
           <v-col cols="5">
             <v-text-field
               v-model="form.endDt"
@@ -240,7 +272,6 @@ onMounted(fetchCenters);
               @change="checkDateOverlap"
             />
           </v-col>
-
           <v-col cols="2" class="d-flex justify-center align-center" style="margin-bottom: 15px;">
             <v-icon
               :color="dateValid === true ? 'green' : dateValid === false ? 'red' : 'grey'"
@@ -272,15 +303,16 @@ onMounted(fetchCenters);
             density="comfortable"
           />
         </div>
-
         <div v-else-if="form.infoInitType === 'FILE'" class="mt-4">
           <v-file-input
             v-model="form.file"
+            :counter="true"
+            :show-size="true"
             label="식단 이미지 업로드"
             accept="image/*"
-            show-size
             variant="outlined"
             density="comfortable"
+            :placeholder="originalFileName || '파일을 선택하세요'"
           />
         </div>
 

@@ -134,15 +134,19 @@ watch(selectedCenter, async (newVal) => {
   }
 });
 
-// 수정 모달 열기 함수 (현재 선택된 메뉴 ID를 editingMenuId에 세팅 후 showForm true)
-const openEditModal = () => {
-  // currentIndex가 유효하면 해당 메뉴 ID를 세팅, 아니면 null
-  if (menuList.value.length > 0 && currentIndex.value >= 0) {
-    editingMenuId.value = menuList.value[currentIndex.value].mlMenuId;
+const openEditModal = async () => {
+  if (currentInfoType.value !== 'DAY') {
+    if (menuList.value.length > 0 && currentIndex.value >= 0) {
+      editingMenuId.value = menuList.value[currentIndex.value].mlMenuId;
+    } else {
+      editingMenuId.value = null;
+    }
   } else {
-    editingMenuId.value = null;
+    if (!editingMenuId.value) {
+      // 업로드 후 null 상태라면 API 재조회
+      await fetchMenuInfo(selectedCenter.value, currentInfoType.value);
+    }
   }
-  alert("1");
   showForm.value = true;
 };
 
@@ -150,7 +154,6 @@ const openEditModal = () => {
 const handleRegistered = async () => {
   showForm.value = false;
   editingMenuId.value = null; // 등록 완료 후 편집 상태 해제
-  alert("2");
   await fetchMenuInfo(selectedCenter.value, currentInfoType.value);
 };
 

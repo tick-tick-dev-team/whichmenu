@@ -43,6 +43,8 @@ public class MlMenuDto {
 	
 	private String posType;		// 시점 조건
 	
+	private String fileChangedYn;
+	
 	
 
 }

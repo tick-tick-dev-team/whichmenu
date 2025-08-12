@@ -1,5 +1,5 @@
 <script setup>
-import NavMenu2 from '@/components/NavMenu2.vue';
+import NavMenu from '@/components/NavMenu.vue';
 import { ref, onMounted, watch } from 'vue';
 import axios from 'axios';
 //import dayjs from 'dayjs';
@@ -40,7 +40,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <NavMenu2 />
+    <NavMenu />
 
     <div class="bbs-container">
         <h2 class="page-title">로그확인 - 관리자</h2>

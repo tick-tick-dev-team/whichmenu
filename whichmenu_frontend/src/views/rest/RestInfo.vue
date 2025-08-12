@@ -1,6 +1,6 @@
 // 문의게시판 : 일반 게시판으로 분리되어 BBS_TYPE = P
 <script setup>
-import NavMenu2 from '@/components/NavMenu2.vue';
+import NavMenu from '@/components/NavMenu.vue';
 import RestForm from '@/components/RestForm.vue';
 import axios from 'axios';
 import { onMounted, ref, watch } from 'vue';
@@ -110,7 +110,7 @@ watch(searchKeyword, () => {
 
 <template>
   <!-- 헤더 -->
-  <NavMenu2 />
+  <NavMenu />
 
   <div class="bbs-container">
       <h2 class="page-title">식당관리 - 관리자</h2>

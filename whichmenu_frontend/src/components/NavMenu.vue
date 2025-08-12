@@ -1,4 +1,3 @@
-<!-- NavMenu.vue -->
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
@@ -11,8 +10,20 @@ const navigate = (path) => {
     router.push(path);
 };
 </script>
-
 <template>
+<!-- 헤더 -->
+<v-app-bar
+app
+dense
+flat
+color="grey-darken-4"
+class="px-4"
+>
+<div class="d-flex align-center nav-title" @click="navigate('/')">
+    <v-icon class="mr-2" color="white">mdi-silverware-fork-knife</v-icon>
+    <span class="text-h6 font-weight-bold text-white">WHICH MENU</span>
+</div>
+<v-spacer />
     <div class="nav-wrapper">
         <!-- v-menu의 activator 슬롯으로 버튼 감싸기 -->
         <v-menu
@@ -41,15 +52,30 @@ const navigate = (path) => {
                 <v-list-item @click="navigate('/bbs/inquiry')">
                     <v-list-item-title>문의게시판</v-list-item-title>
                 </v-list-item>
+                <v-list-item @click="navigate('/rest/restInfo')">
+                    <v-list-item-title>식당관리</v-list-item-title>
+                </v-list-item>
+                <v-list-item @click="navigate('/rest/logList')">
+                    <v-list-item-title>로그확인</v-list-item-title>
+                </v-list-item>
             </v-list>
         </v-menu>
     </div>
+</v-app-bar>
 </template>
-
 
 <style scoped>
 .nav-wrapper {
     display: flex;
     align-items: center;
+}
+
+.nav-title {
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.nav-title:hover {
+  opacity: 0.8;
 }
 </style>

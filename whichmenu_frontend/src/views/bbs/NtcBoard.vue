@@ -2,7 +2,7 @@
 <script setup>
 import PostForm from '@/components/PostForm.vue';
 import PostList from '@/components/PostList.vue';
-import NavMenu2 from '@/components/NavMenu2.vue';
+import NavMenu from '@/components/NavMenu.vue';
 import axios from 'axios';
 import { onMounted, ref } from 'vue';
 
@@ -43,7 +43,7 @@ onMounted(() => {
 <template>
   <div class="bbs-container">
     <!-- 헤더 -->
-    <NavMenu2 />
+    <NavMenu />
     
     <!-- 로고 텍스트 -->
     <h2>공지</h2>

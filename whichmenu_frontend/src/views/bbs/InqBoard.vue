@@ -4,7 +4,6 @@ import PostForm from '@/components/PostForm.vue';
 import PostList from '@/components/PostList.vue';
 import CmntList from '@/components/CmntList.vue';
 import NavMenu from '@/components/NavMenu.vue';
-import NavMenu2 from '@/components/NavMenu2.vue';
 import axios from 'axios';
 import { onMounted, ref } from 'vue';
 
@@ -56,7 +55,7 @@ onMounted(() => {
 
 <template>
   <!-- 헤더 -->
-  <NavMenu2></NavMenu2>
+  <NavMenu></NavMenu>
   <div class="bbs-container">
     
     

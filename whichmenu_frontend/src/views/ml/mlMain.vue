@@ -234,6 +234,7 @@ const onNewUploadClick = () => {
             </v-col>
 
             <v-btn
+              v-if="editingMenuId"
               variant="text"
               color="primary"
               class="edit-btn"

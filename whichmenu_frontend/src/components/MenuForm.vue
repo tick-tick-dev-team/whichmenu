@@ -1,7 +1,7 @@
 <script setup>
 import { ref, watch, onMounted } from 'vue';
 import axios from 'axios';
-import '@mdi/font/css/materialdesignicons.css'
+import '@mdi/font/css/materialdesignicons.css';
 
 const props = defineProps({
   modelValue: Boolean,
@@ -124,7 +124,7 @@ const fetchMenuDataById = async (id) => {
         form.value.url = '';
         if (data.fileList && data.fileList.fileNm) {
           originalFileName.value = data.fileList.fileNm;
-          form.value.file = null;  // 아직 새 파일 선택 안 한 상태
+          form.value.file = null; // 아직 새 파일 선택 안 한 상태
         } else {
           originalFileName.value = '';
           form.value.file = null;
@@ -139,14 +139,10 @@ const fetchMenuDataById = async (id) => {
 
 // 파일 변경 여부 체크 함수
 const isFileChanged = () => {
-  // 새로 선택된 파일이 있으면 변경된 것
-  if (form.value.file && form.value.file instanceof File) return true;
-
-  // 파일 타입이 'FILE'인데도 새 파일 선택이 없으면 변경 안 된 것
-  if (form.value.infoInitType === 'FILE' && !form.value.file) return false;
-
-  // 그 외는 변경 없다고 판단
-  return false;
+  // 새로운 파일이 선택된 경우
+  console.log("form.value.file ====>"+form.value.file);
+  console.log("form.value.file instanceof File ====>"+form.value.file instanceof File);
+  return !!form.value.file;
 };
 
 // 취소 → 닫기 + 초기화
@@ -172,24 +168,19 @@ const submit = async () => {
   if (form.value.infoInitType === 'URL') {
     formData.append('url', form.value.url);
   } else if (form.value.infoInitType === 'FILE') {
-    // 파일이 변경되었는지 체크
-    const fileChanged = form.value.file && form.value.file instanceof File;
-    formData.append('fileChangedYn', fileChanged ? 'Y' : 'N');
-
-    if (fileChanged) {
-      formData.append('file', form.value.file);
-    }
-  }
+    const fileChanged = isFileChanged() || !originalFileName.value;
+    formData.append('fileChanged', fileChanged);
+    if (form.value.file) formData.append('file', form.value.file);  
+}
 
   try {
     if (props.mlMenuId) {
-      await axios.put(`/api/mlmenu/z${props.mlMenuId}`, formData);
+      await axios.put(`/api/mlmenu/${props.mlMenuId}`, formData);
       alert('수정 완료');
     } else {
       await axios.post('/api/mlmenu/register', formData);
       alert('등록 완료');
     }
-
     emit('update:modelValue', false);
     emit('registered');
   } catch (e) {
@@ -221,6 +212,10 @@ watch(() => props.mlMenuId, (newId) => {
   }
 }, { immediate: true });
 
+const removeOriginalFile = () => {
+  originalFileName.value = '';
+  form.value.file = null; // 기존 파일 삭제
+};
 // 마운트 시 데이터 불러오기
 onMounted(fetchCenters);
 </script>
@@ -303,18 +298,22 @@ onMounted(fetchCenters);
             density="comfortable"
           />
         </div>
-        <div v-else-if="form.infoInitType === 'FILE'" class="mt-4">
-          <v-file-input
-            v-model="form.file"
-            :counter="true"
-            :show-size="true"
-            label="식단 이미지 업로드"
-            accept="image/*"
-            variant="outlined"
-            density="comfortable"
-            :placeholder="originalFileName || '파일을 선택하세요'"
-          />
+        <div v-if="originalFileName" class="mb-2 d-flex align-center">
+          <v-chip color="primary" label class="mr-2">
+            {{ originalFileName }}
+          </v-chip>
+          <v-btn small color="error" @click="removeOriginalFile">삭제</v-btn>
         </div>
+        <v-file-input
+          v-model="form.file"
+          :counter="true"
+          :show-size="true"
+          label="식단 이미지 업로드"
+          accept="image/*"
+          variant="outlined"
+          density="comfortable"
+          placeholder="파일을 선택하세요"
+        />
 
         <!-- 사용 여부 -->
         <v-checkbox

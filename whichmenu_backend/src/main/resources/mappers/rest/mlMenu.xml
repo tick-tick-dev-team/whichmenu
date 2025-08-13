@@ -164,4 +164,15 @@
           FROM ML_MENU M JOIN REST_INFO R ON M.REST_ID = R.REST_ID
          WHERE M.ML_MENU_ID = #{mlMenuId}                   /* 식단ID */
     </select>
+    
+    <update id="updateMlMenu" parameterType="com.ticktick.whichmenu_backend.web.rest.dao.dto.MlMenuDto">
+        UPDATE ML_MENU
+           SET 
+               BGNG_DT         = #{bgngDt}                  /* 게시시작일자 */
+             , END_DT          = #{endDt}                   /* 게시종료일자 */
+             , OUTSD_REFER_URL = #{outsdReferUrl}           /* 외부참조URL */
+             , USE_YN          = #{useYn}                   /* 식단사용여부 */
+             , MDFCN_DT        = CURRENT_TIMESTAMP()        /* 수정일자 */
+         WHERE ML_MENU_ID      = #{mlMenuId}                /* 식사메뉴ID */
+    </update>
 </mapper>

@@ -2,7 +2,7 @@
 import { ref, watch, onMounted } from 'vue';
 import { useDisplay } from 'vuetify';
 import axios from 'axios';
-import NavMenu2 from '@/components/NavMenu2.vue';
+import NavMenu from '@/components/NavMenu.vue';
 import MenuForm from '@/components/MenuForm.vue';
 
 const { smAndDown } = useDisplay();
@@ -166,7 +166,7 @@ const onNewUploadClick = () => {
 </script>
 
 <template>
-  <NavMenu2 />
+  <NavMenu />
 
   <v-main fluid class="main-wrapper">
     <div class="full-bleed-background">

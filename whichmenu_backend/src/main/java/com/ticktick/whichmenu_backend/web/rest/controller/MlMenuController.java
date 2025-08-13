@@ -12,8 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,7 +20,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -243,7 +240,6 @@ public class MlMenuController {
 				
 				atchFileService.insertFileMeta(fileDto);
 				
-				
 			}
 		}
 		result.put("result" , rslt);
@@ -285,24 +281,27 @@ public class MlMenuController {
 	public Map<String, Object> updateMenu(
 		@PathVariable("id") String id,
 		@ModelAttribute MlMenuDto inputDto,
-		@RequestParam(value = "file", required = false) MultipartFile file,
-		@RequestParam(value = "url", required = false) String url,
-		@RequestParam(value = "fileChanged", required = false, defaultValue = "false") boolean fileChanged
+		@RequestParam(value = "file"		, required = false) MultipartFile file,
+		@RequestParam(value = "url" 		, required = false) String url,
+		@RequestParam(value = "fileChanged"	, required = false, defaultValue = "false") boolean fileChanged
 	) {
 		Map<String, Object> result = new HashMap<>();
 		String message = "";
 		String rslt = "fail";
 		
-		log.error("[식단 수정 정보 Dto] => {} ", inputDto);
-		log.error("[수정 대상 ID] => {}", id);
-		log.error("[파일 변경 여부] => {}", fileChanged);
+		log.error("[식단 수정 정보 Dto] => {} "	, inputDto);
+		log.error("[수정 대상 ID] => {}"		, id);
+		log.error("[파일 변경 여부] => {}"		, fileChanged);
 		
-		if (id == null || id.isEmpty() || inputDto == null
-			|| inputDto.getRestId() == null || inputDto.getRestId().isEmpty()
-			|| inputDto.getBgngDt() == null || inputDto.getBgngDt().isEmpty()
-			|| inputDto.getEndDt() == null || inputDto.getEndDt().isEmpty()
-			|| inputDto.getInfoInitType() == null || inputDto.getInfoInitType().isEmpty()
-			|| inputDto.getUseYn() == null || inputDto.getUseYn().isEmpty()
+		/*
+		 * 1. 입력값 체크
+		 * */
+		if (id == null 		|| id.isEmpty()			|| inputDto == null
+			|| inputDto.getRestId() == null			|| inputDto.getRestId().isEmpty()
+			|| inputDto.getBgngDt() == null			|| inputDto.getBgngDt().isEmpty()
+			|| inputDto.getEndDt()  == null			|| inputDto.getEndDt().isEmpty()
+			|| inputDto.getInfoInitType() == null	|| inputDto.getInfoInitType().isEmpty()
+			|| inputDto.getUseYn() == null			|| inputDto.getUseYn().isEmpty()
 		) {
 			message = "입력값이 부족합니다.";
 			result.put("result", rslt);
@@ -312,18 +311,41 @@ public class MlMenuController {
 		
 		try {
 			inputDto.setMlMenuId(id);
-		
+			
+			/*
+			 * 2. 정보유형개시 체크 후 기본 식단 정보 수정
+			 * */
 			if ("URL".equals(inputDto.getInfoInitType())) {
 				inputDto.setOutsdReferUrl(url);
 			}
-		
-			// 1. 기본 메뉴 정보 수정
 			mlMenuService.updateMlMenu(inputDto);
 		
-			// 2. 파일 정보 처리
+			/*
+			 * 3. 파일 정보 처리
+			 *  정보개시유형이 : FILE 이고, fileChanged (파일이 수정되었는지 Y/N 여부)
+			 * */
 			if ("FILE".equals(inputDto.getInfoInitType())) {
+				/*
+				 * 4. fileChanged true 이면 
+				 * 새파일이 있던 없던 기존 파일은 삭제 처리 후 새로 등록 또는 업데이트
+				 * */
 				if (fileChanged) {
-					// 새 파일이 있으면 저장
+					
+					/*
+					 * 5. 기존 파일 논리삭제 처리
+					 * */
+					AtchFileDto srchFileDto = new AtchFileDto();
+					srchFileDto.setAtchReferId(id);
+					srchFileDto.setRefType("M");
+					List<AtchFileDto> atchRsltDto = atchFileService.findFilesByReferId(srchFileDto);
+					if(atchRsltDto.size() > 0) {
+						srchFileDto.setAtchFileId(atchRsltDto.get(0).getAtchFileId());
+						atchFileService.updateFileMeta(srchFileDto);
+					}
+					
+					/*
+					 * 6. 새 파일 저장
+					 * */
 					if (file != null && !file.isEmpty()) {
 						String originalFileName = file.getOriginalFilename();
 						String fileExtn = originalFileName.substring(originalFileName.lastIndexOf(".") + 1);
@@ -352,19 +374,10 @@ public class MlMenuController {
 						fileDto.setFileExtn(fileExtn);
 						fileDto.setRefType("M");
 						
-						// 기존 파일 메타 삭제 후 새로 등록 또는 업데이트
-						//atchFileService.deleteFilesByReferIdAndRefType(id, "M");
-						//atchFileService.insertFileMeta(fileDto);
+						atchFileService.insertFileMeta(fileDto);
 						
-					} else {
-						// 파일 변경 플래그는 true인데 파일이 없으면 기존 파일 삭제 처리
-						//atchFileService.deleteFilesByReferIdAndRefType(id, "M");
 					}
 				}
-				// fileChanged가 false면 파일 관련 변경 없음 → 아무 작업 안 함
-			} else {
-				// infoInitType이 URL이라면 기존 파일이 있을 경우 삭제 처리 가능 (옵션)
-				// atchFileService.deleteFilesByReferIdAndRefType(id, "M");
 			}
 			
 			rslt = "success";

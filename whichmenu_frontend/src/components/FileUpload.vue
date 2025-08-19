@@ -12,25 +12,48 @@ const emit = defineEmits(['files-selected', 'remove-existing-file']); // 부모�
 const files = ref([]);
 const previews = ref([]);
 
+const MAX_SIZE_MB = 10;
+const MAX_SIZE_BYTES = MAX_SIZE_MB * 1024 * 1024;
+
+// 이전 선택 값 제거를 위해
+const fileInputRef = ref();
+
 const handleFileUpload = (event) => {
-    const selectedFiles = Array.from(event.target.files);
-    const existingCount = props.existingFiles?.length || 0;
-    const totalCount = existingCount + selectedFiles.length;
+  const selectedFiles = Array.from(event.target.files);
 
-    if (totalCount > 3) {
-      alert(`파일은 최대 3개까지 등록할 수 있습니다.\n(현재 첨부된 파일 ${existingCount}개, 새로 선택한 파일 ${selectedFiles.length}개)`);
-      return;
-    }
+  // 파일 input 리셋 (이걸 안 하면 이전 선택값이 남아있음!)
+  if (fileInputRef.value) {
+    fileInputRef.value.reset(); // Vuetify 제공 메서드
+  }
 
-    files.value = Array.from(event.target.files);
+  // 파일 크기 체크
+  const tooLarge = selectedFiles.some(file => file.size > MAX_SIZE_BYTES);
+  if (tooLarge) {
+    alert(`파일당 최대 ${MAX_SIZE_MB}MB까지만 업로드 가능합니다.`);
+    return;
+  }
 
-    // 미리보기 url 생성
-    previews.value = files.value.map(file => ({
-        file,
-        url: URL.createObjectURL(file),
-    }));
+  const existingCount = props.existingFiles?.length || 0;
+  const totalCount = existingCount + files.value.length + selectedFiles.length;
 
-    emit('files-selected', files.value);
+  if (totalCount > 3) {
+    alert(`파일은 최대 3개까지 등록할 수 있습니다.\n(현재 첨부된 파일 ${existingCount}개, 기존 선택 ${files.value.length}개, 새로 선택한 파일 ${selectedFiles.length}개)`);
+    return;
+  }
+
+  // 기존 파일 + 새로 선택된 파일을 합쳐야 함
+  files.value = [...files.value, ...selectedFiles];
+
+  // previews도 같이 추가
+  previews.value = [
+    ...previews.value,
+    ...selectedFiles.map(file => ({
+      file,
+      url: URL.createObjectURL(file),
+    })),
+  ];
+
+  emit('files-selected', files.value);
 };
 
 const cancelUpload = () => {
@@ -47,8 +70,12 @@ const removeExistingFile = (fileId) => {
 
 // 미리보기 하나 삭제 시
 const removeSinglePreview = (index) => {
+  const removed = previews.value.splice(index, 1)[0];
+  URL.revokeObjectURL(removed.url);
   files.value.splice(index, 1);
-  previews.value.splice(index, 1);
+
+  // 꼭 emit도 해줘야 백엔드 전송값이 맞아짐
+  emit('files-selected', [...files.value]);
 };
 
 // 파일 용량 제한
@@ -138,13 +165,13 @@ const fileSizeLimit = (value) => {
             accept="image/*"
             multiple
             @change="handleFileUpload"
-            :rules="[fileSizeLimit]"
             hide-details
             hide-input 
             show-size
             chips 
             class="upload-input"
-            />
+            ref="fileInputRef"
+          />
 
 
             <v-btn v-if="previews.length" color="red" @click="cancelUpload" class="mt-3">

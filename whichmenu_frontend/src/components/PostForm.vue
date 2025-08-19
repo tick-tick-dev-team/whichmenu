@@ -14,13 +14,16 @@ const emit = defineEmits(['update:modelValue', 'submitPost']);
 
 // 공지 게시판으로 들어와서 관리자일 경우
 onMounted(() => {
-  if (props.bbsType === 'N' && props.mode === 'create') {
+  if (props.bbsType == 'N' && props.mode == 'create') {
     regNm.value = '관리자';
   }
 });
 
 // 닫기 버튼 클릭 시
 const closeDialog = () => {
+    bbsTtl.value = '';
+    bbsCn.value = '';
+    regNm.value = props.bbsType == 'N' ? '관리자' : '';
     emit('update:modelValue', false);
 };
 
@@ -71,12 +74,13 @@ const submitPost = async () => {
     formData.append('rlsYn', 'Y');         // 공개 여부
     formData.append('useYn', 'Y');
 
+    console.log('[전송 직전] 최종 files 목록:', files.value);
+    files.value.forEach((f, i) => console.log(` - ${i + 1}번 파일: ${f.name}`));
     // 첨부파일들
     files.value.forEach(file => {
         formData.append('files', file);                        // 여러 파일 지원
     });
 
-    console.log('dmdmm', formData.value);
 
     try { 
         
@@ -131,7 +135,7 @@ watch(() => props.target, (newTarget) => {
     // create일 경우 값 초기화
     bbsTtl.value = '';
     bbsCn.value = '';
-    regNm.value = '';
+    regNm.value = props.bbsType == 'N' ? '관리자' : '';
     isAnonymous.value = false;
   }
 }, { immediate: true }); // mount 시에도 실행되게 함

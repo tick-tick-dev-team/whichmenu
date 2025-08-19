@@ -241,6 +241,7 @@ onMounted(fetchCenters);
           label="식당 선택"
           density="comfortable"
           variant="outlined"
+          :readonly="!!props.mlMenuId"
           :menu-props="{ openOnFocus: false }"
         />
 
@@ -298,22 +299,24 @@ onMounted(fetchCenters);
             density="comfortable"
           />
         </div>
-        <div v-if="originalFileName" class="mb-2 d-flex align-center">
-          <v-chip color="primary" label class="mr-2">
-            {{ originalFileName }}
-          </v-chip>
-          <v-btn small color="error" @click="removeOriginalFile">삭제</v-btn>
-        </div>
-        <v-file-input
-          v-model="form.file"
-          :counter="true"
-          :show-size="true"
-          label="식단 이미지 업로드"
-          accept="image/*"
-          variant="outlined"
-          density="comfortable"
-          placeholder="파일을 선택하세요"
-        />
+        <div v-if="form.infoInitType === 'FILE'">
+            <div v-if="originalFileName" class="mb-2 d-flex align-center">
+              <v-chip color="primary" label class="mr-2">
+                {{ originalFileName }}
+              </v-chip>
+              <v-btn small color="error" @click="removeOriginalFile">삭제</v-btn>
+            </div>
+            <v-file-input
+              v-model="form.file"
+              :counter="true"
+              :show-size="true"
+              label="식단 이미지 업로드"
+              accept="image/*"
+              variant="outlined"
+              density="comfortable"
+              placeholder="파일을 선택하세요"
+            />
+          </div>
 
         <!-- 사용 여부 -->
         <v-checkbox

@@ -48,6 +48,7 @@ async function checkDateOverlap() {
           bgngDt: form.value.bgngDt,
           endDt: form.value.endDt,
           restId: form.value.restId || null,
+          mlMenuId: props.mlMenuId || null,
         },
       });
       dateValid.value = res.data?.isOverLap === true;
@@ -182,7 +183,7 @@ const submit = async () => {
       alert('등록 완료');
     }
     emit('update:modelValue', false);
-    emit('registered');
+    emit('registered', { bgngDt: form.value.bgngDt });
   } catch (e) {
     console.error('등록/수정 실패:', e);
     alert('처리에 실패했습니다.');

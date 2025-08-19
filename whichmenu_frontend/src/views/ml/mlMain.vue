@@ -87,7 +87,8 @@ const fetchMenuInfo = async (restId, infoType) => {
         if (currentMenu) {
           // 2. CURRENT 식단이 있으면, 해당 정보를 표시
           isMenuAvailable.value = true;
-          period.value = `${currentMenu.bgngDt} ~ ${currentMenu.endDt}`;
+          period.value = `${currentMenu.
+          bgngDt} ~ ${currentMenu.endDt}`;
           updated.value = currentMenu.mdfcnDt;
           editingMenuId.value = currentMenu.mlMenuId || null;
 
@@ -168,9 +169,16 @@ const openEditModal = async () => {
 };
 
 // 등록/수정 폼에서 완료 시 호출되는 이벤트 핸들러
-const handleRegistered = async () => {
+const handleRegistered = async (payload) => {
   showForm.value = false;
   editingMenuId.value = null;
+
+  // 1. 자식에서 받은 날짜로 srchDt 값을 업데이트
+  if (payload && payload.bgngDt) {
+    srchDt.value = payload.bgngDt;
+  }
+
+  // 2. 해당 날짜 기준으로 식단 정보를 다시 불러옵니다.
   await fetchMenuInfo(selectedCenter.value, currentInfoType.value);
 };
 

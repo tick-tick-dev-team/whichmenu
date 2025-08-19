@@ -112,6 +112,9 @@
          WHERE REST_ID     = #{restId}
            AND BGNG_DT &lt;= #{endDt}
            AND END_DT  &gt;= #{bgngDt}
+        <if test="mlMenuId != null and mlMenuId != ''">
+           AND ML_MENU_ID != #{mlMenuId}
+        </if>
     </select>
     
     

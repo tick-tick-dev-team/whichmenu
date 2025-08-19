@@ -150,7 +150,8 @@ public class MlMenuController {
 	public Map<String, Object> mlmenuOverlapCheck(
 		@RequestParam("bgngDt") String bgngDt,
 		@RequestParam("endDt")  String endDt,
-		@RequestParam(value = "restId", required = false) String restId) {
+		@RequestParam(value = "restId"  , required = false) String restId,
+		@RequestParam(value = "mlMenuId", required = false) String mlMenuId) {
 		
 		Map<String, Object> result = new HashMap<>();
 		boolean isOverLap = false;
@@ -160,6 +161,7 @@ public class MlMenuController {
 			restId != null && !restId.isEmpty()) {
 			
 			MlMenuDto inputDto = new MlMenuDto();
+			inputDto.setMlMenuId(mlMenuId);
 			inputDto.setRestId(restId);
 			inputDto.setBgngDt(bgngDt);
 			inputDto.setEndDt(endDt);

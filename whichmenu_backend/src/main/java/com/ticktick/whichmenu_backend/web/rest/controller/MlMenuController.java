@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -239,7 +240,6 @@ public class MlMenuController {
 				
 				atchFileService.insertFileMeta(fileDto);
 				
-				
 			}
 		}
 		result.put("result" , rslt);
@@ -247,9 +247,9 @@ public class MlMenuController {
 		return result;
 	}
 	
-	 @GetMapping("/{id}")
-	 public Map<String, Object> getMenuById(@PathVariable("id") String id) {
-		 
+	@GetMapping("/{id}")
+	public Map<String, Object> getMenuById(@PathVariable("id") String id) {
+		
 		Map<String, Object> result = new HashMap<>();
 		String message = "";
 		
@@ -260,9 +260,139 @@ public class MlMenuController {
 			MlMenuDto inputDto = new MlMenuDto();
 			inputDto.setMlMenuId(id);
 			inputDto = mlMenuService.selectOne(inputDto);
+			if(inputDto != null && "WEEK".equals(inputDto.getInfoInitType())){
+				AtchFileDto atchInputDto = new AtchFileDto();
+				
+				atchInputDto.setAtchReferId(inputDto.getMlMenuId());
+				atchInputDto.setRefType("M");
+				
+				List<AtchFileDto> atchRsltDto = atchFileService.findFilesByReferId(atchInputDto);
+				if(atchRsltDto.size() > 0) {
+					inputDto.setFileList(atchRsltDto.get(0));
+				}
+			}
 			result.put("data", inputDto);
 		}
 
 		return result;
-	 }
+	}
+	
+	@PutMapping("/{id}")
+	public Map<String, Object> updateMenu(
+		@PathVariable("id") String id,
+		@ModelAttribute MlMenuDto inputDto,
+		@RequestParam(value = "file"		, required = false) MultipartFile file,
+		@RequestParam(value = "url" 		, required = false) String url,
+		@RequestParam(value = "fileChanged"	, required = false, defaultValue = "false") boolean fileChanged
+	) {
+		Map<String, Object> result = new HashMap<>();
+		String message = "";
+		String rslt = "fail";
+		
+		log.error("[식단 수정 정보 Dto] => {} "	, inputDto);
+		log.error("[수정 대상 ID] => {}"		, id);
+		log.error("[파일 변경 여부] => {}"		, fileChanged);
+		
+		/*
+		 * 1. 입력값 체크
+		 * */
+		if (id == null 		|| id.isEmpty()			|| inputDto == null
+			|| inputDto.getRestId() == null			|| inputDto.getRestId().isEmpty()
+			|| inputDto.getBgngDt() == null			|| inputDto.getBgngDt().isEmpty()
+			|| inputDto.getEndDt()  == null			|| inputDto.getEndDt().isEmpty()
+			|| inputDto.getInfoInitType() == null	|| inputDto.getInfoInitType().isEmpty()
+			|| inputDto.getUseYn() == null			|| inputDto.getUseYn().isEmpty()
+		) {
+			message = "입력값이 부족합니다.";
+			result.put("result", rslt);
+			result.put("message", message);
+			return result;
+		}
+		
+		try {
+			inputDto.setMlMenuId(id);
+			
+			/*
+			 * 2. 정보유형개시 체크 후 기본 식단 정보 수정
+			 * */
+			if ("URL".equals(inputDto.getInfoInitType())) {
+				inputDto.setOutsdReferUrl(url);
+			}
+			mlMenuService.updateMlMenu(inputDto);
+		
+			/*
+			 * 3. 파일 정보 처리
+			 *  정보개시유형이 : FILE 이고, fileChanged (파일이 수정되었는지 Y/N 여부)
+			 * */
+			if ("FILE".equals(inputDto.getInfoInitType())) {
+				/*
+				 * 4. fileChanged true 이면 
+				 * 새파일이 있던 없던 기존 파일은 삭제 처리 후 새로 등록 또는 업데이트
+				 * */
+				if (fileChanged) {
+					
+					/*
+					 * 5. 기존 파일 논리삭제 처리
+					 * */
+					AtchFileDto srchFileDto = new AtchFileDto();
+					srchFileDto.setAtchReferId(id);
+					srchFileDto.setRefType("M");
+					List<AtchFileDto> atchRsltDto = atchFileService.findFilesByReferId(srchFileDto);
+					if(atchRsltDto.size() > 0) {
+						srchFileDto.setAtchFileId(atchRsltDto.get(0).getAtchFileId());
+						atchFileService.updateFileMeta(srchFileDto);
+					}
+					
+					/*
+					 * 6. 새 파일 저장
+					 * */
+					if (file != null && !file.isEmpty()) {
+						String originalFileName = file.getOriginalFilename();
+						String fileExtn = originalFileName.substring(originalFileName.lastIndexOf(".") + 1);
+						String savePath = uploadDir + File.separator + System.currentTimeMillis() + "_" + originalFileName;
+						
+						File dest = new File(savePath);
+						dest.getParentFile().mkdirs();
+						
+						try {
+							file.transferTo(dest);
+						} catch (IOException e) {
+							log.error("파일 저장 중 오류", e);
+							message = "파일 저장 실패";
+							rslt = "fail";
+							result.put("result", rslt);
+							result.put("message", message);
+							return result;
+						}
+						
+						AtchFileDto fileDto = new AtchFileDto();
+						fileDto.setAtchReferId(id);
+						fileDto.setFileOdr(1);
+						fileDto.setFileNm(originalFileName);
+						fileDto.setFilePath(savePath);
+						fileDto.setFileSz((int) file.getSize());
+						fileDto.setFileExtn(fileExtn);
+						fileDto.setRefType("M");
+						
+						atchFileService.insertFileMeta(fileDto);
+						
+					}
+				}
+			}
+			
+			rslt = "success";
+			message = "수정 성공";
+			
+		} catch (Exception e) {
+			log.error("식단 수정 중 오류 발생", e);
+			message = "수정 실패: " + e.getMessage();
+			rslt = "fail";
+		}
+		
+		result.put("result", rslt);
+		result.put("message", message);
+		return result;
+	}
+
+
 }

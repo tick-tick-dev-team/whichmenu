@@ -38,8 +38,7 @@ public class MlMenuServiceImpl implements MlMenuService {
 
 	@Override
 	public void updateMlMenu(MlMenuDto mlMenuDto) {
-		// TODO Auto-generated method stub
-		
+		mlMenuDao.updateMlMenu(mlMenuDto);
 	}
 
 	@Override

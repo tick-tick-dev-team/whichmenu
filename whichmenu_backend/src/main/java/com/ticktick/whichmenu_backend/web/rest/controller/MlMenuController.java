@@ -12,6 +12,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -396,5 +399,51 @@ public class MlMenuController {
 		return result;
 	}
 
-
+	@DeleteMapping("/{id}")
+	public Map<String, Object> deleteMenu(@PathVariable("id") String id) {
+		
+		Map<String, Object> result = new HashMap<>();
+		String message = "";
+		String rslt = "fail";
+		
+		/*
+		 * 1. 입력값 체크
+		 * */
+		if (id == null 		|| id.isEmpty()) {
+			message = "입력값이 부족합니다.";
+			result.put("result", rslt);
+			result.put("message", message);
+			return result;
+		} else {
+			
+			MlMenuDto inputDto = new MlMenuDto();
+			inputDto.setMlMenuId(id);
+			
+			try {
+				
+				MlMenuDto rsltDto = mlMenuService.selectOne(inputDto);
+				mlMenuService.deleteMlMenu(rsltDto);
+				
+				// 파일도 삭제처리 해줘야함...
+				AtchFileDto srchFileDto = new AtchFileDto();
+				srchFileDto.setAtchReferId(rsltDto.getMlMenuId());
+				srchFileDto.setRefType("M");
+				List<AtchFileDto> atchRsltDto = atchFileService.findFilesByReferId(srchFileDto);
+				if(atchRsltDto.size() > 0) {
+					srchFileDto.setAtchFileId(atchRsltDto.get(0).getAtchFileId());
+					atchFileService.updateFileMeta(srchFileDto);
+				}
+				
+				rslt = "success";
+				message = "삭제 성공";
+			} catch (Exception e) {
+				log.error("식단 삭제 중 오류 발생", e);
+				message = "삭제 실패: " + e.getMessage();
+				rslt = "fail";
+			}
+		}
+		result.put("result", rslt);
+		result.put("message", message);
+		return result;
+	}
 }

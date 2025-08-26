@@ -186,8 +186,28 @@ const handleRegistered = async (payload) => {
 const onNewUploadClick = () => {
   editingMenuId.value = null;
   showForm.value = true;
-  alert(selectedCenter.value);
 };
+
+// 삭제 버튼 클릭
+const onDeleteClick = async () => {
+  if (!editingMenuId.value) return;
+
+  if (!confirm("정말 삭제하시겠습니까?")) return;
+
+  try {
+    await axios.delete(`/api/mlmenu/${editingMenuId.value}`);
+
+    alert("삭제가 완료되었습니다.");
+    editingMenuId.value = null;
+
+    // 삭제 후 다시 현재 식당의 메뉴 조회
+    await fetchMenuInfo(selectedCenter.value, currentInfoType.value);
+  } catch (error) {
+    console.error("삭제 실패:", error);
+    alert("삭제 중 오류가 발생했습니다.");
+  }
+};
+
 </script>
 
 <template>
@@ -238,8 +258,8 @@ const onNewUploadClick = () => {
         </v-container>
 
         <v-btn class="my-1 func-btns" color="black" dark :density="smAndDown ? 'compact' : 'default'" @click="onNewUploadClick">업로드 하기</v-btn>
-        <v-btn class="my-1 func-btns" color="black" dark :density="smAndDown ? 'compact' : 'default'" :to="'/rest/restInfo'">식당정보 조회</v-btn>
-        <v-btn class="my-1 func-btns" color="black" dark :density="smAndDown ? 'compact' : 'default'">삭제(관리자)</v-btn>
+        <v-btn class="my-1 func-btns" color="black" dark :density="smAndDown ? 'compact' : 'default'" :to="{ path: '/rest/restInfo', query: { keyword: centerList.find(c => c.restId === selectedCenter)?.restNm || '' } }">식당정보 조회</v-btn>
+        <v-btn class="my-1 func-btns" color="black" dark :density="smAndDown ? 'compact' : 'default'" v-if="editingMenuId" @click="onDeleteClick">삭제(관리자)</v-btn>
       </div>
     </div>
   </v-main>

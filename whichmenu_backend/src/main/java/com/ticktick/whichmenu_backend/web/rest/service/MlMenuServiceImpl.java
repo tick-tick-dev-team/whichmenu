@@ -43,8 +43,7 @@ public class MlMenuServiceImpl implements MlMenuService {
 
 	@Override
 	public void deleteMlMenu(MlMenuDto mlMenuDto) {
-		// TODO Auto-generated method stub
-		
+		mlMenuDao.deleteMlMenu(mlMenuDto);
 	}
 
 	@Override

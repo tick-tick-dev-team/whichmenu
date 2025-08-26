@@ -186,6 +186,7 @@ const handleRegistered = async (payload) => {
 const onNewUploadClick = () => {
   editingMenuId.value = null;
   showForm.value = true;
+  alert(selectedCenter.value);
 };
 </script>
 
@@ -243,7 +244,7 @@ const onNewUploadClick = () => {
     </div>
   </v-main>
 
-  <MenuForm v-if="showForm" v-model="showForm" :ml-menu-id="editingMenuId" @registered="handleRegistered" />
+  <MenuForm v-if="showForm" v-model="showForm" :ml-menu-id="editingMenuId" :rest-id="selectedCenter" @registered="handleRegistered" />
 </template>
 
 <style scoped>

@@ -113,7 +113,7 @@ watch(searchKeyword, () => {
   <NavMenu />
 
   <div class="bbs-container">
-      <h2 class="page-title">식당관리 - 관리자</h2>
+      <h2 class="page-title">식당조회</h2>
 
       <!-- 검색창 -->
       <v-text-field

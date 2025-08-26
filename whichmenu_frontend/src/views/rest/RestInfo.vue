@@ -3,10 +3,12 @@
 import NavMenu from '@/components/NavMenu.vue';
 import RestForm from '@/components/RestForm.vue';
 import axios from 'axios';
+import { useRoute } from 'vue-router'
 import { onMounted, ref, watch } from 'vue';
 
+const route = useRoute();
 // 리스트
-const searchKeyword = ref('');
+const searchKeyword = ref(route.query.keyword || '');
 const restInfo = ref([
   {
     restId: null,
@@ -113,7 +115,7 @@ watch(searchKeyword, () => {
   <NavMenu />
 
   <div class="bbs-container">
-      <h2 class="page-title">식당관리 - 관리자</h2>
+      <h2 class="page-title">식당조회</h2>
 
       <!-- 검색창 -->
       <v-text-field
@@ -124,10 +126,11 @@ watch(searchKeyword, () => {
           variant="outlined"
           color="primary"
           class="mb-4 search-field"
+          full-width
       />
 
       <v-row dense>
-          <v-col v-for="rest in restInfo" :key="rest.restId" cols="12">
+          <v-col v-for="rest in restInfo" :key="rest.restId" cols="12" style="min-width: 0;">
               <v-card class="post-card" outlined>
                   <v-card-text>
                       <div class="rest-header">
@@ -175,6 +178,8 @@ watch(searchKeyword, () => {
   margin-top: 30px;
   position: relative;
   max-width: 600px;
+  width: 100%;
+  min-width: 0; /* flex shrink 방지 */
   margin-left: auto;
   margin-right: auto;
 }
@@ -189,6 +194,7 @@ watch(searchKeyword, () => {
 
 .search-field {
   width: 100%;
+  min-width: 0;
 }
 
 .post-card {

@@ -18,5 +18,8 @@ public interface BbsService {
 	public void updateBbs(BbsDto bbsDto);
 	
 	public void deleteBbs(BbsDto bbsDto);
+	
+	// 기존 파일 갯수 조회
+	int countExistingFilesByReferId(String atchReferId);
 
 }

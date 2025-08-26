@@ -72,7 +72,9 @@ const removeExistingFile = (fileId) => {
 const removeSinglePreview = (index) => {
   const removed = previews.value.splice(index, 1)[0];
   URL.revokeObjectURL(removed.url);
-  files.value.splice(index, 1);
+  
+  // 파일 객체로 정확히 제거
+  files.value = files.value.filter(f => f !== removed.file);
 
   // 꼭 emit도 해줘야 백엔드 전송값이 맞아짐
   emit('files-selected', [...files.value]);

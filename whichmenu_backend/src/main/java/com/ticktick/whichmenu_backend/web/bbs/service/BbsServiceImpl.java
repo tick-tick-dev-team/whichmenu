@@ -58,5 +58,10 @@ public class BbsServiceImpl implements BbsService {
 	public void deleteBbs(BbsDto bbsDto) {
 		bbsDao.deleteBbs(bbsDto);
 	}
+	
+	@Override
+	public int countExistingFilesByReferId(String atchReferId) {
+        return bbsDao.countExistingFilesByReferId(atchReferId);
+    }
 
 }

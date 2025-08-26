@@ -4,7 +4,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import com.ticktick.whichmenu_backend.web.bbs.service.BbsServiceImpl;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
@@ -34,6 +34,8 @@ import com.ticktick.whichmenu_backend.web.bbs.service.BbsService;
 @RequestMapping("/api/bbs")
 @RestController
 public class BbsController {
+
+    private final BbsServiceImpl bbsServiceImpl;
 	
 	private final BbsService bbsService;
 	private final AtchFileService atchFileService;
@@ -43,9 +45,10 @@ public class BbsController {
 	private String uploadDir;
 	
 	public BbsController(@Qualifier("bbsServiceImpl") BbsService bbsService,
-		    @Qualifier("atchFileServiceImpl") AtchFileService atchFileService) {
+		    @Qualifier("atchFileServiceImpl") AtchFileService atchFileService, BbsServiceImpl bbsServiceImpl) {
 		this.bbsService = bbsService;
 		this.atchFileService = atchFileService;
+		this.bbsServiceImpl = bbsServiceImpl;
 	}
 	
 	@GetMapping("/list")
@@ -85,7 +88,7 @@ public class BbsController {
 		
 		Map<String, Object> result = new HashMap<>();
 		
-		// 1. inputDto null 체크 및 필수값 체크
+		// inputDto null 체크 및 필수값 체크
 	    if (inputDto == null
 	    	    || inputDto.getBbsTtl() == null || inputDto.getBbsTtl().isEmpty()
 	    	    || inputDto.getBbsCn() == null || inputDto.getBbsCn().isEmpty()
@@ -95,6 +98,16 @@ public class BbsController {
 	    	result.put("result", "fail");
             result.put("message", "입력값이 부족합니다.");
 	        return result;
+	    }
+	    
+	    // 등록 후 BbsId 받아오기 전에 유효성 먼저 검사
+	    if (files != null && !files.isEmpty()) {
+	        String validationMessage = validateFiles(files, 0); // 기존 파일 없음
+	        if (validationMessage != null) {
+	            result.put("result", "fail");
+	            result.put("message", validationMessage);
+	            return result;
+	        }
 	    }
 		
 		try {
@@ -185,6 +198,9 @@ public class BbsController {
 	        result.put("message", "입력값이 부족합니다.");
 	        return result;
 	    }
+	    
+	    
+	    
 
 	    try {
 	        // 2. 게시글 수정
@@ -202,6 +218,27 @@ public class BbsController {
 	                atchFileService.updateFileMeta(fileDto); // USE_YN = 'N' 처리
 	            }
 	        }
+	        
+	        
+	        int existingCount = 0;
+		    if (deletedFileIdsJson != null && !deletedFileIdsJson.isBlank()) {
+		        List<String> deletedFileIds = new ObjectMapper().readValue(
+		            deletedFileIdsJson, new TypeReference<List<String>>() {}
+		        );
+		        existingCount = bbsService.countExistingFilesByReferId(inputDto.getBbsId()) - deletedFileIds.size(); 
+		        // ↑ 현재 저장된 파일 개수 - 삭제된 개수
+		    } else {
+		        existingCount = bbsService.countExistingFilesByReferId(inputDto.getBbsId());
+		    }
+
+		    if (files != null && !files.isEmpty()) {
+		        String validationMessage = validateFiles(files, existingCount);
+		        if (validationMessage != null) {
+		            result.put("result", "fail");
+		            result.put("message", validationMessage);
+		            return result;
+		        }
+		    }
 
 	        // 4. 새 파일 업로드 처리
 	        if (files != null && !files.isEmpty()) {
@@ -271,5 +308,40 @@ public class BbsController {
         }
 		return result;
 	}
+	
+	// 등록,수정 시 파일 유효성 검사
+	private String validateFiles(List<MultipartFile> files, int existingCount) {
+	    final long MAX_SIZE = 10 * 1024 * 1024; // 10MB
+	    final int MAX_TOTAL_COUNT = 3;
+	    final List<String> allowedExtensions = List.of("jpg", "jpeg", "png", "gif", "bmp", "webp");
+
+	    if (files == null || files.isEmpty()) return null;
+
+	    // 개수 제한 검사
+	    if (existingCount + files.size() > MAX_TOTAL_COUNT) {
+	        return "파일은 최대 3개까지만 등록할 수 있습니다.";
+	    }
+
+	    for (MultipartFile file : files) {
+	        if (file.isEmpty()) continue;
+
+	        if (file.getSize() > MAX_SIZE) {
+	            return "파일당 최대 10MB까지만 업로드 가능합니다.";
+	        }
+
+	        String originalName = file.getOriginalFilename();
+	        if (originalName == null || !originalName.contains(".")) {
+	            return "파일 이름이 올바르지 않습니다.";
+	        }
+
+	        String extension = originalName.substring(originalName.lastIndexOf('.') + 1).toLowerCase();
+	        if (!allowedExtensions.contains(extension)) {
+	            return "허용되지 않는 이미지 형식입니다. (jpg, png 등만 허용)";
+	        }
+	    }
+
+	    return null; // 문제가 없다면 null 리턴
+	}
+
 
 }

@@ -219,4 +219,12 @@
          WHERE BBS_ID      = #{bbsId}                       /* 게시글 ID */
     </update>
     
+    <!-- 게시글에 있는 기존 파일 갯수 -->
+    <select id="countExistingFilesByReferId" parameterType="String" resultType="int">
+        SELECT COUNT(*)
+        FROM atch_file
+        WHERE atch_refer_id = #{atchReferId}
+          AND use_yn = 'Y'
+    </select>
+    
 </mapper>

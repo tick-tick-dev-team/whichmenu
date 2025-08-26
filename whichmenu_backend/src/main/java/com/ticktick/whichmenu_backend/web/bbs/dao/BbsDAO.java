@@ -3,6 +3,7 @@ package com.ticktick.whichmenu_backend.web.bbs.dao;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import com.ticktick.whichmenu_backend.web.bbs.dao.dto.BbsDto;
 
@@ -21,4 +22,5 @@ public interface BbsDAO {
 	
 	void deleteBbs(BbsDto bbsDto);
 
+	int countExistingFilesByReferId(@Param("atchReferId") String atchReferId);
 }

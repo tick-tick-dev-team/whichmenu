@@ -2,7 +2,7 @@
 <script setup>
 import FileUpload from '@/components/FileUpload.vue';
 import axios from 'axios';
-import { ref, watch, onMounted } from 'vue';
+import { ref, watch, onMounted, shallowRef  } from 'vue';
 
 const props = defineProps({
     modelValue: Boolean, // postList
@@ -24,6 +24,8 @@ const closeDialog = () => {
     bbsTtl.value = '';
     bbsCn.value = '';
     regNm.value = props.bbsType == 'N' ? '관리자' : '';
+    files.value = []; // 파일 비워주기
+    isAnonymous.value = false;
     emit('update:modelValue', false);
 };
 
@@ -32,7 +34,7 @@ const bbsTtl = ref('');
 const bbsCn = ref('');
 const regNm = ref('');
 const isAnonymous = ref(false); // 체크 상태로 익명 처리
-const files = ref([]); // 부모 쪽에서 파일을 여러 개 받을 수 있도록 배열로
+const files = shallowRef([]); // 반응성 보장 // 부모 쪽에서 파일을 여러 개 받을 수 있도록 배열로
 
 // 게시글 수정에 필요한 변수
 const existingFiles = ref([]); // 기존 첨부파일
@@ -49,7 +51,8 @@ watch(isAnonymous, (val) => {
 
 // FileUpload 로부터 파일 목록을 받도록 커스텀 이벤트 핸들러 추가
 const handleFilesSelected = (selectedFiles) => {
-    files.value = selectedFiles;
+    // 강제 트리거용 새 배열 할당
+    files.value = [...selectedFiles];
 };
 
 // 등록 버튼 클릭 시

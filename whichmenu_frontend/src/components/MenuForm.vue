@@ -8,6 +8,10 @@ const props = defineProps({
   mlMenuId: { // 수정 시 전달받는 메뉴 고유 ID
     type: [String, Number],
     default: null
+  },
+  restId: {
+    type: [String, Number],
+    default: null
   }
 });
 const emit = defineEmits(['update:modelValue', 'registered']);
@@ -63,7 +67,8 @@ async function checkDateOverlap() {
 
 // infoInitType 갱신 (DAY → URL, WEEK → FILE)
 const updateInfoInitTypeByRestId = (restId) => {
-  const selected = centerList.value.find(r => r.restId === restId);
+  const rid = restId != null ? String(restId) : '';
+  const selected = centerList.value.find(r => String(r.restId) === rid);
   if (selected) {
     form.value.infoInitType = selected.infoInitType === 'DAY' ? 'URL' : 'FILE';
   }
@@ -73,11 +78,18 @@ const updateInfoInitTypeByRestId = (restId) => {
 const fetchCenters = async () => {
   try {
     const res = await axios.get('/api/rest/list', { params: { useYn: 'Y' } });
-    centerList.value = res.data;
+    // 모든 restId를 문자열로 정규화
+    centerList.value = (res.data || []).map(r => ({
+      ...r,
+      restId: String(r.restId),
+    }));
 
-    // 수정 모드가 아닐 때만 기본값 세팅
-    if (!props.mlMenuId && centerList.value.length > 0) {
+    // 수정 모드가 아니고, props.restId도 없을 때만 첫 항목 세팅
+    if (!props.mlMenuId && !props.restId && centerList.value.length > 0) {
       form.value.restId = centerList.value[0].restId;
+    }
+
+    if (form.value.restId) {
       updateInfoInitTypeByRestId(form.value.restId);
     }
   } catch (e) {
@@ -89,7 +101,7 @@ const fetchCenters = async () => {
 const resetForm = () => {
   form.value = { 
     ...initialForm,
-    restId: centerList.value[0]?.restId || '',
+    restId: props.restId != null ? String(props.restId) : '',
     file: null
   };
   originalFileName.value = '';
@@ -107,7 +119,7 @@ const fetchMenuDataById = async (id) => {
     const res = await axios.get(`/api/mlmenu/${id}`);
     const data = res.data.data;
     if (data) {
-      form.value.restId = data.restId || '';
+      form.value.restId = data.restId != null ? String(data.restId) : '';
       form.value.bgngDt = data.bgngDt || '';
       form.value.endDt = data.endDt || '';
       form.value.useYn = data.useYn || 'Y';
@@ -116,16 +128,14 @@ const fetchMenuDataById = async (id) => {
       form.value.infoInitType = data.infoInitType === 'DAY' ? 'URL' : 'FILE';
 
       if (data.infoInitType === 'DAY') {
-        // URL 모드
         form.value.url = data.outsdReferUrl || '';
         form.value.file = null;
         originalFileName.value = '';
       } else if (data.infoInitType === 'WEEK') {
-        // FILE 모드
         form.value.url = '';
         if (data.fileList && data.fileList.fileNm) {
           originalFileName.value = data.fileList.fileNm;
-          form.value.file = null; // 아직 새 파일 선택 안 한 상태
+          form.value.file = null;
         } else {
           originalFileName.value = '';
           form.value.file = null;
@@ -140,9 +150,6 @@ const fetchMenuDataById = async (id) => {
 
 // 파일 변경 여부 체크 함수
 const isFileChanged = () => {
-  // 새로운 파일이 선택된 경우
-  console.log("form.value.file ====>"+form.value.file);
-  console.log("form.value.file instanceof File ====>"+form.value.file instanceof File);
   return !!form.value.file;
 };
 
@@ -172,7 +179,7 @@ const submit = async () => {
     const fileChanged = isFileChanged() || !originalFileName.value;
     formData.append('fileChanged', fileChanged);
     if (form.value.file) formData.append('file', form.value.file);  
-}
+  }
 
   try {
     if (props.mlMenuId) {
@@ -205,6 +212,11 @@ watch(() => props.modelValue, (isOpen) => {
     resetForm();
   }
 });
+watch(() => props.restId, (newRestId) => {
+  if (!props.mlMenuId) {
+    form.value.restId = newRestId != null ? String(newRestId) : '';
+  }
+});
 watch(() => props.mlMenuId, (newId) => {
   if (newId) {
     fetchMenuDataById(newId);
@@ -215,9 +227,9 @@ watch(() => props.mlMenuId, (newId) => {
 
 const removeOriginalFile = () => {
   originalFileName.value = '';
-  form.value.file = null; // 기존 파일 삭제
+  form.value.file = null;
 };
-// 마운트 시 데이터 불러오기
+
 onMounted(fetchCenters);
 </script>
 
@@ -242,7 +254,7 @@ onMounted(fetchCenters);
           label="식당 선택"
           density="comfortable"
           variant="outlined"
-          :readonly="!!props.mlMenuId"
+          :readonly="!!props.mlMenuId || !!props.restId"
           :menu-props="{ openOnFocus: false }"
         />
 
@@ -301,23 +313,23 @@ onMounted(fetchCenters);
           />
         </div>
         <div v-if="form.infoInitType === 'FILE'">
-            <div v-if="originalFileName" class="mb-2 d-flex align-center">
-              <v-chip color="primary" label class="mr-2">
-                {{ originalFileName }}
-              </v-chip>
-              <v-btn small color="error" @click="removeOriginalFile">삭제</v-btn>
-            </div>
-            <v-file-input
-              v-model="form.file"
-              :counter="true"
-              :show-size="true"
-              label="식단 이미지 업로드"
-              accept="image/*"
-              variant="outlined"
-              density="comfortable"
-              placeholder="파일을 선택하세요"
-            />
+          <div v-if="originalFileName" class="mb-2 d-flex align-center">
+            <v-chip color="primary" label class="mr-2">
+              {{ originalFileName }}
+            </v-chip>
+            <v-btn small color="error" @click="removeOriginalFile">삭제</v-btn>
           </div>
+          <v-file-input
+            v-model="form.file"
+            :counter="true"
+            :show-size="true"
+            label="식단 이미지 업로드"
+            accept="image/*"
+            variant="outlined"
+            density="comfortable"
+            placeholder="파일을 선택하세요"
+          />
+        </div>
 
         <!-- 사용 여부 -->
         <v-checkbox

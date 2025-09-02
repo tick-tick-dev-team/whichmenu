@@ -65,35 +65,43 @@ onMounted(() => {
         </div>
         <!-- 로그 리스트 -->
         <v-row dense>
-            <v-col v-for="(log, index) in logList" :key="index" cols="12">
-                <v-card class="post-card" outlined>
-                    <v-card-text>
-                        <p class="log-item">
-                            <span class="log-label">관리자번호<span class="justify-hack"></span></span>
-                            <span>{{ log.mngrNo }}</span>
-                        </p>
-                        <p class="log-item">
-                            <span class="log-label">관리자이름<span class="justify-hack"></span></span>
-                            <span>{{ log.mngrNm }}</span>
-                        </p>
-                        <p class="log-item">
-                            <span class="log-label">접 속 일 시<span class="justify-hack"></span></span>
-                            <span>{{ log.lgnDt }}</span>
-                        </p>
-                        <p class="log-item">
-                            <span class="log-label">접 속 여 부<span class="justify-hack"></span></span>
-                            <v-chip
-                                :color="log.lgnYn === 'Y' ? 'green' : 'red'"
-                                text-color="white"
-                                size="small"
-                                label
-                            >
-                                {{ log.lgnYn === 'Y' ? '성공' : '실패' }}
-                            </v-chip>
-                        </p>
-                    </v-card-text>
-                </v-card>
-            </v-col>
+        <v-col v-if="logList.length === 0" cols="12">
+            <v-card class="post-card" outlined>
+            <v-card-text class="text-center">
+                최근 일주일 간 로그가 없습니다.
+            </v-card-text>
+            </v-card>
+        </v-col>
+
+        <v-col v-else v-for="(log, index) in logList" :key="index" cols="12">
+            <v-card class="post-card" outlined>
+            <v-card-text>
+                <p class="log-item">
+                <span class="log-label">관리자번호<span class="justify-hack"></span></span>
+                <span>{{ log.mngrNo }}</span>
+                </p>
+                <p class="log-item">
+                <span class="log-label">관리자이름<span class="justify-hack"></span></span>
+                <span>{{ log.mngrNm }}</span>
+                </p>
+                <p class="log-item">
+                <span class="log-label">접 속 일 시<span class="justify-hack"></span></span>
+                <span>{{ log.lgnDt }}</span>
+                </p>
+                <p class="log-item">
+                <span class="log-label">접 속 여 부<span class="justify-hack"></span></span>
+                <v-chip
+                    :color="log.lgnYn === 'Y' ? 'green' : 'red'"
+                    text-color="white"
+                    size="small"
+                    label
+                >
+                    {{ log.lgnYn === 'Y' ? '성공' : '실패' }}
+                </v-chip>
+                </p>
+            </v-card-text>
+            </v-card>
+        </v-col>
         </v-row>
       </div>
 </template>
@@ -103,6 +111,7 @@ onMounted(() => {
     min-height: 100vh;
     padding: 20px;
     margin-top: 30px;
+    width: 100%;
     position: relative;
     max-width: 600px;
     margin-left: auto;

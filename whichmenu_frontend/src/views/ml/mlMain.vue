@@ -26,6 +26,7 @@ const showForm = ref(false);
 
 // 수정할 메뉴 ID (null이면 신규 등록)
 const editingMenuId = ref(null);
+const currentMenuId = ref(null);
 
 // 식당 리스트 조회
 const fetchCenterList = async () => {
@@ -68,6 +69,7 @@ const fetchMenuInfo = async (restId, infoType) => {
         updated.value = menuData.mdfcnDt;
         menuLink.value = menuData.outsdReferUrl || '';
         menuImage.value = '';
+        currentMenuId.value = menuData.mlMenuId || null; 
         editingMenuId.value = menuData.mlMenuId || null;
       } else {
         isMenuAvailable.value = false;
@@ -75,6 +77,7 @@ const fetchMenuInfo = async (restId, infoType) => {
         menuLink.value = '등록된 식단이 존재하지 않습니다.';
         period.value = '';
         updated.value = '';
+        currentMenuId.value = null;
         editingMenuId.value = null;
       }
     } else { // WEEK 타입 (이미지)
@@ -90,6 +93,7 @@ const fetchMenuInfo = async (restId, infoType) => {
           period.value = `${currentMenu.
           bgngDt} ~ ${currentMenu.endDt}`;
           updated.value = currentMenu.mdfcnDt;
+          currentMenuId.value = currentMenu.mlMenuId || null;
           editingMenuId.value = currentMenu.mlMenuId || null;
 
           if (atchList && atchList[0]?.filePath) {
@@ -105,6 +109,7 @@ const fetchMenuInfo = async (restId, infoType) => {
           period.value = '해당 날짜에 등록된 식단이 없습니다.';
           updated.value = '';
           menuLink.value = '';
+          currentMenuId.value = null;
           editingMenuId.value = null;
         }
       } else {
@@ -114,6 +119,7 @@ const fetchMenuInfo = async (restId, infoType) => {
         period.value = '해당 날짜에 등록된 식단이 없습니다.';
         updated.value = '';
         menuLink.value = '';
+        currentMenuId.value = null;
         editingMenuId.value = null;
       }
     }
@@ -190,22 +196,29 @@ const onNewUploadClick = () => {
 
 // 삭제 버튼 클릭
 const onDeleteClick = async () => {
-  if (!editingMenuId.value) return;
+  const id = currentMenuId.value;
+  if (!id) {
+    alert("삭제할 식단이 없습니다.");
+    return;
+  }
 
   if (!confirm("정말 삭제하시겠습니까?")) return;
 
-  try {
-    await axios.delete(`/api/mlmenu/${editingMenuId.value}`);
+  alert(id);
 
-    alert("삭제가 완료되었습니다.");
-    editingMenuId.value = null;
+  // try {
+  //   await axios.delete(`/api/mlmenu/${editingMenuId.value}`);
 
-    // 삭제 후 다시 현재 식당의 메뉴 조회
-    await fetchMenuInfo(selectedCenter.value, currentInfoType.value);
-  } catch (error) {
-    console.error("삭제 실패:", error);
-    alert("삭제 중 오류가 발생했습니다.");
-  }
+  //   alert("삭제가 완료되었습니다.");
+  //   editingMenuId.value = null;
+  //   currentMenuId.value = null;
+
+  //   // 삭제 후 다시 현재 식당의 메뉴 조회
+  //   await fetchMenuInfo(selectedCenter.value, currentInfoType.value);
+  // } catch (error) {
+  //   console.error("삭제 실패:", error);
+  //   alert("삭제 중 오류가 발생했습니다.");
+  // }
 };
 
 </script>
@@ -259,7 +272,7 @@ const onDeleteClick = async () => {
 
         <v-btn class="my-1 func-btns" color="black" dark :density="smAndDown ? 'compact' : 'default'" @click="onNewUploadClick">업로드 하기</v-btn>
         <v-btn class="my-1 func-btns" color="black" dark :density="smAndDown ? 'compact' : 'default'" :to="{ path: '/rest/restInfo', query: { keyword: centerList.find(c => c.restId === selectedCenter)?.restNm || '' } }">식당정보 조회</v-btn>
-        <v-btn class="my-1 func-btns" color="black" dark :density="smAndDown ? 'compact' : 'default'" v-if="editingMenuId" @click="onDeleteClick">삭제(관리자)</v-btn>
+        <v-btn class="my-1 func-btns" color="black" dark :density="smAndDown ? 'compact' : 'default'" v-if="isMenuAvailable" @click="onDeleteClick">삭제(관리자)</v-btn>
       </div>
     </div>
   </v-main>

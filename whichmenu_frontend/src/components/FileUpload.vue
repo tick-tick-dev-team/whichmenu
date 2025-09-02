@@ -15,6 +15,8 @@ const previews = ref([]);
 const MAX_SIZE_MB = 10;
 const MAX_SIZE_BYTES = MAX_SIZE_MB * 1024 * 1024;
 
+const ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'webp']; 
+
 // 이전 선택 값 제거를 위해
 const fileInputRef = ref();
 
@@ -24,6 +26,32 @@ const handleFileUpload = (event) => {
   // 파일 input 리셋 (이걸 안 하면 이전 선택값이 남아있음!)
   if (fileInputRef.value) {
     fileInputRef.value.reset(); // Vuetify 제공 메서드
+  }
+
+  // HEIC/HEIF 감지 (iPhone 전용)
+  const heicFile = selectedFiles.find(file => {
+    const ext = file.name.split('.').pop().toLowerCase();
+    return ext === 'heic' || ext === 'heif';
+  });
+
+  if (heicFile) {
+    alert(
+      `파일: ${heicFile.name} 은(는) iPhone에서 생성된 HEIC/HEIF 포맷입니다.\n\n` +
+      `해당 형식은 웹 미리보기 및 일부 브라우저에서 호환되지 않을 수 있습니다.\n` +
+      `iPhone 설정 > 카메라 > 포맷 > '가장 호환되는 형식(JPG)' 으로 변경을 권장합니다.`
+    );
+    return;
+  }
+
+  // 일반 확장자 허용 검사
+  const invalidFile = selectedFiles.find(file => {
+    const ext = file.name.split('.').pop().toLowerCase();
+    return !ALLOWED_EXTENSIONS.includes(ext);
+  });
+
+  if (invalidFile) {
+    alert(`허용되지 않은 파일 형식입니다: ${invalidFile.name}\n\n허용된 확장자: ${ALLOWED_EXTENSIONS.join(', ')}`);
+    return;
   }
 
   // 파일 크기 체크

@@ -188,7 +188,7 @@
     <delete id="deleteMlMenu" parameterType="com.ticktick.whichmenu_backend.web.rest.dao.dto.MlMenuDto">
         UPDATE ML_MENU
            SET 
-             , USE_YN     = #{useYn}                   /* 식단사용여부 */
+               USE_YN     = #{useYn}                   /* 식단사용여부 */
              , MDFCN_DT   = CURRENT_TIMESTAMP()        /* 수정일자 */
          WHERE ML_MENU_ID = #{mlMenuId}                /* 식단ID */
     </delete>

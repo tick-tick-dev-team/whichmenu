@@ -58,6 +58,9 @@ class="px-4"
                 <v-list-item @click="navigate('/rest/logList')">
                     <v-list-item-title>로그확인</v-list-item-title>
                 </v-list-item>
+                <v-list-item @click="navigate('/login')">
+                    <v-list-item-title>로그인</v-list-item-title>
+                </v-list-item>
             </v-list>
         </v-menu>
     </div>

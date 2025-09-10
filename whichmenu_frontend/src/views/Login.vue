@@ -16,13 +16,8 @@ function loginWithKakao() {
 </script>
 
 <template>
-  <!-- 상단 NavMenu 유지 -->
   <NavMenu />
-
-  <!-- 로그인 버튼 중앙 배치 -->
-  <div
-    class="login-container"
-  >
+  <div class="login-container">
     <div class="login-card">
       <h2 class="login-title">간편 로그인</h2>
 
@@ -40,16 +35,15 @@ function loginWithKakao() {
 </template>
 
 <style scoped>
-/* 화면 중앙 배치 */
+
 .login-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: calc(100vh - 64px); /* NavMenu 높이 제외 */
-  background-color: inherit; /* 기존 배경 스타일 유지 */
+  min-height: calc(100vh - 64px);
+  background-color: inherit;
 }
 
-/* 카드 스타일 */
 .login-card {
   display: flex;
   flex-direction: column;
@@ -59,11 +53,10 @@ function loginWithKakao() {
   background-color: rgba(255, 255, 255, 0.95);
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   text-align: center;
-  width: 400px;       /* 고정 너비 */
-  max-width: 90%;     /* 화면이 작을 때는 90% 이하로 줄어듦 */
+  width: 400px;       
+  max-width: 90%;
 }
 
-/* 제목 */
 .login-title {
   margin-bottom: 8px;
   font-size: 20px;
@@ -71,7 +64,6 @@ function loginWithKakao() {
   color: #333;
 }
 
-/* 버튼 공통 */
 .login-btn {
   display: flex;
   align-items: center;
@@ -96,7 +88,6 @@ function loginWithKakao() {
   filter: brightness(0.9);
 }
 
-/* 카카오 버튼 */
 .kakao-btn {
   background-color: #FEE500;
   color: #3C1E1E;
@@ -106,7 +97,6 @@ function loginWithKakao() {
   filter: brightness(0.9);
 }
 
-/* 아이콘 이미지 */
 .login-btn img {
   width: 20px;
   height: 20px;

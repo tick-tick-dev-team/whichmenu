@@ -5,6 +5,7 @@ import InqBoard   from '@/views/bbs/InqBoard.vue';
 import NtcBoard   from '@/views/bbs/NtcBoard.vue';
 import RestInfo   from '@/views/rest/RestInfo.vue';
 import LogList    from '@/views/rest/LogList.vue';
+import Login      from '@/views/Login.vue';
 
 const routes = [
   { path: '/'             , redirect: '/ml/mlMain' },
@@ -13,7 +14,8 @@ const routes = [
   { path: '/bbs/inquiry'  , name: 'InqBoard'  , component: InqBoard },    // 문의게시판
   { path: '/bbs/notice'   , name: 'NtcBoard'  , component: NtcBoard },    // 공지게시판
   { path: '/rest/restInfo', name: 'RestInfo'  , component: RestInfo },    // 식당관리
-  { path: '/rest/logList' , name: 'LogList'   , component: LogList }      // 로그확인
+  { path: '/rest/logList' , name: 'LogList'   , component: LogList },     // 로그확인
+  { path: '/login'        , name: 'Login'     , component: Login }      // 로그확인
 ];
 
 const router = createRouter({

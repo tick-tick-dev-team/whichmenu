@@ -1,14 +1,66 @@
 # 공통적으로 무시할 파일
-.DS_Store
-Thumbs.db
+# Logs
+logs
 *.log
-*.env
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# IDE / Editor
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS / 기타
+Thumbs.db
 
 # 프론트엔드(`whichmenu_frontend`) 관련 무시할 파일
-whichmenu_frontend/node_modules/
-whichmenu_frontend/dist/
+whichmenu_frontend/node_modules
+whichmenu_frontend/dist
+whichmenu_frontend/dist-ssr
 
 # 백엔드(`whichmenu_backend`) 관련 무시할 파일
-whichmenu_backend/target/
+whichmenu_backend/HELP.md
+whichmenu_backend/.gradle
+whichmenu_backend/build/
+!whichmenu_backend/gradle/wrapper/gradle-wrapper.jar
+!whichmenu_backend/**/src/main/**/build/
+!whichmenu_backend/**/src/test/**/build/
+
+# STS
+whichmenu_backend/.apt_generated
+whichmenu_backend/.classpath
+whichmenu_backend/.factorypath
+whichmenu_backend/.project
+whichmenu_backend/.settings
+whichmenu_backend/.springBeans
+whichmenu_backend/.sts4-cache
+whichmenu_backend/bin/
+!whichmenu_backend/**/src/main/**/bin/
+!whichmenu_backend/**/src/test/**/bin/
+
+# IntelliJ IDEA
+whichmenu_backend/*.iws
 whichmenu_backend/*.iml
-/.metadata/
+whichmenu_backend/*.ipr
+whichmenu_backend/out/
+!whichmenu_backend/**/src/main/**/out/
+!whichmenu_backend/**/src/test/**/out/
+
+# NetBeans
+whichmenu_backend/nbproject/private/
+whichmenu_backend/nbbuild/
+whichmenu_backend/dist/
+whichmenu_backend/nbdist/
+whichmenu_backend/.nb-gradle/
+
+# Eclipse workspace metadata
+.metadata/

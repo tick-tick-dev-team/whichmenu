@@ -4,8 +4,8 @@ import { useRouter } from 'vue-router'
 import NavMenu from '@/components/NavMenu.vue';
 
 const router = useRouter()
-const NAVER_CLIENT_ID = import.meta.env.NBVX7a_oxXptCzuFXNvf;
-const NAVER_CALLBACK_URL = "http://localhost:5173/naver-callback"; // JS SDK용 콜백 URL
+const NAVER_CLIENT_ID = import.meta.env.VITE_NAVER_CLIENT_ID;
+const NAVER_CALLBACK_URL = import.meta.env.VITE_NAVER_CALLBACK_URL; // JS SDK용 콜백 URL
 //const NAVER_REDIRECT_URI = "http://localhost:8080/api/auth/naver/callback"; // Spring 콜백
 const userProfile = ref(null);
 //const STATE = "RANDOM_STRING"; // CSRF 방지용 난수 (랜덤으로 생성 권장)
@@ -39,7 +39,7 @@ function loginWithNaver() {
       userProfile.value = profile;
 
       // 로그인 성공 후 원하는 페이지로 이동
-      router.push('/menu');
+      router.push('/ml/mlMain');
     });
   };
 }
@@ -55,7 +55,7 @@ onMounted(() => {
   script.src = "https://static.nid.naver.com/js/naverLogin_implicit-1.0.3.js";
   script.charset = "utf-8";
   script.onload = () => console.log("Naver SDK loaded");
-  //document.head.appendChild(script);
+  document.head.appendChild(script);
 });
 
 </script>

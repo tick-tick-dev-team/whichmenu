@@ -4,9 +4,8 @@ import { useRouter } from 'vue-router'
 import NavMenu from '@/components/NavMenu.vue';
 
 const router = useRouter()
-const NAVER_CLIENT_ID = import.meta.env.VITE_NAVER_CLIENT_ID;
+const NAVER_CLIENT_ID    = import.meta.env.VITE_NAVER_CLIENT_ID;
 const NAVER_CALLBACK_URL = import.meta.env.VITE_NAVER_CALLBACK_URL; // JS SDK용 콜백 URL
-//const NAVER_REDIRECT_URI = "http://localhost:8080/api/auth/naver/callback"; // Spring 콜백
 const userProfile = ref(null);
 //const STATE = "RANDOM_STRING"; // CSRF 방지용 난수 (랜덤으로 생성 권장)
 

@@ -17,12 +17,13 @@ function loginWithNaver() {
 
   const naverLogin = new window.naver_id_login(NAVER_CLIENT_ID, NAVER_CALLBACK_URL);
 
-  naverLogin.setButton("green", 3, 48);
-  naverLogin.setPopup(); // 팝업 로그인
-  const state = naverLogin.getUniqState();
+  // naverLogin.setButton("green", 3, 48);
+  const state = naverLogin.getUniqState(); // CSRF 방지를 위한 STATE 값 설정
   naverLogin.setState(state);
 
-  naverLogin.init_naver_id_login();
+  naverLogin.setPopup(); // 팝업 로그인
+
+ // naverLogin.init_naver_id_login();
 
   // JS SDK용 글로벌 콜백
   window.naverSignInCallback = function () {
@@ -50,10 +51,22 @@ function loginWithKakao() {
 
 // mounted 시 네이버 SDK 동적 로드
 onMounted(() => {
-  const script = document.createElement('script');
+  const script = document.createElement("script");
   script.src = "https://static.nid.naver.com/js/naverLogin_implicit-1.0.3.js";
   script.charset = "utf-8";
-  script.onload = () => console.log("Naver SDK loaded");
+  script.onload = () => {
+    console.log("Naver SDK loaded");
+
+    // ✅ SDK 버튼을 내가 둔 위치(#naver_id_login)에 생성
+    const naverLogin = new window.naver_id_login(NAVER_CLIENT_ID, NAVER_CALLBACK_URL);
+    const state = naverLogin.getUniqState();
+    naverLogin.setState(state);
+
+    // 버튼 스타일: green, 3(size), 48(height)
+    naverLogin.setButton("green", 3, 48);
+    naverLogin.setPopup();
+    naverLogin.init_naver_id_login();
+  };
   document.head.appendChild(script);
 });
 
@@ -61,15 +74,15 @@ onMounted(() => {
 
 <template>
   <NavMenu />
-  <div id="naver_id_login"></div>
   <div class="login-container">
     <div class="login-card">
       <h2 class="login-title">간편 로그인</h2>
 
-      <button class="login-btn naver-btn" @click="loginWithNaver">
+      <!-- <button class="login-btn naver-btn" @click="loginWithNaver">
         <img src="/img/naver_icon.png" alt="Naver" />
         네이버로 로그인
-      </button>
+      </button> -->
+       <div id="naver_id_login"></div>
 
       <button class="login-btn kakao-btn" @click="loginWithKakao">
         <img src="https://developers.kakao.com/tool/resource/static/img/button/login/full/ko/kakao_login_small.png" alt="Kakao" />
@@ -137,6 +150,12 @@ onMounted(() => {
 
 .naver-btn:hover {
   filter: brightness(0.9);
+}
+
+#naver_id_login {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
 }
 
 .kakao-btn {

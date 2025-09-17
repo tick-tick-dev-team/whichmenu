@@ -2,7 +2,6 @@
 .DS_Store
 Thumbs.db
 *.log
-*.env
 
 # 프론트엔드(`whichmenu_frontend`) 관련 무시할 파일
 whichmenu_frontend/node_modules/

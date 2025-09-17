@@ -1,28 +1,73 @@
 <script setup>
+import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import NavMenu from '@/components/NavMenu.vue';
 
 const router = useRouter()
+const NAVER_CLIENT_ID    = import.meta.env.VITE_NAVER_CLIENT_ID;
+const NAVER_CALLBACK_URL = import.meta.env.VITE_NAVER_CALLBACK_URL; // JS SDK용 콜백 URL
+const userProfile = ref(null);
+//const STATE = "RANDOM_STRING"; // CSRF 방지용 난수 (랜덤으로 생성 권장)
 
 function loginWithNaver() {
-  console.log("네이버 로그인 클릭")
-  router.push('/menu')
+  if (!window.naver_id_login) {
+    console.error("네이버 SDK가 로드되지 않았습니다.");
+    return;
+  }
+
+  const naverLogin = new window.naver_id_login(NAVER_CLIENT_ID, NAVER_CALLBACK_URL);
+
+  naverLogin.setButton("green", 3, 48);
+  naverLogin.setPopup(); // 팝업 로그인
+  const state = naverLogin.getUniqState();
+  naverLogin.setState(state);
+
+  naverLogin.init_naver_id_login();
+
+  // JS SDK용 글로벌 콜백
+  window.naverSignInCallback = function () {
+    console.log("Access Token:", naverLogin.oauthParams.access_token);
+
+    naverLogin.get_naver_userprofile(function () {
+      const profile = {
+        email: naverLogin.getProfileData('email'),
+        nickname: naverLogin.getProfileData('nickname'),
+        age: naverLogin.getProfileData('age')
+      };
+      console.log("Naver Profile:", profile);
+      userProfile.value = profile;
+
+      // 로그인 성공 후 원하는 페이지로 이동
+      router.push('/ml/mlMain');
+    });
+  };
 }
 
 function loginWithKakao() {
   console.log("카카오 로그인 클릭")
   router.push('/menu')
 }
+
+// mounted 시 네이버 SDK 동적 로드
+onMounted(() => {
+  const script = document.createElement('script');
+  script.src = "https://static.nid.naver.com/js/naverLogin_implicit-1.0.3.js";
+  script.charset = "utf-8";
+  script.onload = () => console.log("Naver SDK loaded");
+  document.head.appendChild(script);
+});
+
 </script>
 
 <template>
   <NavMenu />
+  <div id="naver_id_login"></div>
   <div class="login-container">
     <div class="login-card">
       <h2 class="login-title">간편 로그인</h2>
 
       <button class="login-btn naver-btn" @click="loginWithNaver">
-        <img src="https://static.nid.naver.com/oauth/small_g_in.PNG" alt="Naver" />
+        <img src="/img/naver_icon.png" alt="Naver" />
         네이버로 로그인
       </button>
 
@@ -32,6 +77,12 @@ function loginWithKakao() {
       </button>
     </div>
   </div>
+    <div v-if="userProfile">
+      <h3>로그인 완료</h3>
+      <p>이메일: {{ userProfile.email }}</p>
+      <p>닉네임: {{ userProfile.nickname }}</p>
+      <p>나이: {{ userProfile.age }}</p>
+    </div>
 </template>
 
 <style scoped>
@@ -98,7 +149,11 @@ function loginWithKakao() {
 }
 
 .login-btn img {
-  width: 20px;
-  height: 20px;
+  width: 30px;
+  height: 30px;
+}
+
+#naver_id_login {
+  margin-top: 20px;
 }
 </style>

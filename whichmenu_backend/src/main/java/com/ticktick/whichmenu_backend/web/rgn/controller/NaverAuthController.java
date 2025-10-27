@@ -48,35 +48,11 @@ public class NaverAuthController {
 								HttpServletResponse response) throws Exception {
 		
 		// 1. 토큰 발급 요청
-		String tokenUrl = "https://nid.naver.com/oauth2.0/token";
-		RestTemplate restTemplate = new RestTemplate();
-		
-		UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(tokenUrl)
-				.queryParam("grant_type", "authorization_code")
-				.queryParam("client_id", clientId)
-				.queryParam("client_secret", clientSecret)
-				.queryParam("code", access_token)
-				.queryParam("state", state);
-	
-		ResponseEntity<Map> tokenResponse = restTemplate.getForEntity(builder.toUriString(), Map.class);
-		String accessToken = (String) tokenResponse.getBody().get("access_token");
-		
-		// 2. 사용자 정보 요청
-		HttpHeaders headers = new HttpHeaders();
-		headers.add("Authorization", "Bearer " + accessToken);
-		HttpEntity<?> entity = new HttpEntity<>(headers);
-		
-		ResponseEntity<Map> userInfoResponse = restTemplate.exchange(
-				"https://openapi.naver.com/v1/nid/me",
-				HttpMethod.GET,
-				entity,
-				Map.class
-		);
-	
-		Map userInfo = (Map) ((Map) userInfoResponse.getBody().get("response"));
+//		
+//		Map userInfo = (Map) ((Map) userInfoResponse.getBody().get("response"));
 		
 		// 3. 세션에 사용자 정보 저장
-		request.getSession().setAttribute("loginUser", userInfo);
+//		request.getSession().setAttribute("loginUser", userInfo);
 		
 		// 4. 프론트 페이지로 리다이렉트
 		response.sendRedirect("http://localhost:5173/ml/mlMain");
@@ -92,17 +68,31 @@ public class NaverAuthController {
 	}
 	
 	@PostMapping("/token")
-	public User saveNaverToken(@RequestBody OAuthToken token, HttpSession session) {
-		// 네이버 사용자 프로필 API를 통해 user 정보 가져왔다고 가정
-		User user = new User();
-		user.setUsername(token.getProviderUserId());
-		user.setDisplayName("네이버사용자");
-		user.setEmail("naver@example.com");
+	public ResponseEntity<?> saveNaverToken(@RequestBody Map<String, String> request, HttpSession session) {
+		String accessToken = request.get("access_token");
 		
-		User result = naverLoginService.handleNaverLogin(token, user);
-		session.setAttribute("loginUser", result);
+		if (accessToken == null || accessToken.isBlank()) {
+			return ResponseEntity.badRequest().body("access_token이 누락되었습니다.");
+		}
 		
-		return result;
+		// 1. 사용자 정보 요청
+		HttpHeaders headers = new HttpHeaders();
+		headers.add("Authorization", "Bearer " + accessToken);
+		HttpEntity<?> entity = new HttpEntity<>(headers);
+		
+		RestTemplate rest = new RestTemplate();
+		ResponseEntity<Map> response = rest.exchange(
+			"https://openapi.naver.com/v1/nid/me", HttpMethod.GET, entity, Map.class
+		);
+		
+		Map body = response.getBody();
+		Map userInfo = (Map) body.get("response");
+		
+		// 2. 세션 저장
+		session.setAttribute("loginUser", userInfo);
+		
+		// 3. 응답 반환
+		return ResponseEntity.ok(userInfo);
 	}
 }
 

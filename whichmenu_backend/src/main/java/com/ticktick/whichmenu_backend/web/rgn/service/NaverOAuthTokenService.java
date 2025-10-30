@@ -1,12 +1,12 @@
 package com.ticktick.whichmenu_backend.web.rgn.service;
 
 import com.ticktick.whichmenu_backend.web.rgn.dao.dto.OAuthToken;
-import com.ticktick.whichmenu_backend.web.rgn.dao.dto.User;
+import com.ticktick.whichmenu_backend.web.rgn.dao.dto.UsrInfoDto;
 
 public interface NaverOAuthTokenService {
 	
 	OAuthToken findByProviderAndProviderUserId(String provider, String providerUserId);
 	
-	User handleNaverLogin(OAuthToken token, User userInfo);
+	UsrInfoDto handleNaverLogin(OAuthToken token, UsrInfoDto userInfo);
 
 }

@@ -5,7 +5,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.ticktick.whichmenu_backend.web.rgn.dao.NaverLoginDAO;
 import com.ticktick.whichmenu_backend.web.rgn.dao.dto.OAuthToken;
-import com.ticktick.whichmenu_backend.web.rgn.dao.dto.User;
+import com.ticktick.whichmenu_backend.web.rgn.dao.dto.UsrInfoDto;
 
 public class NaverOAuthTokenServiceImpl implements NaverOAuthTokenService {
 	
@@ -19,9 +19,9 @@ public class NaverOAuthTokenServiceImpl implements NaverOAuthTokenService {
 
 	@Override
 	@Transactional
-	public User handleNaverLogin(OAuthToken token, User userInfo) {
+	public UsrInfoDto handleNaverLogin(OAuthToken token, UsrInfoDto userInfo) {
 		// 사용자 존재 여부 확인
-		User existingUser = naverLoginDAO.findByUsername(userInfo.getUsername());
+		UsrInfoDto existingUser = naverLoginDAO.findByUsername(userInfo.getNickNm());
 		if (existingUser == null) {
 			naverLoginDAO.insertUser(userInfo);
 			existingUser = userInfo;

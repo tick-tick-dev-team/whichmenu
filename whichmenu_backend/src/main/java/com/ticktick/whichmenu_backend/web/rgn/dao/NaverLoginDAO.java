@@ -3,14 +3,14 @@
 import org.apache.ibatis.annotations.Mapper;
 
 import com.ticktick.whichmenu_backend.web.rgn.dao.dto.OAuthToken;
-import com.ticktick.whichmenu_backend.web.rgn.dao.dto.User;
+import com.ticktick.whichmenu_backend.web.rgn.dao.dto.UsrInfoDto;
 
 @Mapper
 public interface NaverLoginDAO {
 	
-	User findByUsername(String username);
+	UsrInfoDto findByUsername(String username);
 	
-	int insertUser(User user);
+	int insertUser(UsrInfoDto user);
 
     // 토큰 조회
 	OAuthToken findTokenByProviderUserId(String providerUserId);

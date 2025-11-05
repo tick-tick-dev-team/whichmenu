@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD MyBatis Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ticktick.whichmenu_backend.web.rgn.dao.NaverLoginDAO">
+    
+    
+    <!-- USER 조회 -->
+    <select id="findUserByUsername" parameterType="string" resultType="com.ticktick.whichmenu_backend.web.rgn.dao.dto.UsrInfoDto">
+        SELECT 
+               ID
+             , USERNAME
+             , DISPLAY_NAME
+             , EMAIL
+             , CREATED_AT
+          FROM USERS
+         WHERE USERNAME = #{username}
+    </select>
+  
+    <!-- OAUTH 토큰 조회 -->
+    <select id="findTokenByProviderUserId" parameterType="string" resultType="com.ticktick.whichmenu_backend.web.rgn.dao.dto.OAuthToken">
+        SELECT 
+               ID
+             , PROVIDER
+             , PROVIDER_USER_ID
+             , ACCESS_TOKEN
+             , REFRESH_TOKEN
+             , SCOPE
+             , TOKEN_TYPE
+             , EXPIRES_AT
+             , CREATED_AT
+             , UPDATED_AT
+          FROM OAUTH_TOKENS
+         WHERE PROVIDER_USER_ID = #{providerUserId}
+    </select>
+  
+    <!-- OAUTH 토큰 삽입 -->
+    <insert id="insertOauthToken" parameterType="com.ticktick.whichmenu_backend.web.rgn.dao.dto.OAuthToken" useGeneratedKeys="true" keyProperty="id">
+        INSERT 
+               INTO OAUTH_TOKENS 
+        (
+               PROVIDER
+             , PROVIDER_USER_ID
+             , ACCESS_TOKEN
+             , REFRESH_TOKEN
+             , SCOPE
+             , TOKEN_TYPE
+             , EXPIRES_AT
+             , CREATED_AT
+             , UPDATED_AT
+        ) 
+        VALUES (
+               #{provider}
+             , #{providerUserId}
+             , #{accessToken}
+             , #{refreshToken}
+             , #{scope}
+             , #{tokenType}
+             , #{expiresAt}
+             , NOW()
+             , NOW()
+        )
+    </insert>
+  
+    <!-- OAUTH 토큰 업데이트 -->
+    <update id="updateOauthToken" parameterType="com.ticktick.whichmenu_backend.web.rgn.dao.dto.OAuthToken">
+        UPDATE OAUTH_TOKENS
+           SET 
+               ACCESS_TOKEN     = #{accessToken}
+             , REFRESH_TOKEN    = #{refreshToken}
+             , SCOPE            = #{scope}
+             , TOKEN_TYPE       = #{tokenType}
+             , EXPIRES_AT       = #{expiresAt}
+             , UPDATED_AT       = NOW()
+         WHERE PROVIDER_USER_ID = #{providerUserId}
+    </update>
+    
+    <!-- USER 조회 -->
+    <select id="findByUsrInfo" parameterType="com.ticktick.whichmenu_backend.web.rgn.dao.dto.UsrInfoDto" resultType="com.ticktick.whichmenu_backend.web.rgn.dao.dto.UsrInfoDto">
+        SELECT 
+               USR_SN
+             , NICK_NM
+             , EMAIL
+             , PROV
+             , USR_ROLE
+             , REG_DT
+             , MDFCN_DT
+          FROM USR_INFO
+         WHERE EMAIL = #{email}
+           AND PROV  = #{prov}
+    </select>
+    
+    <!-- OAUTH 토큰 삽입 -->
+    <insert id="insertUser" parameterType="com.ticktick.whichmenu_backend.web.rgn.dao.dto.UsrInfoDto">
+        INSERT 
+               INTO USR_INFO 
+        (
+               NICK_NM
+             , EMAIL
+             , PROV
+             , USR_ROLE
+             , REG_DT
+             , MDFCN_DT
+        ) 
+        VALUES (
+               #{nickNm}
+             , #{email}
+             , #{prov}
+             , #{usrRole}
+             , NOW()
+             , NOW()
+        )
+    </insert>
+    
+</mapper>

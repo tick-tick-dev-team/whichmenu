@@ -27,20 +27,32 @@ function loginWithNaver() {
 
   // JS SDK용 글로벌 콜백
   window.naverSignInCallback = function () {
+    const accessToken = naverLogin.oauthParams.access_token; // 추가
     console.log("Access Token:", naverLogin.oauthParams.access_token);
 
-    naverLogin.get_naver_userprofile(function () {
-      const profile = {
-        email: naverLogin.getProfileData('email'),
-        nickname: naverLogin.getProfileData('nickname'),
-        age: naverLogin.getProfileData('age')
-      };
-      console.log("Naver Profile:", profile);
-      userProfile.value = profile;
+    fetch("http://localhost:8080/api/auth/naver/token", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ access_token: accessToken }),
+    })
+    .then(res => res.json())
+    .then(data => {
+      console.log("서버에서 받은 로그인 유저:", data);
+      
+    })
+    .catch(err => console.error("토큰 전송 실패:", err));
+    // naverLogin.get_naver_userprofile(function () {
+    //   const profile = {
+    //     email: naverLogin.getProfileData('email'),
+    //     nickname: naverLogin.getProfileData('nickname'),
+    //     age: naverLogin.getProfileData('age')
+    //   };
+    //   console.log("Naver Profile:", profile);
+    //   userProfile.value = profile;
 
-      // 로그인 성공 후 원하는 페이지로 이동
-      router.push('/ml/mlMain');
-    });
+    //   // 로그인 성공 후 원하는 페이지로 이동
+    //   router.push('/ml/mlMain');
+    // });
   };
 }
 
@@ -64,7 +76,7 @@ onMounted(() => {
 
     // 버튼 스타일: green, 3(size), 48(height)
     naverLogin.setButton("green", 3, 48);
-    naverLogin.setPopup();
+    //naverLogin.setPopup();
     naverLogin.init_naver_id_login();
   };
   document.head.appendChild(script);

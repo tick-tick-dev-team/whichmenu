@@ -1,4 +1,4 @@
-import { createRouter, createWebHashHistory } from 'vue-router';
+import { createRouter, createWebHashHistory, createWebHistory } from 'vue-router';
 import MlMain     from '@/views/ml/MlMain.vue';
 import RcmndBoard from '@/views/bbs/RcmndBoard.vue';
 import InqBoard   from '@/views/bbs/InqBoard.vue';
@@ -6,6 +6,8 @@ import NtcBoard   from '@/views/bbs/NtcBoard.vue';
 import RestInfo   from '@/views/rest/RestInfo.vue';
 import LogList    from '@/views/rest/LogList.vue';
 import Login      from '@/views/Login.vue';
+import NaverCallback from '@/views/Naver-callback.vue';
+
 
 const routes = [
   { path: '/'             , redirect: '/ml/mlMain' },
@@ -15,12 +17,13 @@ const routes = [
   { path: '/bbs/notice'   , name: 'NtcBoard'  , component: NtcBoard },    // 공지게시판
   { path: '/rest/restInfo', name: 'RestInfo'  , component: RestInfo },    // 식당관리
   { path: '/rest/logList' , name: 'LogList'   , component: LogList },     // 로그확인
-  { path: '/login'        , name: 'Login'     , component: Login }        // 로그인
+  { path: '/login'        , name: 'Login'     , component: Login },       // 로그인
+  { path: '/naver-callback' , name: 'NaverCallback'     , component: NaverCallback }        // 로그인
 ];
 
 const router = createRouter({
-  //history: createWebHistory(), // 운영의 정석 /path 형식
-  history: createWebHashHistory(), // 개발에서는 이렇게 /#/path 형식
+  history: createWebHistory(), // 운영의 정석 /path 형식
+  //history: createWebHashHistory(), // 개발에서는 이렇게 /#/path 형식
   routes
 });
 

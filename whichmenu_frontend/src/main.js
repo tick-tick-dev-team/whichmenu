@@ -1,4 +1,5 @@
 import { createApp } from 'vue'
+import { createPinia } from 'pinia'
 import './style.css'
 import App from './App.vue'
 import router from './router';
@@ -9,4 +10,5 @@ import '@mdi/font/css/materialdesignicons.css'; // ← 아이콘 설정 시 이�
 const app = createApp(App); // Vue 앱 인스턴스를 먼저 생성
 app.use(router); // Vue 애플리케이션에 Router를 등록
 app.use(vuetify); // Vuetify 사용 등록
+app.use(createPinia()) // Pinia 등록
 app.mount('#app')

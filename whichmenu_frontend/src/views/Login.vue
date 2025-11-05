@@ -27,6 +27,7 @@ function loginWithNaver() {
 
   // JS SDK용 글로벌 콜백
   window.naverSignInCallback = function () {
+    const accessToken = naverLogin.oauthParams.access_token; // 추가
     console.log("Access Token:", naverLogin.oauthParams.access_token);
 
     fetch("http://localhost:8080/api/auth/naver/token", {
@@ -37,7 +38,6 @@ function loginWithNaver() {
     .then(res => res.json())
     .then(data => {
       console.log("서버에서 받은 로그인 유저:", data);
-      router.push('/ml/mlMain');
       
     })
     .catch(err => console.error("토큰 전송 실패:", err));

@@ -97,16 +97,8 @@ public class NaverAuthController {
 		session.setAttribute("loginUser", rgnUserInfo);
 		 
 		// 3. 응답 반환
-		return ResponseEntity.ok(naverUserInfo);
+		return ResponseEntity.ok(rgnUserInfo);
 	}
 	
-	@GetMapping("/session")
-	public ResponseEntity<?> getSessionUser(HttpSession session) {
-		Object loginUser = session.getAttribute("loginUser");
-		if (loginUser == null) {
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인 정보 없음");
-		}
-		return ResponseEntity.ok(loginUser);
-	}
 }
 

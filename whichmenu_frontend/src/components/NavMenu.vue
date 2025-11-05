@@ -1,14 +1,26 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router';
+import { useUserStore } from '@/stores/userStore';
 
 const isOpen = ref(false);
 const router = useRouter();
+const userStore = useUserStore();
+
+onMounted(() => {
+  // 새로고침 시 세션스토리지에서 사용자 복원
+  userStore.loadUser()
+})
 
 const navigate = (path) => {
     isOpen.value = false;
     router.push(path);
 };
+
+const logout = () => {
+  userStore.logout()
+  router.push('/login')
+}
 </script>
 <template>
 <!-- 헤더 -->
@@ -58,8 +70,11 @@ class="px-4"
                 <v-list-item @click="navigate('/rest/logList')">
                     <v-list-item-title>로그확인</v-list-item-title>
                 </v-list-item>
-                <v-list-item @click="navigate('/login')">
+                <v-list-item v-if="!userStore.isLoggedIn" @click="navigate('/login')">
                     <v-list-item-title>로그인</v-list-item-title>
+                </v-list-item>
+                <v-list-item v-else @click="logout">
+                    <v-list-item-title>로그아웃</v-list-item-title>
                 </v-list-item>
             </v-list>
         </v-menu>

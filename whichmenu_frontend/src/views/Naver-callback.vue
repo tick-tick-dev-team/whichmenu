@@ -7,6 +7,9 @@
 <script setup>
 import { onMounted } from "vue"
 import { useRouter } from "vue-router"
+import { useUserStore } from '@/stores/userStore'
+const userStore = useUserStore()
+
 
 const router = useRouter()
 
@@ -34,6 +37,13 @@ onMounted(async () => {
 
     const userData = await res.json()
     console.log("서버에서 받은 유저:", userData)
+
+    //  로그인 성공 > userStore에 저장
+    userStore.setUser({
+      id: userData.id,
+      name: userData.name,
+      nickname: userData.nickname
+    })
 
     // 🔹 로그인 완료 후 메인으로 이동
     router.push('/ml/mlMain')

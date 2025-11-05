@@ -83,13 +83,13 @@
              , USR_ROLE
              , REG_DT
              , MDFCN_DT
-          FROM USERS
+          FROM USR_INFO
          WHERE EMAIL = #{email}
            AND PROV  = #{prov}
     </select>
     
     <!-- OAUTH 토큰 삽입 -->
-    <insert id="insertUser" parameterType="com.ticktick.whichmenu_backend.web.rgn.dao.dto.UsrInfoDto" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insertUser" parameterType="com.ticktick.whichmenu_backend.web.rgn.dao.dto.UsrInfoDto">
         INSERT 
                INTO USR_INFO 
         (

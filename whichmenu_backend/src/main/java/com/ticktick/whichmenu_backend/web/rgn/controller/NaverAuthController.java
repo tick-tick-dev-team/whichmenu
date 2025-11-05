@@ -35,8 +35,7 @@ public class NaverAuthController {
 	@Value("${naver.client.secret}")
 	private String clientSecret;
 	
-	@Autowired
-	private NaverOAuthTokenService naverLoginService;
+	private final NaverOAuthTokenService naverLoginService;
 	
 	public NaverAuthController(@Qualifier("naverOAuthTokenServiceImpl") NaverOAuthTokenService naverLoginService) {
 		this.naverLoginService = naverLoginService;
@@ -99,6 +98,15 @@ public class NaverAuthController {
 		 
 		// 3. 응답 반환
 		return ResponseEntity.ok(naverUserInfo);
+	}
+	
+	@GetMapping("/session")
+	public ResponseEntity<?> getSessionUser(HttpSession session) {
+		Object loginUser = session.getAttribute("loginUser");
+		if (loginUser == null) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인 정보 없음");
+		}
+		return ResponseEntity.ok(loginUser);
 	}
 }
 

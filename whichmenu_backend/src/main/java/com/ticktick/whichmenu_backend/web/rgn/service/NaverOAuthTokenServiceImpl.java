@@ -59,7 +59,7 @@ public class NaverOAuthTokenServiceImpl implements NaverOAuthTokenService {
 		UsrInfoDto findUsrInfo = naverLoginDAO.findByUsrInfo(paramInfo);
 		
 		if(findUsrInfo == null) {
-			naverLoginDAO.insertUser(findUsrInfo);
+			naverLoginDAO.insertUser(paramInfo);
 			findUsrInfo = naverLoginDAO.findByUsrInfo(paramInfo);
 		}
 		

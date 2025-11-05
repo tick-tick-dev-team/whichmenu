@@ -13,7 +13,7 @@ public class UsrInfoDto {
 	
 	private String prov; 	// 로그인 구분값 (ex 'NAVER', 'KAKAO')
 	
-	private String usrRole;	// 사용자권한 ( U : 일반유저 , M : 관리자 )
+	private String usrRole = "U";	// 사용자권한 ( U : 일반유저 , M : 관리자 )
 	
 	private String regDt;	// 등록일
 	

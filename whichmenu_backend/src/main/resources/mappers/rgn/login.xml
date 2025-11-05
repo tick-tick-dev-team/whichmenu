@@ -4,7 +4,7 @@
     
     
     <!-- USER 조회 -->
-    <select id="findUserByUsername" parameterType="string" resultType="com.ticktick.whichmenu_backend.web.rgn.dao.dto.User">
+    <select id="findUserByUsername" parameterType="string" resultType="com.ticktick.whichmenu_backend.web.rgn.dao.dto.UsrInfoDto">
         SELECT 
                ID
              , USERNAME
@@ -14,24 +14,6 @@
           FROM USERS
          WHERE USERNAME = #{username}
     </select>
-  
-    <!-- USER 삽입 -->
-    <insert id="insertUser" parameterType="com.ticktick.whichmenu_backend.web.rgn.dao.dto.User" useGeneratedKeys="true" keyProperty="id">
-        INSERT 
-               INTO USERS 
-        (
-               USERNAME
-             , DISPLAY_NAME
-             , EMAIL
-             , CREATED_AT
-        )
-        VALUES (
-               #{username}
-             , #{displayName}
-             , #{email}
-             , NOW()
-        )
-    </insert>
   
     <!-- OAUTH 토큰 조회 -->
     <select id="findTokenByProviderUserId" parameterType="string" resultType="com.ticktick.whichmenu_backend.web.rgn.dao.dto.OAuthToken">
@@ -91,6 +73,41 @@
          WHERE PROVIDER_USER_ID = #{providerUserId}
     </update>
     
+    <!-- USER 조회 -->
+    <select id="findByUsrInfo" parameterType="com.ticktick.whichmenu_backend.web.rgn.dao.dto.UsrInfoDto" resultType="com.ticktick.whichmenu_backend.web.rgn.dao.dto.UsrInfoDto">
+        SELECT 
+               USR_SN
+             , NICK_NM
+             , EMAIL
+             , PROV
+             , USR_ROLE
+             , REG_DT
+             , MDFCN_DT
+          FROM USERS
+         WHERE EMAIL = #{email}
+           AND PROV  = #{prov}
+    </select>
     
+    <!-- OAUTH 토큰 삽입 -->
+    <insert id="insertUser" parameterType="com.ticktick.whichmenu_backend.web.rgn.dao.dto.UsrInfoDto" useGeneratedKeys="true" keyProperty="id">
+        INSERT 
+               INTO USR_INFO 
+        (
+               NICK_NM
+             , EMAIL
+             , PROV
+             , USR_ROLE
+             , REG_DT
+             , MDFCN_DT
+        ) 
+        VALUES (
+               #{nickNm}
+             , #{email}
+             , #{prov}
+             , #{usrRole}
+             , NOW()
+             , NOW()
+        )
+    </insert>
     
 </mapper>

@@ -3,6 +3,7 @@ package com.ticktick.whichmenu_backend.web.rgn.controller;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -16,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
+import com.ticktick.whichmenu_backend.web.rest.service.RestInfoService;
+import com.ticktick.whichmenu_backend.web.rgn.dao.dto.UsrInfoDto;
 import com.ticktick.whichmenu_backend.web.rgn.service.NaverOAuthTokenService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -34,6 +37,10 @@ public class NaverAuthController {
 	
 	@Autowired
 	private NaverOAuthTokenService naverLoginService;
+	
+	public NaverAuthController(@Qualifier("naverOAuthTokenServiceImpl") NaverOAuthTokenService naverLoginService) {
+		this.naverLoginService = naverLoginService;
+	}
 	
 	@GetMapping("/callback")
 	public void naverCallback(String access_token,
@@ -82,13 +89,16 @@ public class NaverAuthController {
 		);
 		
 		Map body = response.getBody();
-		Map userInfo = (Map) body.get("response");
+		Map naverUserInfo = (Map) body.get("response");
+		
+		// 간편 로그인 정보 조회 및 추가
+		UsrInfoDto rgnUserInfo = naverLoginService.findUser(naverUserInfo);
 		
 		// 2. 세션 저장
-		session.setAttribute("loginUser", userInfo);
-		
+		session.setAttribute("loginUser", rgnUserInfo);
+		 
 		// 3. 응답 반환
-		return ResponseEntity.ok(userInfo);
+		return ResponseEntity.ok(naverUserInfo);
 	}
 }
 

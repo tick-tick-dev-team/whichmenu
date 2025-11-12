@@ -3,6 +3,11 @@
 import FileUpload from '@/components/FileUpload.vue';
 import axios from 'axios';
 import { ref, watch, onMounted, shallowRef  } from 'vue';
+import { useUserStore } from '@/stores/userStore';
+import { storeToRefs } from 'pinia'
+
+const userStore = useUserStore();
+const { user } = storeToRefs(userStore);
 
 const props = defineProps({
     modelValue: Boolean, // postList
@@ -138,7 +143,7 @@ watch(() => props.target, (newTarget) => {
     // create일 경우 값 초기화
     bbsTtl.value = '';
     bbsCn.value = '';
-    regNm.value = props.bbsType == 'N' ? '관리자' : '';
+    regNm.value = props.bbsType === 'N' ? '관리자' : (user.value?.nickNm || '');
     isAnonymous.value = false;
   }
 }, { immediate: true }); // mount 시에도 실행되게 함

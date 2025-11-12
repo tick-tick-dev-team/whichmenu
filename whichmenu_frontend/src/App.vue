@@ -1,5 +1,14 @@
 <script setup>
 import { RouterView } from 'vue-router';
+import { onMounted } from 'vue'
+import { useUserStore } from '@/stores/userStore'
+
+const userStore = useUserStore()
+
+onMounted(() => {
+  // 앱 시작 시 세션스토리지 복원, 이렇게 해야 새로고침 시에도 렌더링 전에 값을 불러와서 유저 정보를 정상적으로 유지할 수 있음
+  userStore.loadUser()
+})
 </script>
 
 <template>

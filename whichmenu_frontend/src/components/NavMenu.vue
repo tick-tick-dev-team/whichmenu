@@ -1,16 +1,11 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/userStore';
 
 const isOpen = ref(false);
 const router = useRouter();
 const userStore = useUserStore();
-
-onMounted(() => {
-  // 새로고침 시 세션스토리지에서 사용자 복원
-  userStore.loadUser()
-})
 
 const navigate = (path) => {
     isOpen.value = false;
@@ -52,6 +47,10 @@ class="px-4"
 
             <!-- 드롭다운 메뉴 -->
             <v-list>
+                <!-- ✅ 로그인된 사용자 닉네임 표시 -->
+                <v-list-item v-if="userStore.isLoggedIn" class="text-black">
+                    {{ userStore.user?.nickNm }}님 환영합니다 👋
+                </v-list-item>
                 <v-list-item @click="navigate('/')">
                     <v-list-item-title>식단</v-list-item-title>
                 </v-list-item>

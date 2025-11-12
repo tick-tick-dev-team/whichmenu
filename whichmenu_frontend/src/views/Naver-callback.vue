@@ -42,7 +42,8 @@ onMounted(async () => {
     userStore.setUser({
       id: userData.id,
       name: userData.name,
-      nickname: userData.nickname
+      nickNm: userData.nickNm,
+      usrRole: userData.usrRole
     })
 
     // 🔹 로그인 완료 후 메인으로 이동

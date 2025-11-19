@@ -22,7 +22,7 @@ public class WebConfig implements WebMvcConfigurer{
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
 		InterceptorRegistration reg = registry.addInterceptor(oAuthTokenInterceptor);
-		reg.addPathPatterns("/api/**"); 													// 갱신 필요한 API 경로
-		reg.excludePathPatterns(new String[]{"/", "/ml/mlMain", "/public/**", "/login" });	// 로그인 정보 없이도 접근 가능 URL
+		reg.addPathPatterns("/api/**"); 																	// 갱신 필요한 API 경로
+		reg.excludePathPatterns(new String[]{"/", "/ml/mlMain", "/public/**", "/login", "/api/oauth/login", "/api/mlmenu/rest", "/api/rest/list", "/atch/**" });	// 로그인 정보 없이도 접근 가능 URL
 	}
 }

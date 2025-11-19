@@ -1,7 +1,10 @@
 package com.ticktick.whichmenu_backend.web.rgn.service;
 
+import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -17,10 +20,20 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
 @Service
+@Primary
 @RequiredArgsConstructor
 public class OAuthServiceImpl implements OAuthService {
 	
 	private final OAuthTokenDAO oAuthTokenDAO;
+	
+	@Value("${naver.client.id}")
+	private String NAVER_CLIENT_ID;
+	
+	@Value("${naver.client.secret}")
+	private String NAVER_CLIENT_SECRET;
+	
+	@Value("${kakao.client.id}")
+	private String KAKAO_CLIENT_ID;
 
 	/**
 	 * 간편로그인 분기 처리
@@ -56,28 +69,40 @@ public class OAuthServiceImpl implements OAuthService {
 	 * */
 	@SuppressWarnings("unchecked")
 	public UsrInfoDto getNaverUserInfo(Map<String, String> request, HttpSession session) {
-		String accessToken = request.get("access_token");
-		String refreshToken = request.get("refresh_token");
 		
-		long expiresInSec = 0L;
+		String code = request.get("code");
+		String state = request.get("state");
 		
-		try {
-			expiresInSec = Long.parseLong(request.getOrDefault("expires_in", "0"));
-		} catch (NumberFormatException e) {
-			expiresInSec = 0L; // 예외 시 기본값
+		if(code == null || state == null) {
+			throw new IllegalArgumentException("code 또는 state가 누락되었습니다.");
 		}
+		
+		RestTemplate rest = new RestTemplate();
+		String tokenUrl = "https://nid.naver.com/oauth2.0/token" +
+				"?grant_type=authorization_code" +
+				"&client_id=" + NAVER_CLIENT_ID +
+				"&client_secret=" + NAVER_CLIENT_SECRET +
+				"&code=" + code +
+				"&state=" + state;
+		
+		ResponseEntity<Map> tokenResponse = rest.getForEntity(tokenUrl, Map.class);
+		
+		Map<String, Object> tokenMap = tokenResponse.getBody();
+		String accessToken = (String) tokenMap.get("access_token");
+		String refreshToken = (String) tokenMap.get("refresh_token");
+		long expiresInSec = Long.parseLong(String.valueOf(tokenMap.get("expires_in")));
+
 		// 1. 사용자 정보 요청
 		HttpHeaders headers = new HttpHeaders();
 		headers.add("Authorization", "Bearer " + accessToken);
 		HttpEntity<?> entity = new HttpEntity<>(headers);
 		
-		RestTemplate rest = new RestTemplate();
 		ResponseEntity<Map> response = rest.exchange(
 				"https://openapi.naver.com/v1/nid/me", HttpMethod.GET, entity, Map.class
 		);
 		
-		Map body = response.getBody();
-		Map naverUserInfo = (Map) body.get("response");
+		Map<String, Object> body = (Map<String, Object>) response.getBody();
+		Map<String, Object> naverUserInfo = (Map<String, Object>) body.get("response");
 		
 		// 간편 로그인 정보 조회 및 추가
 		naverUserInfo.put("prov", "naver");
@@ -109,31 +134,46 @@ public class OAuthServiceImpl implements OAuthService {
 	 * */
 	@SuppressWarnings("unchecked")
 	public UsrInfoDto getKakaoUserInfo(Map<String, String> request, HttpSession session) {
-		String accessToken = request.get("access_token");
-		String refreshToken = request.get("refresh_token");
 		
-		long expiresInSec = 0L;
-		try {
-			expiresInSec = Long.parseLong(request.getOrDefault("expires_in", "0"));
-		} catch (NumberFormatException e) {
-			expiresInSec = 0L; // 예외 시 기본값
+		String code = request.get("code");
+		String redirectUri = request.get("redirect_uri");
+		
+		if(code == null || redirectUri == null) {
+			throw new IllegalArgumentException("code 또는 redirectUri 정보가 누락되었습니다.");
 		}
+		
+		RestTemplate rest = new RestTemplate();
+		String tokenUrl = "https://kauth.kakao.com/oauth/token" +
+				"?grant_type=authorization_code" +
+				"&client_id=" + KAKAO_CLIENT_ID  +
+				"&redirect_uri=" + redirectUri +
+				"&code=" + code;
+		
+		ResponseEntity<Map> tokenResponse = rest.postForEntity(tokenUrl, null, Map.class);
+		Map<String, Object> tokenMap = tokenResponse.getBody();
+		String accessToken = (String) tokenMap.get("access_token");
+		String refreshToken = (String) tokenMap.get("refresh_token");
+		long expiresInSec = Long.parseLong(String.valueOf(tokenMap.get("expires_in")));
 		
 		// 1. 사용자 정보 요청
 		HttpHeaders headers = new HttpHeaders();
 		headers.add("Authorization", "Bearer " + accessToken);
 		HttpEntity<?> entity = new HttpEntity<>(headers);
 		
-		RestTemplate rest = new RestTemplate();
 		ResponseEntity<Map> response = rest.exchange(
 				"https://kapi.kakao.com/v2/user/me", HttpMethod.GET, entity, Map.class
 		);
 		
-		Map body = response.getBody();
-		Map kakaoUserInfo = (Map) body.get("response");
+		Map<String, Object> body = (Map<String, Object>) response.getBody();
+		Map<String, Object> kakaoAccount = (Map<String, Object>) body.get("kakao_account");
+		Map<String, Object> profile = (Map<String, Object>) kakaoAccount.get("profile");
+		String email = kakaoAccount.get("email") != null ? kakaoAccount.get("email").toString() : "";
 		
-		// 간편 로그인 정보 조회 및 추가
+		// 간편 로그인 정보 조회 및 추가		
+		Map<String, Object> kakaoUserInfo = new HashMap<>();
 		kakaoUserInfo.put("prov", "kakao");
+		kakaoUserInfo.put("nickname", profile.get("nickname"));
+		kakaoUserInfo.put("email", kakaoAccount.get("email") != null ? kakaoAccount.get("email") : "");
 		UsrInfoDto rgnUserInfo = findUser(kakaoUserInfo);
 		
 		// 2. 사용자 정보 + 토큰 저장
@@ -157,7 +197,7 @@ public class OAuthServiceImpl implements OAuthService {
 	 * 사용자 조회 및 최초 저장
 	 * 
 	 * */
-	public UsrInfoDto findUser(Map userInfo) {
+	public UsrInfoDto findUser(Map<String, Object> userInfo) {
 		UsrInfoDto paramInfo = new UsrInfoDto();
 		
 		paramInfo.setProv(String.valueOf(userInfo.get("prov")));

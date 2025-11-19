@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
@@ -31,9 +32,8 @@ public class OAuthTokenInterceptor implements HandlerInterceptor {
 	@Value("${kakao.client.id}")
 	private String kakaoClientId;
 	
+	@Autowired
 	private final OAuthTokenDAO tokenDAO;
-	
-	private final RestTemplate restTemplate;
 	
 	// 1시간 체크(ms)
 	private static final long CHECK_INTERVAL = 60 * 60 * 1000L;
@@ -84,6 +84,8 @@ public class OAuthTokenInterceptor implements HandlerInterceptor {
 			
 			// access_token 만료 시 refresh_token으로 갱신
 			if (now > token.getExpiresAt()) {
+				
+				RestTemplate restTemplate = new RestTemplate();
 				if ("naver".equalsIgnoreCase(provider)) {
 					String url = "https://nid.naver.com/oauth2.0/token"
 							+ "?grant_type=refresh_token"

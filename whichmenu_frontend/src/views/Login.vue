@@ -9,78 +9,21 @@ const NAVER_CALLBACK_URL = import.meta.env.VITE_NAVER_CALLBACK_URL; // JS SDK용
 const userProfile = ref(null);
 //const STATE = "RANDOM_STRING"; // CSRF 방지용 난수 (랜덤으로 생성 권장)
 
-function loginWithNaver() {
-  if (!window.naver_id_login) {
-    console.error("네이버 SDK가 로드되지 않았습니다.");
-    return;
-  }
+function goNaverLogin() {
+  const state = Math.random().toString(36).substring(2, 12);
+  const url =
+    `https://nid.naver.com/oauth2.0/authorize?response_type=code` +
+    `&client_id=${NAVER_CLIENT_ID}` +
+    `&redirect_uri=${encodeURIComponent(NAVER_CALLBACK_URL)}` +
+    `&state=${state}`;
 
-  const naverLogin = new window.naver_id_login(NAVER_CLIENT_ID, NAVER_CALLBACK_URL);
-
-  // naverLogin.setButton("green", 3, 48);
-  const state = naverLogin.getUniqState(); // CSRF 방지를 위한 STATE 값 설정
-  naverLogin.setState(state);
-
-  naverLogin.setPopup(); // 팝업 로그인
-
- // naverLogin.init_naver_id_login();
-
-  // JS SDK용 글로벌 콜백
-  window.naverSignInCallback = function () {
-    const accessToken = naverLogin.oauthParams.access_token; // 추가
-    console.log("Access Token:", naverLogin.oauthParams.access_token);
-
-    fetch("http://localhost:8080/api/auth/naver/token", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ access_token: accessToken }),
-    })
-    .then(res => res.json())
-    .then(data => {
-      console.log("서버에서 받은 로그인 유저:", data);
-      
-    })
-    .catch(err => console.error("토큰 전송 실패:", err));
-    // naverLogin.get_naver_userprofile(function () {
-    //   const profile = {
-    //     email: naverLogin.getProfileData('email'),
-    //     nickname: naverLogin.getProfileData('nickname'),
-    //     age: naverLogin.getProfileData('age')
-    //   };
-    //   console.log("Naver Profile:", profile);
-    //   userProfile.value = profile;
-
-    //   // 로그인 성공 후 원하는 페이지로 이동
-    //   router.push('/ml/mlMain');
-    // });
-  };
+  window.location.href = url;
 }
 
 function loginWithKakao() {
   console.log("카카오 로그인 클릭")
   router.push('/menu')
 }
-
-// mounted 시 네이버 SDK 동적 로드
-onMounted(() => {
-  const script = document.createElement("script");
-  script.src = "https://static.nid.naver.com/js/naverLogin_implicit-1.0.3.js";
-  script.charset = "utf-8";
-  script.onload = () => {
-    console.log("Naver SDK loaded");
-
-    // ✅ SDK 버튼을 내가 둔 위치(#naver_id_login)에 생성
-    const naverLogin = new window.naver_id_login(NAVER_CLIENT_ID, NAVER_CALLBACK_URL);
-    const state = naverLogin.getUniqState();
-    naverLogin.setState(state);
-
-    // 버튼 스타일: green, 3(size), 48(height)
-    naverLogin.setButton("green", 3, 48);
-    //naverLogin.setPopup();
-    naverLogin.init_naver_id_login();
-  };
-  document.head.appendChild(script);
-});
 
 </script>
 
@@ -94,7 +37,10 @@ onMounted(() => {
         <img src="/img/naver_icon.png" alt="Naver" />
         네이버로 로그인
       </button> -->
-       <div id="naver_id_login"></div>
+       <button class="login-btn naver-btn" @click="goNaverLogin">
+        <img src="/img/naver_icon.png" alt="Naver" />
+        네이버로 로그인
+      </button>
 
       <button class="login-btn kakao-btn" @click="loginWithKakao">
         <img src="https://developers.kakao.com/tool/resource/static/img/button/login/full/ko/kakao_login_small.png" alt="Kakao" />

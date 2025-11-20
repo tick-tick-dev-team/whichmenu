@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -22,6 +24,8 @@ import lombok.RequiredArgsConstructor;
 @Component
 @RequiredArgsConstructor
 public class OAuthTokenInterceptor implements HandlerInterceptor {
+	
+	private static final Logger log = LoggerFactory.getLogger(OAuthTokenInterceptor.class);
 	
 	@Value("${naver.client.id}")
 	private String naverClientId;
@@ -43,12 +47,14 @@ public class OAuthTokenInterceptor implements HandlerInterceptor {
 		
 		HttpSession session = request.getSession(false);
 		if (session == null) {
+			log.info("::::: [OAuthTokenInterceptor] 세션 정보가 없습니다. :::::");
 			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 			response.getWriter().write("로그인 세션이 없습니다.");
 			return false;
 		}
 		UsrInfoDto loginUser = (UsrInfoDto) session.getAttribute("loginUser");
-		if (loginUser == null) { 
+		if (loginUser == null) {
+			log.info("::::: [OAuthTokenInterceptor] 로그인 사용자 정보가 없습니다. :::::");
 			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 			response.getWriter().write("로그인 정보가 없습니다.");
 			return false;
@@ -57,14 +63,16 @@ public class OAuthTokenInterceptor implements HandlerInterceptor {
 		String provider = loginUser.getProv();;
 		String userId = loginUser.getUsrSn();;
 		
-		if (provider == null || userId == null) {
+		if (   provider == null || "".equals(provider) || userId   == null || "".equals(userId)) {
+			log.info("::::: [OAuthTokenInterceptor] 로그인 사용자 정보가 올바르지 않습니다. provider => {}, userId => {} :::::", provider, userId);
 			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 			response.getWriter().write("로그인 정보가 올바르지 않습니다.");
 			return false;
 		}
 		
 		OAuthToken token = tokenDAO.findTokenByProviderUserId(provider, userId);
-		if (token == null) {
+		if (token == null || "".equals(token)) {
+			log.info("::::: [OAuthTokenInterceptor] 사용자 토큰 정보가 올바르지 않습니다. token => {} :::::", token);
 			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 			response.getWriter().write("OAuth 토큰 정보가 없습니다.");
 			return false;

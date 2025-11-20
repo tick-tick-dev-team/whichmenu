@@ -11,13 +11,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ticktick.whichmenu_backend.web.rest.controller.RestInfoContorller;
-import com.ticktick.whichmenu_backend.web.rest.service.RestInfoService;
 import com.ticktick.whichmenu_backend.web.rgn.dao.dto.UsrInfoDto;
 import com.ticktick.whichmenu_backend.web.rgn.service.OAuthService;
 
 import jakarta.servlet.http.HttpSession;
-import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/oauth")

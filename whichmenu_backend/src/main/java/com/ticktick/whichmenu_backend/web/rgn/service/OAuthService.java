@@ -11,4 +11,6 @@ public interface OAuthService {
 	
 	UsrInfoDto getUserInfo(Map<String, String> request, HttpSession session);
 	
+	Map<String, Object> logoutProc(HttpSession session);
+	
 }

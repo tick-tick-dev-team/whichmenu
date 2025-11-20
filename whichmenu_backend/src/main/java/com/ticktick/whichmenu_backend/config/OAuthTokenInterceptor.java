@@ -48,7 +48,7 @@ public class OAuthTokenInterceptor implements HandlerInterceptor {
 			return false;
 		}
 		UsrInfoDto loginUser = (UsrInfoDto) session.getAttribute("loginUser");
-		if (loginUser == null) {
+		if (loginUser == null) { 
 			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 			response.getWriter().write("로그인 정보가 없습니다.");
 			return false;

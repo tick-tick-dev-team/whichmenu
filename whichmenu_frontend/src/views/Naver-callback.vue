@@ -26,9 +26,9 @@ onMounted(async () => {
 
     // 🔹 백엔드로 code 전달
     // 카카오 간편로그인 호출할때 (참고)
-    // body: JSON.stringify({ code, provider: "kakao", redirect_uri: "http://localhost:3000/oauth/kakao/callback" })
+    // body: JSON.stringify({ code, provider: "kakao", redirect_uri: "http://localhost:3000/oauth/kakao/callback???" })
 
-    const res = await fetch("http://localhost:8080/api/oauth/login", {
+    const res = await fetch("/api/oauth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ code, state, provider : "naver" })
@@ -41,10 +41,12 @@ onMounted(async () => {
 
     // 🔹 로그인 성공 > userStore에 저장
     userStore.setUser({
-      id: userData.id,
-      name: userData.name,
-      nickNm: userData.nickNm,
-      usrRole: userData.usrRole
+      id       : userData.usrSn,
+      name     : userData.name,
+      email    : userData.email,
+      prov     : userData.prov,
+      nickNm   : userData.nickNm,
+      usrRole  : userData.usrRole
     })
 
     // 🔹 로그인 완료 후 메인으로 이동

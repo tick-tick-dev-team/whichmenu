@@ -3,6 +3,8 @@ package com.ticktick.whichmenu_backend.web.rgn.service;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpEntity;
@@ -12,6 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import com.ticktick.whichmenu_backend.web.rest.dao.RestInfoDAO;
+import com.ticktick.whichmenu_backend.web.rest.service.RestInfoServiceImpl;
 import com.ticktick.whichmenu_backend.web.rgn.dao.OAuthTokenDAO;
 import com.ticktick.whichmenu_backend.web.rgn.dao.dto.OAuthToken;
 import com.ticktick.whichmenu_backend.web.rgn.dao.dto.UsrInfoDto;
@@ -20,11 +24,15 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
 @Service
-@Primary
-@RequiredArgsConstructor
 public class OAuthServiceImpl implements OAuthService {
 	
-	private final OAuthTokenDAO oAuthTokenDAO;
+	private static final Logger log = LoggerFactory.getLogger(OAuthServiceImpl.class);
+	
+	private OAuthTokenDAO oAuthTokenDAO;
+	
+	public OAuthServiceImpl(OAuthTokenDAO oAuthTokenDAO) {
+		this.oAuthTokenDAO = oAuthTokenDAO;
+	}
 	
 	@Value("${naver.client.id}")
 	private String NAVER_CLIENT_ID;
@@ -45,6 +53,7 @@ public class OAuthServiceImpl implements OAuthService {
 		String provider = request.get("provider");
 		if (provider == null || provider.isBlank()) {
 			// naver, kakao 구분자 값이 없을때 튕구기
+			log.error("[★★★★★★★★ 간편로그인 처리 오류 ★★★★★★★] provicder => {} ", provider);
 			throw new IllegalArgumentException("provider 값이 존재하지 않습니다.");
 		}
 		
@@ -55,6 +64,7 @@ public class OAuthServiceImpl implements OAuthService {
 		} else if ("kakao".equalsIgnoreCase(provider)) {
 			result =  getKakaoUserInfo(request, session);
 		} else {
+			log.error("[★★★★★★★★ 간편로그인 처리 오류 ★★★★★★★] provicder => {} ", provider);
 			throw new IllegalArgumentException("지원되지 않는 provider입니다.");
 		}
 		return result;
@@ -74,6 +84,7 @@ public class OAuthServiceImpl implements OAuthService {
 		String state = request.get("state");
 		
 		if(code == null || state == null) {
+			log.error("[★★★★★★★★ 간편로그인 처리 오류 ★★★★★★★] code => {}, state => {} ", code , state);
 			throw new IllegalArgumentException("code 또는 state가 누락되었습니다.");
 		}
 		
@@ -87,11 +98,13 @@ public class OAuthServiceImpl implements OAuthService {
 		
 		ResponseEntity<Map> tokenResponse = rest.getForEntity(tokenUrl, Map.class);
 		
+		// + response 값 체크 로직 추가 필요
+		
 		Map<String, Object> tokenMap = tokenResponse.getBody();
 		String accessToken = (String) tokenMap.get("access_token");
 		String refreshToken = (String) tokenMap.get("refresh_token");
 		long expiresInSec = Long.parseLong(String.valueOf(tokenMap.get("expires_in")));
-
+		
 		// 1. 사용자 정보 요청
 		HttpHeaders headers = new HttpHeaders();
 		headers.add("Authorization", "Bearer " + accessToken);
@@ -139,6 +152,7 @@ public class OAuthServiceImpl implements OAuthService {
 		String redirectUri = request.get("redirect_uri");
 		
 		if(code == null || redirectUri == null) {
+			log.error("[★★★★★★★★ 간편로그인 처리 오류 ★★★★★★★] code => {}, redirectUri => {} ", code , redirectUri);
 			throw new IllegalArgumentException("code 또는 redirectUri 정보가 누락되었습니다.");
 		}
 		
@@ -150,6 +164,8 @@ public class OAuthServiceImpl implements OAuthService {
 				"&code=" + code;
 		
 		ResponseEntity<Map> tokenResponse = rest.postForEntity(tokenUrl, null, Map.class);
+		// + response 값 체크 로직 추가 필요
+		
 		Map<String, Object> tokenMap = tokenResponse.getBody();
 		String accessToken = (String) tokenMap.get("access_token");
 		String refreshToken = (String) tokenMap.get("refresh_token");
@@ -219,6 +235,26 @@ public class OAuthServiceImpl implements OAuthService {
 	 * */
 	public void saveToken(OAuthToken token) {
 		oAuthTokenDAO.insertOauthToken(token);
+	}
+
+	/**
+	 * 사용자 로그아웃 처리
+	 * */
+	@Override
+	public Map<String, Object> logoutProc(HttpSession session) {
+		
+		Map<String, Object> returnMap = new HashMap<String, Object>();
+		
+		// 1. 사용자 아이디로 토큰 조회
+		
+		// 2. 토큰 삭제 처리
+		
+		// 3. 세션에 저장된 로그인 정보 삭제
+		
+		// 로그아웃 처리 결과 리턴
+		
+		return returnMap;
+		
 	}
 
 }

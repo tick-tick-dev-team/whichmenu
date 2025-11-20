@@ -6,7 +6,6 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -14,14 +13,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import com.ticktick.whichmenu_backend.web.rest.dao.RestInfoDAO;
-import com.ticktick.whichmenu_backend.web.rest.service.RestInfoServiceImpl;
 import com.ticktick.whichmenu_backend.web.rgn.dao.OAuthTokenDAO;
 import com.ticktick.whichmenu_backend.web.rgn.dao.dto.OAuthToken;
 import com.ticktick.whichmenu_backend.web.rgn.dao.dto.UsrInfoDto;
 
 import jakarta.servlet.http.HttpSession;
-import lombok.RequiredArgsConstructor;
 
 @Service
 public class OAuthServiceImpl implements OAuthService {

@@ -49,7 +49,7 @@ public class OAuthServiceImpl implements OAuthService {
 		String provider = request.get("provider");
 		if (provider == null || provider.isBlank()) {
 			// naver, kakao 구분자 값이 없을때 튕구기
-			log.error("[★★★★★★★★ 간편로그인 처리 오류 ★★★★★★★] provicder => {} ", provider);
+			log.error("::::: [ Login processing ] provider 값이 올바르지 않습니다. provider => {} :::::", provider);
 			throw new IllegalArgumentException("provider 값이 존재하지 않습니다.");
 		}
 		
@@ -60,7 +60,7 @@ public class OAuthServiceImpl implements OAuthService {
 		} else if ("kakao".equalsIgnoreCase(provider)) {
 			result =  getKakaoUserInfo(request, session);
 		} else {
-			log.error("[★★★★★★★★ 간편로그인 처리 오류 ★★★★★★★] provicder => {} ", provider);
+			log.error("::::: [ Login processing ] 지원되지 않는 provider => {} :::::", provider);
 			throw new IllegalArgumentException("지원되지 않는 provider입니다.");
 		}
 		return result;
@@ -73,33 +73,48 @@ public class OAuthServiceImpl implements OAuthService {
 	 * 2) 토큰 저장 및 세선 저장
 	 * 
 	 * */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked" })
 	public UsrInfoDto getNaverUserInfo(Map<String, String> request, HttpSession session) {
 		
-		String code = request.get("code");
+		String code  = request.get("code");
 		String state = request.get("state");
 		
-		if(code == null || state == null) {
-			log.error("[★★★★★★★★ 간편로그인 처리 오류 ★★★★★★★] code => {}, state => {} ", code , state);
+		if(code == null || "".equals(code) || state == null || "".equals(state)) {
+			log.error("::::: [ Login processing ] 간편로그인 처리 오류 code => {}, state => {}:::::",  code , state);
 			throw new IllegalArgumentException("code 또는 state가 누락되었습니다.");
 		}
 		
+		// 0. 접근 토큰 요청
 		RestTemplate rest = new RestTemplate();
-		String tokenUrl = "https://nid.naver.com/oauth2.0/token" +
-				"?grant_type=authorization_code" +
-				"&client_id=" + NAVER_CLIENT_ID +
+		String tokenUrl = "https://nid.naver.com/oauth2.0/token?grant_type=authorization_code" +
+				"&client_id="     + NAVER_CLIENT_ID +
 				"&client_secret=" + NAVER_CLIENT_SECRET +
-				"&code=" + code +
-				"&state=" + state;
+				"&code="          + code +
+				"&state="         + state;
 		
 		ResponseEntity<Map> tokenResponse = rest.getForEntity(tokenUrl, Map.class);
-		
-		// + response 값 체크 로직 추가 필요
-		
 		Map<String, Object> tokenMap = tokenResponse.getBody();
-		String accessToken = (String) tokenMap.get("access_token");
+
+		// 접근 토큰 요청 결과값 체크
+		if (tokenMap == null || tokenMap.isEmpty()) {
+			log.error("::::: [ Login processing ] 네이버 간편 로그인 토큰 응답 실패 ::::: 요청정보 => {} ",  tokenUrl);
+			throw new IllegalStateException("네이버 로그인 토큰 응답이 비어있습니다.");
+		} else if (tokenMap.containsKey("error")) {
+			log.error("::::: [ Login processing ] 네이버 간편 로그인 토큰 발급 실패 ::::: 요청정보 => {} ",  tokenUrl);
+			log.error("::::: [ Login processing ] 네이버 간편 로그인 토큰 발급 실패 ::::: error 코드 => {}, error msg => {}", String.valueOf(tokenMap.get("error")) , String.valueOf(tokenMap.get("error_description")));
+			throw new IllegalStateException("네이버 로그인 토큰 발급 실패했습니다.");
+		}
+		
+		String accessToken  = (String) tokenMap.get("access_token");
 		String refreshToken = (String) tokenMap.get("refresh_token");
-		long expiresInSec = Long.parseLong(String.valueOf(tokenMap.get("expires_in")));
+		if(accessToken == null || accessToken.trim().isEmpty()) {
+			log.error("::::: [ Login processing ] 네이버 간편 로그인 접근 토큰 오류 ::::: accessToken => {} ",  accessToken);
+			throw new IllegalStateException("네이버 로그인 접근 토큰이 비어있습니다.");
+		} else if(refreshToken == null || refreshToken.trim().isEmpty()) {
+			log.error("::::: [ Login processing ] 네이버 간편 로그인 리프레쉬 토큰 오류 ::::: refreshToken => {} ",  refreshToken);
+			throw new IllegalStateException("네이버 로그인 리프레쉬 토큰이 비어있습니다.");
+		}
+		long expiresInSec   = Long.parseLong(String.valueOf(tokenMap.get("expires_in")));
 		
 		// 1. 사용자 정보 요청
 		HttpHeaders headers = new HttpHeaders();
@@ -109,15 +124,27 @@ public class OAuthServiceImpl implements OAuthService {
 		ResponseEntity<Map> response = rest.exchange(
 				"https://openapi.naver.com/v1/nid/me", HttpMethod.GET, entity, Map.class
 		);
-		
+		// 2. 사용자 정보 요청 결과값 체크
 		Map<String, Object> body = (Map<String, Object>) response.getBody();
-		Map<String, Object> naverUserInfo = (Map<String, Object>) body.get("response");
+		if (body  == null || body .isEmpty()) {
+			log.error("::::: [ Login processing ] 네이버 사용자 정보 body null ::::: ");
+			throw new IllegalStateException("네이버 로그인 사용자 정보 응답이 비어있습니다.");
+		} else if(!"00".equals(body.get("resultcode"))) {
+			log.error("::::: [ Login processing ] 네이버 간편 로그인 사용자 정보 응답 실패 ::::: resultcode => {} , message => {}", String.valueOf(body.get("resultcode")), String.valueOf(body.get("message")));
+			throw new IllegalStateException("네이버 로그인 사용자 정보 요청이 실패했습니다.");
+		} 
 		
-		// 간편 로그인 정보 조회 및 추가
+		Map<String, Object> naverUserInfo = (Map<String, Object>) body.get("response");
+		if(naverUserInfo == null || naverUserInfo.isEmpty()) {
+			log.error("::::: [ Login processing ] 네이버 간편 로그인 사용자 response 없음 :::::");
+			throw new IllegalStateException("네이버 사용자 정보가 없습니다.");
+		}
+		
+		// 3. 간편 로그인 정보 조회 및 추가
 		naverUserInfo.put("prov", "naver");
 		UsrInfoDto rgnUserInfo = findUser(naverUserInfo);
 		
-		// 2. 사용자 정보 + 토큰 저장
+		// 4. 사용자 정보 + 토큰 저장
 		OAuthToken savetoken = new OAuthToken();
 
 		// 토큰 정보 저장 (DB)
@@ -128,7 +155,7 @@ public class OAuthServiceImpl implements OAuthService {
 		savetoken.setExpiresAt(System.currentTimeMillis() + expiresInSec * 1000L);
 		saveToken(savetoken);
 		
-		// 2. 세션 저장
+		// 5. 세션 저장
 		session.setAttribute("loginUser", rgnUserInfo);
 		
 		return rgnUserInfo;
@@ -148,7 +175,7 @@ public class OAuthServiceImpl implements OAuthService {
 		String redirectUri = request.get("redirect_uri");
 		
 		if(code == null || redirectUri == null) {
-			log.error("[★★★★★★★★ 간편로그인 처리 오류 ★★★★★★★] code => {}, redirectUri => {} ", code , redirectUri);
+			log.error("::::: [ Login processing ] 간편로그인 처리 오류 code => {}, redirectUri => {}:::::",  code , redirectUri);
 			throw new IllegalArgumentException("code 또는 redirectUri 정보가 누락되었습니다.");
 		}
 		

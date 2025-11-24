@@ -22,5 +22,7 @@ public interface OAuthTokenDAO {
 	
 	// 토큰 체크시 유저의 토큰 조회
 	OAuthToken findTokenByProviderUserId(String provider, String userId);
+	
+	int deleteToken(OAuthToken token);
 
 }

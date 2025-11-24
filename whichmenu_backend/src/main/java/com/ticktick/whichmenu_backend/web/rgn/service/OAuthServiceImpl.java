@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -19,15 +20,18 @@ import com.ticktick.whichmenu_backend.web.rgn.dao.dto.UsrInfoDto;
 
 import jakarta.servlet.http.HttpSession;
 
-@Service
+@Service("oAuthServiceImpl")
 public class OAuthServiceImpl implements OAuthService {
 	
 	private static final Logger log = LoggerFactory.getLogger(OAuthServiceImpl.class);
 	
 	private OAuthTokenDAO oAuthTokenDAO;
 	
-	public OAuthServiceImpl(OAuthTokenDAO oAuthTokenDAO) {
+	private RestTemplate restTemplate;
+	
+	public OAuthServiceImpl(OAuthTokenDAO oAuthTokenDAO, RestTemplate restTemplate) {
 		this.oAuthTokenDAO = oAuthTokenDAO;
+		this.restTemplate  = restTemplate;
 	}
 	
 	@Value("${naver.client.id}")
@@ -85,14 +89,13 @@ public class OAuthServiceImpl implements OAuthService {
 		}
 		
 		// 0. 접근 토큰 요청
-		RestTemplate rest = new RestTemplate();
 		String tokenUrl = "https://nid.naver.com/oauth2.0/token?grant_type=authorization_code" +
-				"&client_id="     + NAVER_CLIENT_ID +
-				"&client_secret=" + NAVER_CLIENT_SECRET +
-				"&code="          + code +
-				"&state="         + state;
+				"&client_id="		+ NAVER_CLIENT_ID +
+				"&client_secret="	+ NAVER_CLIENT_SECRET +
+				"&code="			+ code +
+				"&state="			+ state;
 		
-		ResponseEntity<Map> tokenResponse = rest.getForEntity(tokenUrl, Map.class);
+		ResponseEntity<Map> tokenResponse = restTemplate.getForEntity(tokenUrl, Map.class);
 		Map<String, Object> tokenMap = tokenResponse.getBody();
 
 		// 접근 토큰 요청 결과값 체크
@@ -121,7 +124,7 @@ public class OAuthServiceImpl implements OAuthService {
 		headers.add("Authorization", "Bearer " + accessToken);
 		HttpEntity<?> entity = new HttpEntity<>(headers);
 		
-		ResponseEntity<Map> response = rest.exchange(
+		ResponseEntity<Map> response = restTemplate.exchange(
 				"https://openapi.naver.com/v1/nid/me", HttpMethod.GET, entity, Map.class
 		);
 		// 2. 사용자 정보 요청 결과값 체크
@@ -179,14 +182,13 @@ public class OAuthServiceImpl implements OAuthService {
 			throw new IllegalArgumentException("code 또는 redirectUri 정보가 누락되었습니다.");
 		}
 		
-		RestTemplate rest = new RestTemplate();
 		String tokenUrl = "https://kauth.kakao.com/oauth/token" +
 				"?grant_type=authorization_code" +
 				"&client_id=" + KAKAO_CLIENT_ID  +
 				"&redirect_uri=" + redirectUri +
 				"&code=" + code;
 		
-		ResponseEntity<Map> tokenResponse = rest.postForEntity(tokenUrl, null, Map.class);
+		ResponseEntity<Map> tokenResponse = restTemplate.postForEntity(tokenUrl, null, Map.class);
 		// + response 값 체크 로직 추가 필요
 		
 		Map<String, Object> tokenMap = tokenResponse.getBody();
@@ -199,7 +201,7 @@ public class OAuthServiceImpl implements OAuthService {
 		headers.add("Authorization", "Bearer " + accessToken);
 		HttpEntity<?> entity = new HttpEntity<>(headers);
 		
-		ResponseEntity<Map> response = rest.exchange(
+		ResponseEntity<Map> response = restTemplate.exchange(
 				"https://kapi.kakao.com/v2/user/me", HttpMethod.GET, entity, Map.class
 		);
 		
@@ -269,12 +271,24 @@ public class OAuthServiceImpl implements OAuthService {
 		Map<String, Object> returnMap = new HashMap<String, Object>();
 		
 		// 1. 사용자 아이디로 토큰 조회
+		String provider = String.valueOf(session.getAttribute("provider"));
+		String userId   = String.valueOf(session.getAttribute("userSn"));
+		
+		OAuthToken tokenInfo = oAuthTokenDAO.findTokenByProviderUserId(provider, userId);
 		
 		// 2. 토큰 삭제 처리
+		if(tokenInfo != null) {
+			oAuthTokenDAO.deleteToken(tokenInfo);
+		} else {
+			log.warn("::::: [ Logout processing ] DB에 토큰 정보 없음, 이미 삭제된 상태일 수 있음 ::::: tokenInfo => {}", tokenInfo);
+		}
 		
-		// 3. 세션에 저장된 로그인 정보 삭제
+		// 3. 세션에 초기화
+		session.invalidate(); 
 		
-		// 로그아웃 처리 결과 리턴
+		// 4. 로그아웃 처리 결과 리턴
+		returnMap.put("status" , "success");
+		returnMap.put("message", "로그아웃 처리 완료");
 		
 		return returnMap;
 		

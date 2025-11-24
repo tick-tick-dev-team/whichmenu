@@ -36,13 +36,15 @@ public class OAuthTokenInterceptor implements HandlerInterceptor {
 	@Value("${kakao.client.id}")
 	private String kakaoClientId;
 	
-	@Autowired
 	private final OAuthTokenDAO tokenDAO;
+	
+	private final RestTemplate restTemplate;
 	
 	// 1시간 체크(ms)
 	private static final long CHECK_INTERVAL = 60 * 60 * 1000L;
 	
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws IOException {
 		
 		HttpSession session = request.getSession(false);
@@ -93,7 +95,6 @@ public class OAuthTokenInterceptor implements HandlerInterceptor {
 			// access_token 만료 시 refresh_token으로 갱신
 			if (now > token.getExpiresAt()) {
 				
-				RestTemplate restTemplate = new RestTemplate();
 				if ("naver".equalsIgnoreCase(provider)) {
 					String url = "https://nid.naver.com/oauth2.0/token"
 							+ "?grant_type=refresh_token"
@@ -101,7 +102,8 @@ public class OAuthTokenInterceptor implements HandlerInterceptor {
 							+ "&client_secret=" + naverClientSecret
 							+ "&refresh_token=" + token.getRefreshToken();
 					
-					Map res = restTemplate.getForObject(url, Map.class);
+					
+					Map<String, Object> res = restTemplate.getForObject(url, Map.class);
 					token.setAccessToken((String) res.get("access_token"));
 					token.setExpiresAt(System.currentTimeMillis() + 3600 * 1000L);
 					token.setUpdatedAt(Instant.now());
@@ -113,7 +115,7 @@ public class OAuthTokenInterceptor implements HandlerInterceptor {
 							+ "&client_id=" + kakaoClientId
 							+ "&refresh_token=" + token.getRefreshToken();
 					
-					Map res = restTemplate.postForObject(url, null, Map.class);
+					Map<String, Object> res = restTemplate.postForObject(url, null, Map.class);
 					token.setAccessToken((String) res.get("access_token"));
 					token.setExpiresAt(System.currentTimeMillis() + 3600 * 1000L);
 					token.setUpdatedAt(Instant.now());

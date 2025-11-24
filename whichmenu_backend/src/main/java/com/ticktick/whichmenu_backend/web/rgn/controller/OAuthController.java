@@ -24,7 +24,7 @@ public class OAuthController {
 	
 	private static final Logger log = LoggerFactory.getLogger(OAuthController.class);
 
-	public OAuthController(@Qualifier("restInfoServiceImpl") OAuthService oAuthService) {
+	public OAuthController(@Qualifier("oAuthServiceImpl") OAuthService oAuthService) {
 		this.oAuthService = oAuthService;
 	}
 	

@@ -5,6 +5,11 @@ import com.ticktick.whichmenu_backend.web.rgn.dao.dto.UsrInfoDto;
 
 import jakarta.servlet.http.HttpSession;
 
+/**
+ * 토큰 Service
+ * 
+ * */
+
 public interface OAuthService {
 	
 	// 로그인 사용자정보 조회

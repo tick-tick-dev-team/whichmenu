@@ -91,4 +91,10 @@
         )
     </insert>
     
+    <!-- 토큰 삭제 -->
+    <delete  id="deleteToken" parameterType="com.ticktick.whichmenu_backend.web.rgn.dao.dto.OAuthToken">
+        DELETE FROM OAUTH_TOKENS
+         WHERE ID = #{id}
+    </delete>
+    
 </mapper>

@@ -271,10 +271,8 @@ public class OAuthServiceImpl implements OAuthService {
 		Map<String, Object> returnMap = new HashMap<String, Object>();
 		
 		// 1. 사용자 아이디로 토큰 조회
-		String provider = String.valueOf(session.getAttribute("provider"));
-		String userId   = String.valueOf(session.getAttribute("userSn"));
-		
-		OAuthToken tokenInfo = oAuthTokenDAO.findTokenByProviderUserId(provider, userId);
+		UsrInfoDto sessionUsrInfo = (UsrInfoDto) session.getAttribute("loginUser");
+		OAuthToken tokenInfo = oAuthTokenDAO.findTokenByProviderUserId(sessionUsrInfo.getProv(), sessionUsrInfo.getUsrSn());
 		
 		// 2. 토큰 삭제 처리
 		if(tokenInfo != null) {
@@ -283,8 +281,8 @@ public class OAuthServiceImpl implements OAuthService {
 			log.warn("::::: [ Logout processing ] DB에 토큰 정보 없음, 이미 삭제된 상태일 수 있음 ::::: tokenInfo => {}", tokenInfo);
 		}
 		
-		// 3. 세션에 초기화
-		session.invalidate(); 
+		// 3. 세션 로그인 유저 정보 삭제
+		session.removeAttribute("loginUser");
 		
 		// 4. 로그아웃 처리 결과 리턴
 		returnMap.put("status" , "success");

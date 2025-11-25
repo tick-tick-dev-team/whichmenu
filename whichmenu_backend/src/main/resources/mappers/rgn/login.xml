@@ -3,7 +3,7 @@
 <mapper namespace="com.ticktick.whichmenu_backend.web.rgn.dao.OAuthTokenDAO">
   
     <!-- OAUTH 토큰 조회 -->
-    <select id="findTokenByProviderUserId" parameterType="string" resultType="com.ticktick.whichmenu_backend.web.rgn.dao.dto.OAuthToken">
+    <select id="findTokenByProviderUserId" parameterType="com.ticktick.whichmenu_backend.web.rgn.dao.dto.UsrInfoDto" resultType="com.ticktick.whichmenu_backend.web.rgn.dao.dto.OAuthToken">
         SELECT 
                ID
              , PROVIDER
@@ -16,8 +16,10 @@
              , CREATED_AT
              , UPDATED_AT
           FROM OAUTH_TOKENS
-         WHERE PROVIDER = #{provider}
-           AND USER_ID  = #{providerUserId}
+         WHERE PROVIDER          = #{prov}
+           AND PROVIDER_USER_ID  = #{usrSn}
+      ORDER BY UPDATED_AT DESC
+         LIMIT 1
     </select>
   
     <!-- OAUTH 토큰 업데이트 -->

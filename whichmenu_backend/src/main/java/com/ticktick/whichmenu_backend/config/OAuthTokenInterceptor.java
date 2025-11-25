@@ -72,7 +72,7 @@ public class OAuthTokenInterceptor implements HandlerInterceptor {
 			return false;
 		}
 		
-		OAuthToken token = tokenDAO.findTokenByProviderUserId(provider, userId);
+		OAuthToken token = tokenDAO.findTokenByProviderUserId(loginUser);
 		if (token == null || "".equals(token)) {
 			log.info("::::: [OAuthTokenInterceptor] 사용자 토큰 정보가 올바르지 않습니다. token => {} :::::", token);
 			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -90,7 +90,7 @@ public class OAuthTokenInterceptor implements HandlerInterceptor {
 		long lastCheckMillis = token.getUpdatedAt().toEpochMilli();
 		
 		// 마지막 체크 1시간 이후만 갱신 로직 실행
-		if (now - lastCheckMillis >= CHECK_INTERVAL) {
+		if (now > token.getExpiresAt() || now - lastCheckMillis >= CHECK_INTERVAL) {
 			
 			// access_token 만료 시 refresh_token으로 갱신
 			if (now > token.getExpiresAt()) {

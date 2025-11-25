@@ -272,7 +272,7 @@ public class OAuthServiceImpl implements OAuthService {
 		
 		// 1. 사용자 아이디로 토큰 조회
 		UsrInfoDto sessionUsrInfo = (UsrInfoDto) session.getAttribute("loginUser");
-		OAuthToken tokenInfo = oAuthTokenDAO.findTokenByProviderUserId(sessionUsrInfo.getProv(), sessionUsrInfo.getUsrSn());
+		OAuthToken tokenInfo = oAuthTokenDAO.findTokenByProviderUserId(sessionUsrInfo);
 		
 		// 2. 토큰 삭제 처리
 		if(tokenInfo != null) {

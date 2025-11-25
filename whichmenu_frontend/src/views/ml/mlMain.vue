@@ -1,11 +1,13 @@
 <script setup>
 import { ref, watch, onMounted } from 'vue';
 import { useDisplay } from 'vuetify';
+import { useUserStore } from '@/stores/userStore';
 import axios from 'axios';
 import NavMenu from '@/components/NavMenu.vue';
 import MenuForm from '@/components/MenuForm.vue';
 
 const { smAndDown } = useDisplay();
+const userStore = useUserStore();
 
 const selectedCenter = ref('');
 const srchDt = ref(new Date().toISOString().slice(0, 10));
@@ -155,6 +157,7 @@ const goNext = async () => {
 
 onMounted(async () => {
   await fetchCenterList();
+  console.log(userStore.user);
 });
 
 // 식당 변경 시 메뉴 재조회
@@ -203,8 +206,6 @@ const onDeleteClick = async () => {
   }
 
   if (!confirm("정말 삭제하시겠습니까?")) return;
-
-  alert(id);
 
   // try {
   //   await axios.delete(`/api/mlmenu/${editingMenuId.value}`);
@@ -271,8 +272,8 @@ const onDeleteClick = async () => {
         </v-container>
 
         <v-btn class="my-1 func-btns" color="black" dark :density="smAndDown ? 'compact' : 'default'" @click="onNewUploadClick">업로드 하기</v-btn>
-        <v-btn class="my-1 func-btns" color="black" dark :density="smAndDown ? 'compact' : 'default'" :to="{ path: '/rest/restInfo', query: { keyword: centerList.find(c => c.restId === selectedCenter)?.restNm || '' } }">식당정보 조회</v-btn>
-        <v-btn class="my-1 func-btns" color="black" dark :density="smAndDown ? 'compact' : 'default'" v-if="isMenuAvailable" @click="onDeleteClick">삭제(관리자)</v-btn>
+        <v-btn class="my-1 func-btns" color="black" dark :density="smAndDown ? 'compact' : 'default'" :to="{ path: '/rest/restInfo', query: { keyword: centerList.find(c => c.restId === selectedCenter && c.useYn === 'Y')?.restNm || '' } }">식당정보 조회</v-btn>
+        <v-btn class="my-1 func-btns" color="black" dark :density="smAndDown ? 'compact' : 'default'" v-if="userStore.isLoggedIn && userStore.user?.usrRole === 'A'" @click="onDeleteClick">삭제(관리자)</v-btn>
       </div>
     </div>
   </v-main>

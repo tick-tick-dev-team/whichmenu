@@ -5,8 +5,10 @@ import RestForm from '@/components/RestForm.vue';
 import axios from 'axios';
 import { useRoute } from 'vue-router'
 import { onMounted, ref, watch } from 'vue';
+import { useUserStore } from '@/stores/userStore';
 
 const route = useRoute();
+const userStore = useUserStore();
 // 리스트
 const searchKeyword = ref(route.query.keyword || '');
 const restInfo = ref([
@@ -153,8 +155,8 @@ watch(searchKeyword, () => {
 
 
                       <div class="post-actions">
-                          <v-btn size="x-small" variant="text" @click="editRest(rest.restId)">수정</v-btn>
-                          <v-btn size="x-small" variant="text" color="error" @click="deleteRest(rest)">삭제</v-btn>
+                          <v-btn v-if="userStore.isLoggedIn && userStore.user?.usrRole === 'A'" size="x-small" variant="text" @click="editRest(rest.restId)">수정</v-btn>
+                          <v-btn v-if="userStore.isLoggedIn && userStore.user?.usrRole === 'A'" size="x-small" variant="text" color="error" @click="deleteRest(rest)">삭제</v-btn>
                       </div>
                   </v-card-text>
               </v-card>

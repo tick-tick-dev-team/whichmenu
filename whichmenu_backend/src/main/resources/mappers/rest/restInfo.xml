@@ -20,9 +20,10 @@
             AND USE_YN         = #{useYn}
         </if>
         <if test="srchKwrd != null and srchKwrd != ''">
-            AND REST_NM   LIKE CONCAT('%', #{srchKwrd},'%')
-             OR REST_DTL  LIKE CONCAT('%', #{srchKwrd},'%')
-             OR REST_ADDR LIKE CONCAT('%', #{srchKwrd},'%')
+            AND ( REST_NM   LIKE CONCAT('%', #{srchKwrd},'%')
+             OR   REST_DTL  LIKE CONCAT('%', #{srchKwrd},'%')
+             OR   REST_ADDR LIKE CONCAT('%', #{srchKwrd},'%')
+                )
         </if>
     </sql>
     

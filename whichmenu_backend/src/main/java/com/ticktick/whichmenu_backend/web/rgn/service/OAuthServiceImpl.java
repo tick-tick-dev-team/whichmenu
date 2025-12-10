@@ -151,11 +151,11 @@ public class OAuthServiceImpl implements OAuthService {
 		OAuthToken savetoken = new OAuthToken();
 
 		// 토큰 정보 저장 (DB)
-		savetoken.setProvider("naver");
-		savetoken.setProviderUserId(rgnUserInfo.getUsrSn());
-		savetoken.setAccessToken(accessToken);
-		savetoken.setRefreshToken(refreshToken);
-		savetoken.setExpiresAt(System.currentTimeMillis() + expiresInSec * 1000L);
+		savetoken.setProv("naver");
+		savetoken.setProvUsrSn(rgnUserInfo.getUsrSn());
+		savetoken.setAccTkn(accessToken);
+		savetoken.setRefTkn(refreshToken);
+		savetoken.setExpAt(System.currentTimeMillis() + expiresInSec * 1000L);
 		saveToken(savetoken);
 		
 		// 5. 세션 저장
@@ -221,11 +221,11 @@ public class OAuthServiceImpl implements OAuthService {
 		OAuthToken savetoken = new OAuthToken();
 
 		// 토큰 정보 저장 (DB)
-		savetoken.setProvider("kakao");
-		savetoken.setProviderUserId(rgnUserInfo.getUsrSn());
-		savetoken.setAccessToken(accessToken);
-		savetoken.setRefreshToken(refreshToken);
-		savetoken.setExpiresAt(System.currentTimeMillis() + expiresInSec * 1000L);
+		savetoken.setProv("kakao");
+		savetoken.setProvUsrSn(rgnUserInfo.getUsrSn());
+		savetoken.setAccTkn(accessToken);
+		savetoken.setRefTkn(refreshToken);
+		savetoken.setExpAt(System.currentTimeMillis() + expiresInSec * 1000L);
 		saveToken(savetoken);
 		
 		// 2. 세션 저장

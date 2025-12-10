@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/userStore';
 import { useDisplay } from 'vuetify';
+import '@mdi/font/css/materialdesignicons.css';
 
 const { smAndDown } = useDisplay();
 const isOpen = ref(false);
@@ -48,13 +49,27 @@ class="px-4"
 </div>
 <v-spacer />
 
-  <!-- 오른쪽: 로그인 메시지 -->
-  <span 
-    class="text-h6 text-white mr-4"
-    v-if="userStore.isLoggedIn && !smAndDown"
+<!-- 오른쪽: 로그인/로그아웃 아이콘 -->
+<div>
+  <!-- 로그인 상태 -->
+  <v-btn
+    v-if="userStore.isLoggedIn"
+    icon
+    @click="logout"
   >
-    {{ userStore.user?.nickNm }}님 환영합니다 👋
-  </span>
+    <v-icon color="white">mdi-logout</v-icon>
+  </v-btn>
+
+  <!-- 비로그인 상태 -->
+  <v-btn
+  v-else
+  variant="text"
+  class="text-white font-weight-bold"
+  @click="navigate('/login')"
+  >
+    LOGIN
+  </v-btn>
+</div>
 
   <!-- 오른쪽: 햄버거 메뉴 -->
   <v-menu

@@ -87,38 +87,38 @@ public class OAuthTokenInterceptor implements HandlerInterceptor {
 
 		// 만료 여부 체크
 		long now = System.currentTimeMillis();
-		long lastCheckMillis = token.getUpdatedAt().toEpochMilli();
+		long lastCheckMillis = token.getMdfcnDt().toEpochMilli();
 		
 		// 마지막 체크 1시간 이후만 갱신 로직 실행
-		if (now > token.getExpiresAt() || now - lastCheckMillis >= CHECK_INTERVAL) {
+		if (now > token.getExpAt() || now - lastCheckMillis >= CHECK_INTERVAL) {
 			
 			// access_token 만료 시 refresh_token으로 갱신
-			if (now > token.getExpiresAt()) {
+			if (now > token.getExpAt()) {
 				
 				if ("naver".equalsIgnoreCase(provider)) {
 					String url = "https://nid.naver.com/oauth2.0/token"
 							+ "?grant_type=refresh_token"
 							+ "&client_id=" + naverClientId
 							+ "&client_secret=" + naverClientSecret
-							+ "&refresh_token=" + token.getRefreshToken();
+							+ "&refresh_token=" + token.getRefTkn();
 					
 					
 					Map<String, Object> res = restTemplate.getForObject(url, Map.class);
-					token.setAccessToken((String) res.get("access_token"));
-					token.setExpiresAt(System.currentTimeMillis() + 3600 * 1000L);
-					token.setUpdatedAt(Instant.now());
+					token.setAccTkn((String) res.get("access_token"));
+					token.setExpAt(System.currentTimeMillis() + 3600 * 1000L);
+					token.setMdfcnDt(Instant.now());;
 					tokenDAO.updateAccessToken(token);
 					
 				} else if ("kakao".equalsIgnoreCase(provider)) {
 					String url = "https://kauth.kakao.com/oauth/token"
 							+ "?grant_type=refresh_token"
 							+ "&client_id=" + kakaoClientId
-							+ "&refresh_token=" + token.getRefreshToken();
+							+ "&refresh_token=" + token.getRefTkn();
 					
 					Map<String, Object> res = restTemplate.postForObject(url, null, Map.class);
-					token.setAccessToken((String) res.get("access_token"));
-					token.setExpiresAt(System.currentTimeMillis() + 3600 * 1000L);
-					token.setUpdatedAt(Instant.now());
+					token.setAccTkn((String) res.get("access_token"));
+					token.setExpAt(System.currentTimeMillis() + 3600 * 1000L);
+					token.setMdfcnDt(Instant.now());
 					tokenDAO.updateAccessToken(token);
 				}
 			}

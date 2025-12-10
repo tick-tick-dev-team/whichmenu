@@ -9,22 +9,22 @@ public class OAuthToken {
 	
 	private Long id;
 	
-	private String provider;
+	private String prov;
 	
-	private String providerUserId;
+	private String provUsrSn;
 
-	private String accessToken;
+	private String accTkn;
 	
-	private String refreshToken;
+	private String refTkn;
 	
-	private String tokenType;
+	private String tknType;
 	
 	private String scope;
 	
-	private Long expiresAt;
+	private Long expAt;
 	
-	private Instant createdAt = Instant.now();
+	private Instant regDt = Instant.now();
 	
-	private Instant updatedAt = Instant.now();
+	private Instant mdfcnDt = Instant.now();
 
 }

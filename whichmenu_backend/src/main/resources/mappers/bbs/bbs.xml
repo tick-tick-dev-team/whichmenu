@@ -15,6 +15,7 @@
 	    <result property="bbscttPw" column="BBSCTT_PW" />
 	    <result property="regDt" column="REG_DT" />
 	    <result property="mdfcnDt" column="MDFCN_DT" />
+	    <result property="regUsrSn" column="REG_USR_SN" />
 	
 	    <!-- 첨부파일 리스트 -->
 	    <collection property="fileList" ofType="com.ticktick.whichmenu_backend.web.atch.dao.dto.AtchFileDto">
@@ -65,6 +66,7 @@
              , BBSCTT_PW                                  /* 게시글 비밀번호 */
              , REG_DT                                     /* 등록일 */
              , MDFCN_DT                                   /* 수정일 */
+             , REG_USR_SN								  /* 등록자 번호 */
           FROM BBS
          WHERE 1=1
            AND USE_YN = 'Y'
@@ -84,6 +86,7 @@
              , A.BBSCTT_PW                                   /* 게시글 비밀번호 */
              , A.REG_DT                                      /* 등록일 */
              , A.MDFCN_DT                                    /* 수정일 */
+             , A.REG_USR_SN								     /* 등록자 번호 */
              
              , B.ATCH_FILE_ID                                /* 첨부파일 ID */
 			 , B.ATCH_REFER_ID                               /* 참조 ID (게시글 ID와 매핑됨) */
@@ -122,6 +125,7 @@
              , BBSCTT_PW                                   /* 게시글 비밀번호 */
              , REG_DT                                      /* 등록일 */
              , MDFCN_DT                                    /* 수정일 */
+             , REG_USR_SN								   /* 등록자 번호 */
           FROM BBS
          WHERE 1=1
            AND USE_YN = 'Y'
@@ -141,6 +145,7 @@
              , A.BBSCTT_PW                                   /* 게시글 비밀번호 */
              , A.REG_DT                                      /* 등록일 */
              , A.MDFCN_DT                                    /* 수정일 */
+             , A.REG_USR_SN								     /* 등록자 번호 */
              
              , B.ATCH_FILE_ID                                /* 첨부파일 ID */
 			 , B.ATCH_REFER_ID                               /* 참조 ID (게시글 ID와 매핑됨) */
@@ -179,6 +184,7 @@
               , BBSCTT_PW                                   /* 게시글 비밀번호 */
               , REG_DT                                      /* 등록일 */
               , MDFCN_DT                                    /* 수정일 */
+              , REG_USR_SN									/* 등록자 번호 */
         ) 
         VALUES (
                 #{bbsType}                                  /* 게시글 유형 */
@@ -191,6 +197,7 @@
               , #{bbscttPw}                                 /* 게시글 비밀번호 */
               , CURRENT_TIMESTAMP()                         /* 등록일 */
               , CURRENT_TIMESTAMP()                         /* 수정일 */
+              , #{regUsrSn}									/* 등록자 번호 */
         )
     </insert>
     

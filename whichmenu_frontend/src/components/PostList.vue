@@ -1,4 +1,10 @@
 <script setup>
+import { useUserStore } from '@/stores/userStore';
+import { storeToRefs } from 'pinia'
+
+const userStore = useUserStore();
+const { user } = storeToRefs(userStore); // 아래에서는 user.value.~ 로 꺼내 쓸 수 있음
+
 const { post } = defineProps({
   post: Object,
 });
@@ -66,7 +72,7 @@ function editPost(bbsId, status) {
             <span>{{ post.regNm }} - {{ post.regDt }}</span>
         </div>
 
-        <div class="post-actions">
+        <div class="post-actions" v-if="user && (String(post.regUsrSn) === String(user.id) || user.usrRole === 'A')">
             <v-btn size="x-small" variant="text" @click="editPost(post.bbsId, 'editPost')">수정</v-btn>
             <v-btn size="x-small" variant="text" color="error" @click="editPost(post.bbsId, 'deletePost')">삭제</v-btn>
         </div>

@@ -7,7 +7,7 @@ import { useUserStore } from '@/stores/userStore';
 import { storeToRefs } from 'pinia'
 
 const userStore = useUserStore();
-const { user } = storeToRefs(userStore);
+const { user } = storeToRefs(userStore); // 아래에서는 user.value.~ 로 꺼내 쓸 수 있음
 
 const props = defineProps({
     modelValue: Boolean, // postList
@@ -17,12 +17,16 @@ const props = defineProps({
 });
 const emit = defineEmits(['update:modelValue', 'submitPost']);
 
-// 공지 게시판으로 들어와서 관리자일 경우
+
 onMounted(() => {
-  if (props.bbsType == 'N' && props.mode == 'create') {
+  if (props.bbsType == 'N' && props.mode == 'create') { // 공지 게시판으로 들어와서 관리자일 경우
     regNm.value = '관리자';
+  } else if(user.value?.nickNm && props.mode == 'create'){ // 로그인 했을경우 create
+    regNm.value = user.value.nickNm;
+    regUsrSn.value = user.value.id;
   }
 });
+
 
 // 닫기 버튼 클릭 시
 const closeDialog = () => {
@@ -38,6 +42,7 @@ const closeDialog = () => {
 const bbsTtl = ref('');
 const bbsCn = ref('');
 const regNm = ref('');
+const regUsrSn = ref('')
 const isAnonymous = ref(false); // 체크 상태로 익명 처리
 const files = shallowRef([]); // 반응성 보장 // 부모 쪽에서 파일을 여러 개 받을 수 있도록 배열로
 
@@ -50,7 +55,14 @@ watch(isAnonymous, (val) => {
     if (val) {
         regNm.value = '익명';
     } else {
-        regNm.value = ''; // 다시 입력받게 초기화
+        if(user.value.nickNm){ // 로그인 했을경우
+            regNm.value = user.value.nickNm;
+            regUsrSn.value = user.value.id;
+
+        } else {
+            regNm.value = ''; // 다시 입력받게 초기화
+            regUsrSn.value = '';
+        }
     }
 });
 
@@ -79,6 +91,7 @@ const submitPost = async () => {
     formData.append('bbsCn', bbsCn.value);               // 게시글 내용
     formData.append('bbsType', props.bbsType);                 // 게시판 유형 (예: 'R')
     formData.append('regNm', regNm.value);                     // 등록자
+    formData.append('regUsrSn', regUsrSn.value);                     // 등록자SN
     formData.append('rlsYn', 'Y');         // 공개 여부
     formData.append('useYn', 'Y');
 
@@ -143,6 +156,9 @@ watch(() => props.target, (newTarget) => {
     // create일 경우 값 초기화
     bbsTtl.value = '';
     bbsCn.value = '';
+    files.value = [];
+    existingFiles.value = []; 
+    deletedFileIds.value = [];
     regNm.value = props.bbsType === 'N' ? '관리자' : (user.value?.nickNm || '');
     isAnonymous.value = false;
   }
@@ -176,11 +192,15 @@ watch(() => props.target, (newTarget) => {
                     color="primary"
                     class="mb-3"
                 ></v-checkbox>
+                <!-- 익명일 경우 경고 -->
+                <small v-if="props.bbsType != 'N' && isAnonymous">
+                   ※ 익명이나 로그인 하지 않은 경우 게시글 수정 삭제 불가능
+                </small>
 
                 <!-- 익명이 아닐 경우에만 입력창 보이기 -->
                 <v-text-field
                     v-if="!isAnonymous"
-                    :disabled="props.bbsType === 'N'"
+                    :disabled="props.bbsType === 'N' || regUsrSn.value != '' || regNm != '익명'"
                     v-model="regNm"
                     label="별명"
                     placeholder="별명을 입력해주세요"

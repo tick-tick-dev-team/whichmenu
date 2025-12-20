@@ -38,6 +38,8 @@ public class BbsDto {
 	
 	private Integer atchReferId;
 	
+	private String regUsrSn;
+	
 	/* 첨부파일을 위한 변수*/
 	private List<AtchFileDto> fileList;
 	

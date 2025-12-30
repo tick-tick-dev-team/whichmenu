@@ -184,7 +184,9 @@
               , BBSCTT_PW                                   /* 게시글 비밀번호 */
               , REG_DT                                      /* 등록일 */
               , MDFCN_DT                                    /* 수정일 */
+              <if test="regUsrSn != null and regUsrSn != ''">
               , REG_USR_SN									/* 등록자 번호 */
+              </if>
         ) 
         VALUES (
                 #{bbsType}                                  /* 게시글 유형 */
@@ -197,7 +199,9 @@
               , #{bbscttPw}                                 /* 게시글 비밀번호 */
               , CURRENT_TIMESTAMP()                         /* 등록일 */
               , CURRENT_TIMESTAMP()                         /* 수정일 */
+              <if test="regUsrSn != null and regUsrSn != ''">
               , #{regUsrSn}									/* 등록자 번호 */
+              </if>
         )
     </insert>
     

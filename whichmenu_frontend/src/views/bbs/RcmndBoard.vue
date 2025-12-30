@@ -31,7 +31,6 @@ async function bbsList() {
   })
   .then(response => {
     posts.value = response.data;  // 응답 데이터를 posts 할당
-    console.log(posts.value);
   })
   .catch(error => {
     console.error('추천 게시글 목록 가져오기 실패:', error);

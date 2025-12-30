@@ -9,6 +9,18 @@ import { storeToRefs } from 'pinia'
 const userStore = useUserStore();
 const { user } = storeToRefs(userStore); // 아래에서는 user.value.~ 로 꺼내 쓸 수 있음
 
+// 게시글 등록에 쓸 변수
+const bbsTtl = ref('');
+const bbsCn = ref('');
+const regNm = ref('');
+const regUsrSn = ref('')
+const isAnonymous = ref(false); // 체크 상태로 익명 처리
+const files = shallowRef([]); // 반응성 보장 // 부모 쪽에서 파일을 여러 개 받을 수 있도록 배열로
+
+// 게시글 수정에 필요한 변수
+const existingFiles = ref([]); // 기존 첨부파일
+const deletedFileIds = ref([]); // 삭제된 파일 배열
+
 const props = defineProps({
     modelValue: Boolean, // postList
     bbsType: String,
@@ -24,6 +36,8 @@ onMounted(() => {
   } else if(user.value?.nickNm && props.mode == 'create'){ // 로그인 했을경우 create
     regNm.value = user.value.nickNm;
     regUsrSn.value = user.value.id;
+  } else { // 로그인 하지 않았을 경우
+    isAnonymous.value = true
   }
 });
 
@@ -38,24 +52,14 @@ const closeDialog = () => {
     emit('update:modelValue', false);
 };
 
-// 게시글 등록에 쓸 변수
-const bbsTtl = ref('');
-const bbsCn = ref('');
-const regNm = ref('');
-const regUsrSn = ref('')
-const isAnonymous = ref(false); // 체크 상태로 익명 처리
-const files = shallowRef([]); // 반응성 보장 // 부모 쪽에서 파일을 여러 개 받을 수 있도록 배열로
-
-// 게시글 수정에 필요한 변수
-const existingFiles = ref([]); // 기존 첨부파일
-const deletedFileIds = ref([]); // 삭제된 파일 배열
 
 // 체크 상태가 바뀔 때 익명 처리
 watch(isAnonymous, (val) => {
     if (val) {
         regNm.value = '익명';
     } else {
-        if(user.value.nickNm){ // 로그인 했을경우
+        if(regUsrSn.value != '' && regUsrSn.value != null){ // 로그인 했을경우
+
             regNm.value = user.value.nickNm;
             regUsrSn.value = user.value.id;
 

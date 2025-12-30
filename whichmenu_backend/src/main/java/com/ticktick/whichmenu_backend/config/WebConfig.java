@@ -23,6 +23,6 @@ public class WebConfig implements WebMvcConfigurer{
 	public void addInterceptors(InterceptorRegistry registry) {
 		InterceptorRegistration reg = registry.addInterceptor(oAuthTokenInterceptor);
 		reg.addPathPatterns("/api/**"); 
-		reg.excludePathPatterns(new String[]{"/", "/ml/mlMain", "/public/**", "/login", "/api/oauth/login", "/api/mlmenu/rest", "/api/rest/list", "/atch/**" });	// 로그인 정보 없이도 접근 가능 URL
+		reg.excludePathPatterns(new String[]{"/", "/ml/mlMain", "/public/**", "/login", "/api/oauth/login", "/api/mlmenu/rest", "/api/rest/list", "/atch/**", "/api/bbs/list", "/api/bbs/insert", "/api/bbs/detail" });	// 로그인 정보 없이도 접근 가능 URL
 	}
 }

@@ -6,52 +6,52 @@
     <select id="findTokenByProviderUserId" parameterType="com.ticktick.whichmenu_backend.web.rgn.dao.dto.UsrInfoDto" resultType="com.ticktick.whichmenu_backend.web.rgn.dao.dto.OAuthToken">
         SELECT 
                ID
-             , PROVIDER
-             , PROVIDER_USER_ID
-             , ACCESS_TOKEN
-             , REFRESH_TOKEN
+             , PROV
+             , PROV_USR_SN
+             , ACC_TKN
+             , REF_TKN
              , SCOPE
-             , TOKEN_TYPE
-             , EXPIRES_AT
-             , CREATED_AT
-             , UPDATED_AT
-          FROM OAUTH_TOKENS
-         WHERE PROVIDER          = #{prov}
-           AND PROVIDER_USER_ID  = #{usrSn}
-      ORDER BY UPDATED_AT DESC
+             , TKN_TYPE
+             , EXP_AT
+             , REG_DT
+             , MDFCN_DT
+          FROM OAUTH_TKN
+         WHERE PROV          = #{prov}
+           AND PROV_USR_SN   = #{usrSn}
+      ORDER BY MDFCN_DT DESC
          LIMIT 1
     </select>
   
     <!-- OAUTH 토큰 업데이트 -->
     <update id="updateAccessToken" parameterType="com.ticktick.whichmenu_backend.web.rgn.dao.dto.OAuthToken">
-        UPDATE OAUTH_TOKENS
+        UPDATE OAUTH_TKN
            SET 
-               ACCESS_TOKEN     = #{accessToken}
-             , REFRESH_TOKEN    = #{refreshToken}
-             , EXPIRES_AT       = #{expiresAt}
-             , UPDATED_AT       = NOW()
-         WHERE ID               = #{id}
+               ACC_TKN     = #{accTkn}
+             , REF_TKN     = #{refTkn}
+             , EXP_AT      = #{expAt}
+             , MDFCN_DT    = NOW()
+         WHERE ID          = #{id}
     </update>
     
     <!-- OAUTH 토큰 삽입 -->
     <insert id="insertOauthToken" parameterType="com.ticktick.whichmenu_backend.web.rgn.dao.dto.OAuthToken">
         INSERT 
-               INTO OAUTH_TOKENS 
+               INTO OAUTH_TKN 
         (
-               PROVIDER
-             , PROVIDER_USER_ID
-             , ACCESS_TOKEN
-             , REFRESH_TOKEN
-             , EXPIRES_AT
-             , CREATED_AT
-             , UPDATED_AT
+               PROV
+             , PROV_USR_SN
+             , ACC_TKN
+             , REF_TKN
+             , EXP_AT
+             , REG_DT
+             , MDFCN_DT
         ) 
         VALUES (
-               #{provider}
-             , #{providerUserId}
-             , #{accessToken}
-             , #{refreshToken}
-             , #{expiresAt}
+               #{prov}
+             , #{provUsrSn}
+             , #{accTkn}
+             , #{refTkn}
+             , #{expAt}
              , NOW()
              , NOW()
         )
@@ -95,7 +95,7 @@
     
     <!-- 토큰 삭제 -->
     <delete  id="deleteToken" parameterType="com.ticktick.whichmenu_backend.web.rgn.dao.dto.OAuthToken">
-        DELETE FROM OAUTH_TOKENS
+        DELETE FROM OAUTH_TKN
          WHERE ID = #{id}
     </delete>
     

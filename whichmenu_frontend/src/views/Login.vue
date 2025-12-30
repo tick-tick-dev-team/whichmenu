@@ -33,19 +33,17 @@ function loginWithKakao() {
     <div class="login-card">
       <h2 class="login-title">간편 로그인</h2>
 
-      <!-- <button class="login-btn naver-btn" @click="loginWithNaver">
-        <img src="/img/naver_icon.png" alt="Naver" />
-        네이버로 로그인
-      </button> -->
        <button class="login-btn naver-btn" @click="goNaverLogin">
         <img src="/img/naver_icon.png" alt="Naver" />
         네이버로 로그인
       </button>
 
+      <!-- 비즈니스 인증 이슈로 제거
       <button class="login-btn kakao-btn" @click="loginWithKakao">
         <img src="https://developers.kakao.com/tool/resource/static/img/button/login/full/ko/kakao_login_small.png" alt="Kakao" />
         카카오로 로그인
       </button>
+      -->
     </div>
   </div>
     <div v-if="userProfile">
